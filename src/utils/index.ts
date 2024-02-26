@@ -1,6 +1,6 @@
-const crypto = require('crypto');
+import crypto from 'crypto';
 
-function generateRandomCode(length) {
+function generateRandomCode(length: number): string {
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   const randomBytes = crypto.randomBytes(length);
   let randomCode = '';
@@ -13,4 +13,4 @@ function generateRandomCode(length) {
   return randomCode;
 }
 
-module.exports = generateRandomCode;
+export default generateRandomCode;

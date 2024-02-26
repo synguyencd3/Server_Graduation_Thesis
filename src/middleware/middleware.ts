@@ -1,12 +1,13 @@
-const jwt = require("jsonwebtoken");
+import { Request, Response, NextFunction } from 'express';
+import jwt from 'jsonwebtoken';
 
 const middlewareController = {
   // verify token
-  verifyToken: (req, res, next) => {
+  verifyToken: (req: Request, res: Response, next: NextFunction) => {
     const token = req.headers.authorization;
     if (token) {
       const accessToken = token.split(" ")[1];
-      jwt.verify(accessToken, process.env.JWT_ACCESS_KEY, (err, user) => {
+      jwt.verify(accessToken, process.env.JWT_ACCESS_KEY as string, (err: any, user: any) => {
         if (err) {
           return res.status(403).json("Token isn't valid!");
         }
@@ -17,7 +18,6 @@ const middlewareController = {
       return res.status(401).json("You're not authenticated!");
     }
   },
-
 };
 
-module.exports = middlewareController;
+export default middlewareController;
