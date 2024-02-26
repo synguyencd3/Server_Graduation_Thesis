@@ -1,4 +1,3 @@
-const userM = require('./user.m')
 const db = require("../../config/connect_db");
 const bcrypt = require('bcrypt')
 const passport = require('passport')

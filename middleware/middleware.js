@@ -1,6 +1,4 @@
 const jwt = require("jsonwebtoken");
-const classModel = require("../app/models/class.m")
-const userModel = require("../app/models/user.m")
 
 const middlewareController = {
   // verify token

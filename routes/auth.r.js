@@ -3,8 +3,6 @@ const passport = require('passport');
 const middlewareController = require("../middleware/middleware.js");
 require('dotenv').config();
 
-
-
 const router = require("express").Router();
 
 /**
