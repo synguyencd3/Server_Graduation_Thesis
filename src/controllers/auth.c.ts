@@ -1,9 +1,12 @@
 import bcrypt from "bcrypt";
 // import nodemailer from "nodemailer";
 import jwt from "jsonwebtoken";
-import passport from "passport";
+import passport, { use } from "passport";
 import { Request, Response } from "express";
-import userModel from "../models/user.m.js"; // Assuming this is the module where userModel is defined
+import { getRepository } from "typeorm";
+
+import { User } from "../entities/User";
+const { v4: uuidv4 } = require("uuid");
 
 const URLClient = process.env.URL_CLIENT;
 
@@ -35,56 +38,66 @@ const authController: any = {
   },
 
   // [POST] /register
-  // registerUser: async (req: Request, res: Response) => {
-  //   if (
-  //     req.body.email === undefined ||
-  //     req.body.password === undefined ||
-  //     req.body.fullName === undefined
-  //   ) {
-  //     return res.status(400).json({
-  //       status: "failed",
-  //       error: "Missing required input data",
-  //     });
-  //   }
+  registerUser: async (req: Request, res: Response) => {
+    let user = new User();
+    user.username = req.body.username;
+    user.password = req.body.password;
+    user.fullname = req.body.fullname;
+    if (
+      user.username === undefined ||
+      user.password === undefined
+    ) {
+      
+      return res.json({
+        status: "failed",
+        error: "Missing required input data",
+      });
+    }
 
-  //   if (
-  //     typeof req.body.email !== "string" ||
-  //     typeof req.body.password !== "string" ||
-  //     typeof req.body.fullName !== "string"
-  //   ) {
-  //     return res.status(400).json({
-  //       status: "failed",
-  //       error:
-  //         "Invalid data types for input (email should be string, password should be string, fullName should be string)",
-  //     });
-  //   }
+    try {
+      const userRepository = getRepository(User);
+      const userDb = await userRepository.findOne({
+        select: ["user_id"],
+        where: { username: user.username },
+      })
 
-  //   try {
-  //     // check if email exists
-  //     const checkEmail = await userModel.getUserByEmail(req.body.email);
-  //     if (checkEmail != null) {
-  //       return res.status(404).json("Email already exists!");
-  //     }
+      if (userDb != null) {
+        return res.json({status: "failure", msg: "This username is existed."});
+      }
 
-  //     // hash password
-  //     const salt = await bcrypt.genSalt(11);
-  //     const hashed = await bcrypt.hash(req.body.password, salt);
+    //check length password >= 6 chars
+    if (user.password.length < 6) {
+      return res
+        .json({ status: "failure", msg: "Password length must be at least 6 characters." });
+    }
 
-  //     // create new user
-  //     const user = {
-  //       email: req.body.email,
-  //       password: hashed,
-  //       fullName: req.body.fullName,
-  //     };
+    try {
+      // add new user to db - Account
+      user.user_id = await uuidv4();
+      const salt = await bcrypt.genSalt(11);
+      user.password = await bcrypt.hash(user.password, salt);
+      await userRepository.save(user);
+      
+      return res.json({
+        status: "success",
+        msg: "Register successfully!"
+      })
+      
+    } catch (error) {
+      console.log(error)
+      return res.json({
+        status: "failure",
+        msg: "Register failure."
+      })
+    }
 
-  //     // save user to database
-  //     const { password, ...others } = await userModel.addUser(user);
-
-  //     res.status(200).json(others);
-  //   } catch (error) {
-  //     res.status(500).json(error);
-  //   }
-  // },
+    } catch (error) {
+      return res.json({
+        status: "failure",
+        msg: "Server error, please try later."
+      })
+    }
+  },
 
   // googleAuth: async (req: Request, res: Response) => {
   //   if (req.user) {

@@ -7,7 +7,6 @@ import session from 'express-session';
 import { createConnection } from "typeorm";
 // import authenticate from './models/auth.m';
 import dotenv from "dotenv";
-import { Account } from "./entities/Account";
 import { User } from "./entities/User";
 
 dotenv.config();
@@ -20,7 +19,7 @@ createConnection({
   username: process.env.DB_USERNAME,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
-  entities: [User, Account],
+  entities: [User],
   synchronize: true,
 })
   .then(async (connection) => {
