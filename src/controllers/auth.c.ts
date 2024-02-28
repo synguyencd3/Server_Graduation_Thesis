@@ -1,5 +1,5 @@
 import bcrypt from "bcrypt";
-// import nodemailer from "nodemailer";
+import nodemailer from "nodemailer";
 import jwt from "jsonwebtoken";
 import passport, { use } from "passport";
 import { Request, Response } from "express";
@@ -10,7 +10,7 @@ const { v4: uuidv4 } = require("uuid");
 
 const URLClient = process.env.URL_CLIENT;
 
-require("dotenv").config();
+require("dotenv").config({ path: "./server/.env" });
 
 let refreshTokens: string[] = [];
 
@@ -151,7 +151,7 @@ const authController: any = {
 
   // [POST] /login
   loginUser: async (req: Request, res: Response) => {
-    const  username = req.body.username;
+    const username = req.body.username;
     const passwordInput = req.body.password;
     if (username === undefined || passwordInput === undefined) {
       return res.json({
@@ -214,11 +214,11 @@ const authController: any = {
     // take refresh token from user
     const refreshToken = req.cookies.refreshToken;
 
-    if (!refreshToken) return res.json({status: "failed", msg: "401 Unauthorized!"});
+    if (!refreshToken) return res.json({ status: "failed", msg: "401 Unauthorized!" });
 
     // check if we have a refresh token but it isn't our refresh token
     if (!refreshTokens.includes(refreshToken)) {
-      return res.json({status: "failed", msg: "403 Forbidden!"});
+      return res.json({ status: "failed", msg: "403 Forbidden!" });
     }
 
     jwt.verify(refreshToken, process.env.JWT_REFRESH_KEY as string, (err: any, user: any) => {
@@ -268,6 +268,72 @@ const authController: any = {
     );
     res.clearCookie("refreshToken");
     res.json("Logged out successfully!");
+  },
+
+  inviteByEmail: async (req: Request, res: Response) => {
+    // check if email exists
+    const { email } = req.body;
+    if (email === undefined) {
+      return res.status(400).json({
+        status: 'failed',
+        error: 'Missing required input data',
+      });
+    }
+
+    if (typeof email !== 'string') {
+      return res.status(400).json({
+        status: 'failed',
+        error: 'Invalid data types for input (email should be string)',
+      });
+    }
+
+    try {
+      const token = jwt.sign(
+        { email, group: "" },
+        process.env.JWT_SECRETKEY_MAIL || "jwt_key_mail",
+        {
+          expiresIn: "10m",
+        }
+      );
+
+      const mailConfigurations = {
+        from: process.env.EMAIL_ADDRESS || "webnangcao.final@gmail.com",
+        to: email,
+        subject: "Email Verification - Cars Salon App",
+        text: `Hi! There, you have recently visited 
+  our website and entered your email.
+  Please follow the given link to join in group:
+  ${URLClient}/auth/verify-token-email/invitation/${token}
+  Thanks`,
+      };
+
+      const transporter = nodemailer.createTransport({
+        service: process.env.EMAIL_SERVICE,
+        auth: {
+          user: process.env.EMAIL_ADDRESS,
+          pass: process.env.EMAIL_PASSWORD,
+        },
+      });
+
+      transporter.sendMail(mailConfigurations, function (error) {
+        if (error) {
+          return res.json({
+            status: "failed",
+            message: "Server is error now",
+          });
+        } else {
+          return res.json({
+            status: "success",
+            message: "Sent mail successfully!",
+          });
+        }
+      });
+    } catch (error) {
+      return res.json({
+        status: "failed",
+        message: "Error invite, please check information again.",
+      });
+    }
   },
 };
 
