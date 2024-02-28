@@ -47,7 +47,7 @@ const authController: any = {
       user.username === undefined ||
       user.password === undefined
     ) {
-      
+
       return res.json({
         status: "failed",
         error: "Missing required input data",
@@ -62,38 +62,38 @@ const authController: any = {
       })
 
       if (userDb != null) {
-        return res.json({status: "failure", msg: "This username is existed."});
+        return res.json({ status: "failed", msg: "This username is existed." });
       }
 
-    //check length password >= 6 chars
-    if (user.password.length < 6) {
-      return res
-        .json({ status: "failure", msg: "Password length must be at least 6 characters." });
-    }
+      //check length password >= 6 chars
+      if (user.password.length < 6) {
+        return res
+          .json({ status: "failed", msg: "Password length must be at least 6 characters." });
+      }
 
-    try {
-      // add new user to db - Account
-      user.user_id = await uuidv4();
-      const salt = await bcrypt.genSalt(11);
-      user.password = await bcrypt.hash(user.password, salt);
-      await userRepository.save(user);
-      
-      return res.json({
-        status: "success",
-        msg: "Register successfully!"
-      })
-      
-    } catch (error) {
-      console.log(error)
-      return res.json({
-        status: "failure",
-        msg: "Register failure."
-      })
-    }
+      try {
+        // add new user to db - Account
+        user.user_id = await uuidv4();
+        const salt = await bcrypt.genSalt(11);
+        user.password = await bcrypt.hash(user.password, salt);
+        await userRepository.save(user);
+
+        return res.json({
+          status: "success",
+          msg: "Register successfully!"
+        })
+
+      } catch (error) {
+        console.log(error)
+        return res.json({
+          status: "failed",
+          msg: "Register failure."
+        })
+      }
 
     } catch (error) {
       return res.json({
-        status: "failure",
+        status: "failed",
         msg: "Server error, please try later."
       })
     }
@@ -150,75 +150,75 @@ const authController: any = {
   // },
 
   // [POST] /login
-  // loginUser: async (req: Request, res: Response) => {
-  //   const { email, password } = req.body;
-  //   if (email === undefined || password === undefined) {
-  //     return res.status(400).json({
-  //       status: 'failed',
-  //       error: 'Missing required input data',
-  //     });
-  //   }
-    
-  //   if (typeof email !== 'string' || typeof password !== 'string') {
-  //     return res.status(400).json({
-  //       status: 'failed',
-  //       error: 'Invalid data types for input (email should be string, password should be string)',
-  //     });
-  //   }
+  loginUser: async (req: Request, res: Response) => {
+    const  username = req.body.username;
+    const passwordInput = req.body.password;
+    if (username === undefined || passwordInput === undefined) {
+      return res.json({
+        status: 'failed',
+        error: 'Missing required input data',
+      });
+    }
 
-  //   try {
-  //     // get user from database
-  //     const user = await userModel.getUserByEmail(email);
-  //     if (user == null) {
-  //       return res.json({ status: "failed", message: "Account or password is incorect" });
-  //     }
+    if (typeof username !== 'string' || typeof passwordInput !== 'string') {
+      return res.json({
+        status: 'failed',
+        error: 'Invalid data types for input (username should be string, password should be string)',
+      });
+    }
 
-  //     const validPassword = await bcrypt.compare(password, user.password);
+    try {
+      // get user from database
+      const userRepository = getRepository(User);
+      const userDb = await userRepository.findOne({
+        select: ["user_id", "password", "username", "fullname", "gender", "phone", "email", "address", "avatar", "role"],
+        where: { username: username },
+      });
 
-  //     if (!validPassword) {
-  //       res.json({ status: "failed", message: "Account or password is incorect" });
-  //     } else {
-  //       if (!user.activation) {
-  //         return res.json({ status: "failed", message: "Please check your email to activate your account!" });
-  //       }
-  //       if (user.banned) {
-  //         return res.json({ status: "failed", message: "Your account has been banned" });
-  //       }
-  //       const accessToken = authController.generateAccessToken(user);
-  //       const refreshToken = authController.generateRefreshToken(user);
+      if (userDb == null) {
+        return res.json({ status: "failed", message: "Username or password is incorect." });
+      }
 
-  //       refreshTokens.push(refreshToken);
+      const validPassword = await bcrypt.compare(passwordInput, userDb.password);
 
-  //       res.cookie("refreshToken", refreshToken, {
-  //         httpOnly: true,
-  //         secure: true,
-  //         path: "/",
-  //         sameSite: "none",
-  //       });
+      if (!validPassword) {
+        res.json({ status: "failed", message: "Username or password is incorect." });
+      }
+      const accessToken = authController.generateAccessToken(userDb);
+      const refreshToken = authController.generateRefreshToken(userDb);
 
-  //       const { password, ...others } = user;
-  //       res.json({
-  //         user: others,
-  //         accessToken,
-  //         status: "success",
-  //         message: "login successfully!",
-  //       });
-  //     }
-  //   } catch (error) {
-  //     res.json({ error, status: "failed", message: "login failure." });
-  //   }
-  // },
+      refreshTokens.push(refreshToken);
+
+      res.cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        secure: true,
+        path: "/",
+        sameSite: "none",
+      });
+
+      const { password, ...others } = userDb;
+      res.json({
+        user: others,
+        accessToken,
+        status: "success",
+        message: "login successfully!",
+      });
+    }
+    catch (error) {
+      res.json({ status: "failed", msg: "login failure." });
+    }
+  },
 
   // [POST] /refresh
   requestRefreshToken: async (req: Request, res: Response) => {
     // take refresh token from user
     const refreshToken = req.cookies.refreshToken;
 
-    if (!refreshToken) return res.status(401).json("401 Unauthorized!");
+    if (!refreshToken) return res.json("401 Unauthorized!");
 
     // check if we have a refresh token but it isn't our refresh token
     if (!refreshTokens.includes(refreshToken)) {
-      return res.status(403).json("403 Forbidden!");
+      return res.json("403 Forbidden!");
     }
 
     jwt.verify(refreshToken, process.env.JWT_REFRESH_KEY as string, (err: any, user: any) => {
@@ -241,7 +241,7 @@ const authController: any = {
         sameSite: "none",
       });
 
-      res.status(200).json({ accessToken: newAccessToken });
+      res.json({ accessToken: newAccessToken });
     });
   },
 
@@ -254,7 +254,7 @@ const authController: any = {
         error: 'Missing required input data',
       });
     }
-    
+
     if (typeof id !== 'string') {
       return res.status(400).json({
         status: 'failed',

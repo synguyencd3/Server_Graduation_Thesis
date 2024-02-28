@@ -11,7 +11,7 @@ const router = Router();
 
 router.post("/register", authController.registerUser);
 
-// router.post("/login", authController.loginUser);
+router.post("/login", authController.loginUser);
 
 // Google authentication route
 // router.get('/google', passport.authenticate('google', { scope: ['email', 'profile'] }));
