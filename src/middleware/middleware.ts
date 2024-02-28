@@ -9,13 +9,13 @@ const middlewareController = {
       const accessToken = token.split(" ")[1];
       jwt.verify(accessToken, process.env.JWT_ACCESS_KEY as string, (err: any, user: any) => {
         if (err) {
-          return res.status(403).json("Token isn't valid!");
+          return res.json({status: "failed", msg:"Token isn't valid!"});
         }
         req.user = user;
         next();
       });
     } else {
-      return res.status(401).json("You're not authenticated!");
+      return res.json({status: "failed", msg:"You're not authenticated!"});
     }
   },
 };

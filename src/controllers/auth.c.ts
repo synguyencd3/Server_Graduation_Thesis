@@ -214,11 +214,11 @@ const authController: any = {
     // take refresh token from user
     const refreshToken = req.cookies.refreshToken;
 
-    if (!refreshToken) return res.json("401 Unauthorized!");
+    if (!refreshToken) return res.json({status: "failed", msg: "401 Unauthorized!"});
 
     // check if we have a refresh token but it isn't our refresh token
     if (!refreshTokens.includes(refreshToken)) {
-      return res.json("403 Forbidden!");
+      return res.json({status: "failed", msg: "403 Forbidden!"});
     }
 
     jwt.verify(refreshToken, process.env.JWT_REFRESH_KEY as string, (err: any, user: any) => {
@@ -249,14 +249,14 @@ const authController: any = {
   logoutUser: async (req: Request, res: Response) => {
     const { id } = req.body;
     if (id === undefined) {
-      return res.status(400).json({
+      return res.json({
         status: 'failed',
         error: 'Missing required input data',
       });
     }
 
     if (typeof id !== 'string') {
-      return res.status(400).json({
+      return res.json({
         status: 'failed',
         error: 'Invalid data types for input (id should be string)',
       });
@@ -267,7 +267,7 @@ const authController: any = {
       (token) => token !== req.cookies.refreshToken
     );
     res.clearCookie("refreshToken");
-    res.status(200).json("Logged out successfully!");
+    res.json("Logged out successfully!");
   },
 };
 
