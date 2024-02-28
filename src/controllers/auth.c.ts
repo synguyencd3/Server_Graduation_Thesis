@@ -1,6 +1,6 @@
 import bcrypt from "bcrypt";
 import nodemailer from "nodemailer";
-import jwt from "jsonwebtoken";
+import jwt, { decode } from "jsonwebtoken";
 import passport, { use } from "passport";
 import { Request, Response } from "express";
 import { getRepository } from "typeorm";
@@ -99,55 +99,59 @@ const authController: any = {
     }
   },
 
-  // googleAuth: async (req: Request, res: Response) => {
-  //   if (req.user) {
-  //     const accessToken = authController.generateAccessToken(req.user);
-  //     const refreshToken = authController.generateRefreshToken(req.user);
+  googleAuth: async (req: Request, res: Response) => {
+    let userFe: any = req.user;
 
-  //     refreshTokens.push(refreshToken);
+    if (userFe) {
+      const accessToken = authController.generateAccessToken(req.user);
+      const refreshToken = authController.generateRefreshToken(req.user);
 
-  //     res.cookie("refreshToken", refreshToken, {
-  //       httpOnly: true,
-  //       secure: true,
-  //       path: "/",
-  //       sameSite: "none",
-  //     });
+      refreshTokens.push(refreshToken);
 
-  //     const { password, ...others } = req.user;
+      res.cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        secure: true,
+        path: "/",
+        sameSite: "none",
+      });
 
-  //     res.json({
-  //       user: others,
-  //       accessToken,
-  //       status: "success",
-  //       message: "login successfully!",
-  //     });
-  //   }
-  // },
+      const { password, ...others } = userFe;
 
-  // facebookAuth: async (req: Request, res: Response) => {
-  //   if (req.user) {
-  //     const accessToken = authController.generateAccessToken(req.user);
-  //     const refreshToken = authController.generateRefreshToken(req.user);
+      res.json({
+        user: others,
+        accessToken,
+        status: "success",
+        message: "login successfully!",
+      });
+    }
+  },
 
-  //     refreshTokens.push(refreshToken);
+  facebookAuth: async (req: Request, res: Response) => {
+    let userFe: any = req.user;
 
-  //     res.cookie("refreshToken", refreshToken, {
-  //       httpOnly: true,
-  //       secure: true,
-  //       path: "/",
-  //       sameSite: "none",
-  //     });
+    if (userFe) {
+      const accessToken = authController.generateAccessToken(req.user);
+      const refreshToken = authController.generateRefreshToken(req.user);
 
-  //     const { password, ...others } = req.user;
+      refreshTokens.push(refreshToken);
 
-  //     res.json({
-  //       user: others,
-  //       accessToken,
-  //       status: "success",
-  //       message: "login successfully!",
-  //     });
-  //   }
-  // },
+      res.cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        secure: true,
+        path: "/",
+        sameSite: "none",
+      });
+
+      const { password, ...others } = userFe;
+
+      res.json({
+        user: others,
+        accessToken,
+        status: "success",
+        message: "login successfully!",
+      });
+    }
+  },
 
   // [POST] /login
   loginUser: async (req: Request, res: Response) => {
@@ -303,7 +307,7 @@ const authController: any = {
         text: `Hi! There, you have recently visited 
   our website and entered your email.
   Please follow the given link to join in group:
-  ${URLClient}/auth/verify-token-email/invitation/${token}
+  ${URLClient}/auth/verify-token-email/${token}
   Thanks`,
       };
 
@@ -334,6 +338,98 @@ const authController: any = {
         message: "Error invite, please check information again.",
       });
     }
+  },
+
+  // [GET] /verify-invite/token
+  verifyInviteFromMail: async (req: Request, res: Response) => {
+    const { token } = req.params;
+
+    jwt.verify(token, process.env.JWT_SECRETKEY_MAIL || "jwt_key_mail", async (err, decoded: any) => {
+      if (!err) {
+        const email = decoded.email;
+        const group = decoded.group;
+
+        try {
+          const userRepository = getRepository(User);
+          const userDb: any = await userRepository.findOne({
+            select: ["user_id", "username", "email"],
+            where: { email: email }
+          })
+
+          // the user does not have an account on the system
+          if (!userDb.user_id) {
+            // create new user with username = email
+            let user = new User();
+            const defaultPassword = "123abc@";
+            const salt = await bcrypt.genSalt(11);
+
+            user.user_id = await uuidv4();
+            user.username = email
+            user.password = await bcrypt.hash(defaultPassword, salt);
+            user.fullname = email;
+            user.email = email;
+            await userRepository.save(user);
+
+            const mailConfigurations = {
+              from: process.env.EMAIL_ADDRESS || "webnangcao.final@gmail.com",
+              to: email,
+              subject: "Email password - Cars Salon App",
+              text: "Your password is 123abc@. Please change it, thank you."
+            };
+
+            const transporter = nodemailer.createTransport({
+              service: process.env.EMAIL_SERVICE,
+              auth: {
+                user: process.env.EMAIL_ADDRESS,
+                pass: process.env.EMAIL_PASSWORD,
+              },
+            });
+
+            // send default password to user
+            transporter.sendMail(mailConfigurations, function (error) {
+              if (error) {
+                return res.json({
+                  status: "failed",
+                  message: "Server is error now",
+                });
+              } else {
+                res.json({
+                  status: "success",
+                  message: "The password sent to your mail.",
+                });
+              }
+            });
+            // login for user
+            // const accessToken = authController.generateAccessToken(email);
+            // const refreshToken = authController.generateRefreshToken(email);
+
+            // refreshTokens.push(refreshToken);
+
+            // res.cookie("refreshToken", refreshToken, {
+            //   httpOnly: true,
+            //   secure: true,
+            //   path: "/",
+            //   sameSite: "none",
+            // });
+
+            return res.redirect("http://localhost:5000/");
+          } else {
+            // join group
+            return res.redirect("http://localhost:5000/");
+          }
+        } catch (error) {
+          return res.json({
+            status: "failed",
+            message: "Error join, please try again.",
+          });
+        }
+      }
+      // token is incorrect
+      return res.send({
+        status: "failed",
+        message: "Token is not valid or expired",
+      });
+    });
   },
 };
 
