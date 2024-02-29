@@ -117,13 +117,17 @@ const authController: any = {
 
       const { password, ...others } = userFe;
 
-      res.json({
+      return res.json({
         user: others,
         accessToken,
         status: "success",
         message: "login successfully!",
       });
     }
+    return res.status(401).json({
+      status: "error",
+      message: "Authentication failed",
+    });
   },
 
   facebookAuth: async (req: Request, res: Response) => {

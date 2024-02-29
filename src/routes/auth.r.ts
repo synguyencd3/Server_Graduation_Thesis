@@ -19,6 +19,10 @@ router.get('/google', passport.authenticate('google', { scope: ['email', 'profil
 router.get('/google/callback',
   (req: Request, res: Response, next: NextFunction) => {
     passport.authenticate('google', (err: any, profile: any) => {
+      if(err) {
+        console.error("Error during authentication:", err);
+        return next(err);
+      }
       req.user = profile;
       next();
     })(req, res, next);

@@ -5,7 +5,7 @@ import router from "./routes";
 import cors from "cors";
 import session from 'express-session';
 import { createConnection } from "typeorm";
-// import authenticate from './models/auth.m';
+import passport from "./config/passport";
 import dotenv from "dotenv";
 import { User } from "./entities/User";
 
@@ -32,8 +32,10 @@ createConnection({
     
     app.use(cors());
     
-    // authenticate(app);
-    
+    // config Passport amd middleware
+    app.use(passport.initialize());
+    app.use(passport.session());    
+
     router(app);
     app.listen(port, () => {
       console.log(`Server is running on port ${port}`);
