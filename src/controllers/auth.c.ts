@@ -8,9 +8,9 @@ import { getRepository } from "typeorm";
 import { User } from "../entities/User";
 const { v4: uuidv4 } = require("uuid");
 
-const URLClient = process.env.URL_CLIENT;
-
 require("dotenv").config({ path: "./server/.env" });
+
+const URLClient = process.env.URL_CLIENT;
 
 let refreshTokens: string[] = [];
 
@@ -125,13 +125,15 @@ const authController: any = {
       });
     }
     return res.status(401).json({
-      status: "error",
+      status: "failed",
       message: "Authentication failed",
     });
   },
 
   facebookAuth: async (req: Request, res: Response) => {
     let userFe: any = req.user;
+
+    console.log("USER_FB: ", userFe);
 
     if (userFe) {
       const accessToken = authController.generateAccessToken(req.user);
@@ -155,6 +157,11 @@ const authController: any = {
         message: "login successfully!",
       });
     }
+
+    return res.status(401).json({
+      status: "failed",
+      message: "Authentication failed",
+    });
   },
 
   // [POST] /login
@@ -255,18 +262,18 @@ const authController: any = {
 
   // [POST] /logout
   logoutUser: async (req: Request, res: Response) => {
-    const { id } = req.body;
-    if (id === undefined) {
+    const { user_id } = req.body;
+    if (user_id === undefined) {
       return res.json({
         status: 'failed',
         error: 'Missing required input data',
       });
     }
 
-    if (typeof id !== 'string') {
+    if (typeof user_id !== 'string') {
       return res.json({
         status: 'failed',
-        error: 'Invalid data types for input (id should be string)',
+        error: 'Invalid data types for input (user_id should be string)',
       });
     }
 

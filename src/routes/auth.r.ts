@@ -34,8 +34,15 @@ router.get('/google/callback',
 router.get('/facebook', passport.authenticate('facebook', { scope: ['email', 'public_profile'] }));
 
 router.get('/facebook/callback',
+passport.authenticate('facebook', {
+  failureRedirect: '/login' // if login fail
+}),
   (req: Request, res: Response, next: NextFunction) => {
     passport.authenticate('facebook', (err: any, profile: any) => {
+      if(err) {
+        console.log("ERROR LOGIN FACEBOOK: ", err);
+      }
+      console.log("LOGIN FACEBOOK: ", profile);
       req.user = profile;
       next();
     })(req, res, next);
