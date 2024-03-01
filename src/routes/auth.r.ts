@@ -58,6 +58,4 @@ router.post("/logout", middlewareController.verifyToken, authController.logoutUs
 router.post("/invite", authController.inviteByEmail)
 router.get("/verify-invite/:token", authController.verifyInviteFromMail);
 
-router.get("/", authController.homePage);
-
 export default router;

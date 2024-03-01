@@ -1,9 +1,8 @@
 import { Request, Response } from 'express';
-import { getRepository } from "typeorm";
 
 const apidocController = {
-    homePage: async (req: Request, res: Response) => {
-        res.json("Deploy successfully!");
+    homePage: (req: Request, res: Response) => {
+        res.send("Deploy successfully!");
       }
 };
 
