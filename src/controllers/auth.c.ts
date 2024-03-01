@@ -377,7 +377,7 @@ const authController: any = {
           })
 
           // the user does not have an account on the system
-          if (!userDb.user_id) {
+          if (!userDb) {
             // create new user with username = email
             let user = new User();
             const defaultPassword = "123abc@";
@@ -438,6 +438,7 @@ const authController: any = {
             return res.redirect("http://localhost:5000/");
           }
         } catch (error) {
+          console.log(error)
           return res.json({
             status: "failed",
             message: "Error join, please try again.",
