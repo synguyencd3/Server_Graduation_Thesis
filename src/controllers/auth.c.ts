@@ -10,8 +10,6 @@ const { v4: uuidv4 } = require("uuid");
 
 require("dotenv").config({ path: "./server/.env" });
 
-const URLClient = process.env.URL_CLIENT;
-
 let refreshTokens: string[] = [];
 
 const authController: any = {
@@ -43,15 +41,15 @@ const authController: any = {
     user.username = req.body.username;
     user.password = req.body.password;
     user.fullname = req.body.fullname;
-    user.gender = req.body.gender;
-    user.phone = req.body.phone;
-    user.email = req.body.email;
-    user.address = req.body.address;
-    user.date_of_birth = req.body.date_of_birth;
+    // user.gender = req.body.gender;
+    // user.phone = req.body.phone;
+    // user.email = req.body.email;
+    // user.address = req.body.address;
+    // user.date_of_birth = req.body.date_of_birth;
     user.avatar = "https://cdn.icon-icons.com/icons2/1378/PNG/512/avatardefault_92824.png";
     user.role = "User";
-    user.facebook = "";
-    user.google = ""
+    // user.facebook = "";
+    // user.google = ""
 
     if (
       user.username === undefined ||
@@ -327,7 +325,7 @@ const authController: any = {
         text: `Hi! There, you have recently visited 
   our website and entered your email.
   Please follow the given link to join in group:
-  ${URLClient}/auth/verify-token-email/${token}
+  ${process.env.URL_CLIENT || "URL Client"}/auth/verify-token-email/${token}
   Thanks`,
       };
 
@@ -420,22 +418,29 @@ const authController: any = {
               }
             });
             // login for user
-            // const accessToken = authController.generateAccessToken(email);
-            // const refreshToken = authController.generateRefreshToken(email);
+            const accessToken = authController.generateAccessToken(email);
+            const refreshToken = authController.generateRefreshToken(email);
 
-            // refreshTokens.push(refreshToken);
+            refreshTokens.push(refreshToken);
 
-            // res.cookie("refreshToken", refreshToken, {
-            //   httpOnly: true,
-            //   secure: true,
-            //   path: "/",
-            //   sameSite: "none",
-            // });
+            res.cookie("refreshToken", refreshToken, {
+              httpOnly: true,
+              secure: true,
+              path: "/",
+              sameSite: "none",
+            });
 
-            return res.redirect("http://localhost:5000/");
+            res.cookie("accessToken", accessToken, {
+              httpOnly: true,
+              secure: true,
+              path: "/",
+              sameSite: "none",
+            });
+
+            return res.redirect("https://fe-salon-oto.vercel.app");
           } else {
             // join group
-            return res.redirect("http://localhost:5000/");
+            return res.redirect("https://fe-salon-oto.vercel.app");
           }
         } catch (error) {
           console.log(error)

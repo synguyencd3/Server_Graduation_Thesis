@@ -34,9 +34,9 @@ passport.use(new GoogleStrategy({
             if (!userDb) {
                 // user does not exist yet => add account to user db
                 user.google = profile.emails[0].value;
-                const salt =await bcrypt.genSalt(11);
-                const hashPassword = await bcrypt.hash(process.env.GOOGLE_PASSWORD_RANDOM||'@123abc456ABC@', salt);
-                user.password = hashPassword;
+                // const salt =await bcrypt.genSalt(11);
+                // const hashPassword = await bcrypt.hash(process.env.GOOGLE_PASSWORD_RANDOM||'@123abc456ABC@', salt);
+                // user.password = hashPassword;
                 await userRepository.save(user);
 
                 return done(null, user);
@@ -62,7 +62,7 @@ passport.use(new FacebookStrategy({
     profileFields: ['email', 'photos', 'id', 'displayName']
 },
 async function (accessToken, refreshToken, profile: any, done) {
-    console.log('profile___', profile);
+    // console.log('profile___', profile);
     let user = new User();
     user.user_id = profile.id;
     user.email = profile.emails[0].value;
@@ -80,9 +80,9 @@ async function (accessToken, refreshToken, profile: any, done) {
         if (!userDb) {
             // user does not exist yet => add account to user db
             user.facebook = profile.emails[0].value;
-            const salt =await bcrypt.genSalt(11);
-            const hashPassword = await bcrypt.hash(process.env.GOOGLE_PASSWORD_RANDOM||'@123abc456ABC@', salt);
-            user.password = hashPassword;
+            // const salt =await bcrypt.genSalt(11);
+            // const hashPassword = await bcrypt.hash(process.env.GOOGLE_PASSWORD_RANDOM||'@123abc456ABC@', salt);
+            // user.password = hashPassword;
             await userRepository.save(user);
 
             return done(null, user);
