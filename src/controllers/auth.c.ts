@@ -43,6 +43,16 @@ const authController: any = {
     user.username = req.body.username;
     user.password = req.body.password;
     user.fullname = req.body.fullname;
+    user.gender = req.body.gender;
+    user.phone = req.body.phone;
+    user.email = req.body.email;
+    user.address = req.body.address;
+    user.date_of_birth = req.body.date_of_birth;
+    user.avatar = "https://cdn.icon-icons.com/icons2/1378/PNG/512/avatardefault_92824.png";
+    user.role = "User";
+    user.facebook = "";
+    user.google = ""
+
     if (
       user.username === undefined ||
       user.password === undefined
@@ -80,7 +90,7 @@ const authController: any = {
 
         return res.json({
           status: "success",
-          msg: "Register successfully!"
+          msg: "Register successfully!",
         })
 
       } catch (error) {
@@ -101,7 +111,6 @@ const authController: any = {
 
   googleAuth: async (req: Request, res: Response) => {
     let userFe: any = req.user;
-
     if (userFe) {
       const accessToken = authController.generateAccessToken(req.user);
       const refreshToken = authController.generateRefreshToken(req.user);
