@@ -2,10 +2,13 @@
   "name": "server",
   "version": "1.0.0",
   "description": "`./npm install`",
+  "homepage": "https://caoqui.github.io/Server_Graduation_Thesis/",
   "main": "index.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "ts-node src/index.ts"
+    "start": "ts-node src/index.ts",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build"
   },
   "repository": {
     "type": "git",
@@ -17,7 +20,6 @@
   "bugs": {
     "url": "https://github.com/caoqui/Server_Graduation_Thesis/issues"
   },
-  "homepage": "https://github.com/caoqui/Server_Graduation_Thesis#readme",
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
     "@types/bcryptjs": "^2.4.6",
