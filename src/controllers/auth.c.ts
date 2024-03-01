@@ -452,9 +452,6 @@ const authController: any = {
     });
   },
 
-  homePage: async (req: Request, res: Response) => {
-    res.json("Deploy successfully!");
-  }
 };
 
 export default authController;
