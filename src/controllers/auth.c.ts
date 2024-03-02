@@ -137,6 +137,39 @@ const authController: any = {
     });
   },
 
+  // facebookAuth: async (req: Request, res: Response) => {
+  //   let userFe: any = req.user;
+
+  //   console.log("USER_FB: ", userFe);
+
+  //   if (userFe) {
+  //     const accessToken = authController.generateAccessToken(req.user);
+  //     const refreshToken = authController.generateRefreshToken(req.user);
+
+  //     refreshTokens.push(refreshToken);
+
+  //     res.cookie("refreshToken", refreshToken, {
+  //       httpOnly: true,
+  //       secure: true,
+  //       path: "/",
+  //       sameSite: "none",
+  //     });
+
+  //     const { password, ...others } = userFe;
+
+  //     res.json({
+  //       user: others,
+  //       accessToken,
+  //       status: "success",
+  //       message: "login successfully!",
+  //     });
+  //   }
+
+  //   return res.status(401).json({
+  //     status: "failed",
+  //     message: "Authentication failed",
+  //   });
+  // },
   facebookAuth: async (req: Request, res: Response) => {
     let userFe: any = req.user;
 
@@ -157,19 +190,20 @@ const authController: any = {
 
       const { password, ...others } = userFe;
 
-      res.json({
+      return res.json({
         user: others,
         accessToken,
         status: "success",
         message: "login successfully!",
       });
+    } else {
+      return res.status(401).json({
+        status: "failed",
+        message: "Authentication failed",
+      });
     }
-
-    return res.status(401).json({
-      status: "failed",
-      message: "Authentication failed",
-    });
   },
+
 
   // [POST] /login
   loginUser: async (req: Request, res: Response) => {

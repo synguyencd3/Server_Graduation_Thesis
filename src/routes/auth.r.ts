@@ -33,16 +33,29 @@ router.get('/google/callback',
 // Facebook authentication route
 router.get('/facebook', passport.authenticate('facebook', { scope: ['email', 'public_profile'] }));
 
+// router.get('/facebook/callback',
+// passport.authenticate('facebook', {
+//   failureRedirect: '/login' // if login fail
+// }),
+//   (req: Request, res: Response, next: NextFunction) => {
+//     passport.authenticate('facebook', (err: any, profile: any) => {
+//       if(err) {
+//         console.log("ERROR LOGIN FACEBOOK: ", err);
+//       }
+//       console.log("LOGIN FACEBOOK: ", profile);
+//       req.user = profile;
+//       next();
+//     })(req, res, next);
+//   },
+//   authController.facebookAuth
+// );
 router.get('/facebook/callback',
-passport.authenticate('facebook', {
-  failureRedirect: '/login' // if login fail
-}),
   (req: Request, res: Response, next: NextFunction) => {
     passport.authenticate('facebook', (err: any, profile: any) => {
       if(err) {
-        console.log("ERROR LOGIN FACEBOOK: ", err);
+        console.error("Error during authentication:", err);
+        return next(err);
       }
-      console.log("LOGIN FACEBOOK: ", profile);
       req.user = profile;
       next();
     })(req, res, next);
@@ -57,5 +70,4 @@ router.post("/logout", middlewareController.verifyToken, authController.logoutUs
 // router.post("/invite", middlewareController.verifyToken, authController.inviteByEmail)
 router.post("/invite", authController.inviteByEmail)
 router.get("/verify-invite/:token", authController.verifyInviteFromMail);
-
 export default router;
