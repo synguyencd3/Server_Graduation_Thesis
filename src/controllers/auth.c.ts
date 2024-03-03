@@ -238,7 +238,7 @@ const authController: any = {
       const validPassword = await bcrypt.compare(passwordInput, userDb.password);
 
       if (!validPassword) {
-        res.json({ status: "failed", message: "Username or password is incorect." });
+        return res.json({ status: "failed", message: "Username or password is incorect." });
       }
       const accessToken = authController.generateAccessToken(userDb);
       const refreshToken = authController.generateRefreshToken(userDb);
