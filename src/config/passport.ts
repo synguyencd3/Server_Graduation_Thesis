@@ -11,10 +11,11 @@ passport.serializeUser(function (user, done) {
     done(null, user);
 });
 
-passport.deserializeUser(async function (user, done) {
+passport.deserializeUser(async function (user: any, done) {
   const userRepository = getRepository(User);
   const infoUser = await userRepository.findOne({
     select: ["user_id", "password", "username", "fullname", "gender", "phone", "email", "address", "avatar", "role"],
+    where: {email: user.email}
   });
   if (infoUser) { 
     const {password, ...infoUserWithoutPassword} = infoUser;
