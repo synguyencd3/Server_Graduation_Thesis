@@ -30,12 +30,18 @@ createConnection({
     app.use(express.json());
     app.use(session({ secret: process.env.SESSION_SECRET_KEY as string, resave: true, saveUninitialized: true }));
     
-    app.use(cors());
-    
+ 
     // config Passport amd middleware
     app.use(passport.initialize());
     app.use(passport.session());    
 
+    const corsOptions ={
+      origin:'http://localhost:3000', 
+      credentials:true,            //access-control-allow-credentials:true
+      optionSuccessStatus:200
+  }
+  app.use(cors(corsOptions));
+    
     router(app);
     app.listen(port, () => {
       console.log(`Server is running on port ${port}`);
