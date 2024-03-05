@@ -132,7 +132,6 @@ const authController: any = {
         msg: "login successfully!",
       };
       
-      
       return res.redirect(`${process.env.URL_CLIENT}/login-social?access_token=${accessToken}&user_id=${others.user_id}`);
     }
     return res.status(401).json({
@@ -177,7 +176,7 @@ const authController: any = {
   facebookAuth: async (req: Request, res: Response) => {
     let userFe: any = req.user;
 
-    console.log("USER_FB: ", userFe);
+    // console.log("USER_FB: ", userFe);
 
     if (userFe) {
       const accessToken = authController.generateAccessToken(req.user);
