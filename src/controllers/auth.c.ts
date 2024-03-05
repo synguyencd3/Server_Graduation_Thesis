@@ -58,7 +58,7 @@ const authController: any = {
 
       return res.json({
         status: "failed",
-        error: "Missing required input data",
+        msg: "Missing required input data",
       });
     }
 
@@ -128,12 +128,12 @@ const authController: any = {
         user: others,
         accessToken,
         status: "success",
-        message: "login successfully!",
+        msg: "login successfully!",
       });
     }
     return res.status(401).json({
       status: "failed",
-      message: "Authentication failed",
+      msg: "Authentication failed",
     });
   },
 
@@ -161,19 +161,19 @@ const authController: any = {
   //       user: others,
   //       accessToken,
   //       status: "success",
-  //       message: "login successfully!",
+  //       msg: "login successfully!",
   //     });
   //   }
 
   //   return res.status(401).json({
   //     status: "failed",
-  //     message: "Authentication failed",
+  //     msg: "Authentication failed",
   //   });
   // },
   facebookAuth: async (req: Request, res: Response) => {
     let userFe: any = req.user;
 
-    console.log("USER_FB: ", userFe);
+    // console.log("USER_FB: ", userFe);
 
     if (userFe) {
       const accessToken = authController.generateAccessToken(req.user);
@@ -194,12 +194,12 @@ const authController: any = {
         user: others,
         accessToken,
         status: "success",
-        message: "login successfully!",
+        msg: "login successfully!",
       });
     } else {
       return res.status(401).json({
         status: "failed",
-        message: "Authentication failed",
+        msg: "Authentication failed",
       });
     }
   },
@@ -212,14 +212,14 @@ const authController: any = {
     if (username === undefined || passwordInput === undefined) {
       return res.json({
         status: 'failed',
-        error: 'Missing required input data',
+        msg: 'Missing required input data',
       });
     }
 
     if (typeof username !== 'string' || typeof passwordInput !== 'string') {
       return res.json({
         status: 'failed',
-        error: 'Invalid data types for input (username should be string, password should be string)',
+        msg: 'Invalid data types for input (username should be string, password should be string)',
       });
     }
 
@@ -232,13 +232,13 @@ const authController: any = {
       });
 
       if (userDb == null) {
-        return res.json({ status: "failed", message: "Username or password is incorect." });
+        return res.json({ status: "failed", msg: "Username or password is incorect." });
       }
 
       const validPassword = await bcrypt.compare(passwordInput, userDb.password);
 
       if (!validPassword) {
-        return res.json({ status: "failed", message: "Username or password is incorect." });
+        return res.json({ status: "failed", msg: "Username or password is incorect." });
       }
       const accessToken = authController.generateAccessToken(userDb);
       const refreshToken = authController.generateRefreshToken(userDb);
@@ -257,7 +257,7 @@ const authController: any = {
         user: others,
         accessToken,
         status: "success",
-        message: "login successfully!",
+        msg: "login successfully!",
       });
     }
     catch (error) {
@@ -307,14 +307,14 @@ const authController: any = {
     if (user_id === undefined) {
       return res.json({
         status: 'failed',
-        error: 'Missing required input data',
+        msg: 'Missing required input data',
       });
     }
 
     if (typeof user_id !== 'string') {
       return res.json({
         status: 'failed',
-        error: 'Invalid data types for input (user_id should be string)',
+        msg: 'Invalid data types for input (user_id should be string)',
       });
     }
 
@@ -332,14 +332,14 @@ const authController: any = {
     if (email === undefined) {
       return res.status(400).json({
         status: 'failed',
-        error: 'Missing required input data',
+        msg: 'Missing required input data',
       });
     }
 
     if (typeof email !== 'string') {
       return res.status(400).json({
         status: 'failed',
-        error: 'Invalid data types for input (email should be string)',
+        msg: 'Invalid data types for input (email should be string)',
       });
     }
 
@@ -375,19 +375,19 @@ const authController: any = {
         if (error) {
           return res.json({
             status: "failed",
-            message: "Server is error now",
+            msg: "Server is error now",
           });
         } else {
           return res.json({
             status: "success",
-            message: "Sent mail successfully!",
+            msg: "Sent mail successfully!",
           });
         }
       });
     } catch (error) {
       return res.json({
         status: "failed",
-        message: "Error invite, please check information again.",
+        msg: "Error invite, please check information again.",
       });
     }
   },
@@ -442,12 +442,12 @@ const authController: any = {
               if (error) {
                 return res.json({
                   status: "failed",
-                  message: "Server is error now",
+                  msg: "Server is error now",
                 });
               } else {
                 res.json({
                   status: "success",
-                  message: "The password sent to your mail.",
+                  msg: "The password sent to your mail.",
                 });
               }
             });
@@ -480,14 +480,14 @@ const authController: any = {
           console.log(error)
           return res.json({
             status: "failed",
-            message: "Error join, please try again.",
+            msg: "Error join, please try again.",
           });
         }
       }
       // token is incorrect
       return res.send({
         status: "failed",
-        message: "Token is not valid or expired",
+        msg: "Token is not valid or expired",
       });
     });
   },
