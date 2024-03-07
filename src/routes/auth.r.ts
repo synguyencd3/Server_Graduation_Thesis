@@ -27,42 +27,42 @@ router.get('/google/callback',
       next();
     })(req, res, next);
   },
-  authController.googleAuth2
+  authController.googleAuth
 );
 
-router.get('/google-mobile', passport.authenticate('google', { scope: ['email', 'profile'] }));
+// router.get('/google-mobile', passport.authenticate('google', { scope: ['email', 'profile'] }));
 
-router.get('/google-mobile/callback',
-  (req: Request, res: Response, next: NextFunction) => {
-    passport.authenticate('google', (err: any, profile: any) => {
-      if(err) {
-        console.error("Error during authentication:", err);
-        return next(err);
-      }
-      req.user = profile;
-      next();
-    })(req, res, next);
-  },
-  authController.googleAuth2
-);
+// router.get('/google-mobile/callback',
+//   (req: Request, res: Response, next: NextFunction) => {
+//     passport.authenticate('google', (err: any, profile: any) => {
+//       if(err) {
+//         console.error("Error during authentication:", err);
+//         return next(err);
+//       }
+//       req.user = profile;
+//       next();
+//     })(req, res, next);
+//   },
+//   authController.googleAuth2
+// );
 
 // Facebook authentication route
-router.get('/facebook-mobile', passport.authenticate('facebook', { scope: ['email', 'public_profile'] }));
+// router.get('/facebook-mobile', passport.authenticate('facebook', { scope: ['email', 'public_profile'] }));
 
-router.get('/facebook-mobile/callback',
-  (req: Request, res: Response, next: NextFunction) => {
-    passport.authenticate('facebook', (err: any, profile: any) => {
-      if(err) {
-        console.error("Error during authentication:", err);
-        return next(err);
-      }
-      console.log(profile)
-      req.user = profile;
-      next();
-    })(req, res, next);
-  },
-  authController.facebookAuth2
-);
+// router.get('/facebook-mobile/callback',
+//   (req: Request, res: Response, next: NextFunction) => {
+//     passport.authenticate('facebook', (err: any, profile: any) => {
+//       if(err) {
+//         console.error("Error during authentication:", err);
+//         return next(err);
+//       }
+//       console.log(profile)
+//       req.user = profile;
+//       next();
+//     })(req, res, next);
+//   },
+//   authController.facebookAuth2
+// );
 
 // Facebook authentication route
 router.get('/facebook', passport.authenticate('facebook', { scope: ['email', 'public_profile'] }));
@@ -78,22 +78,22 @@ router.get('/facebook/callback',
       next();
     })(req, res, next);
   },
-  authController.facebookAuth2
+  authController.facebookAuth
 );
 
-router.get('/facebook-mobile/callback',
-  (req: Request, res: Response, next: NextFunction) => {
-    passport.authenticate('facebook', (err: any, profile: any) => {
-      if(err) {
-        console.error("Error during authentication:", err);
-        return next(err);
-      }
-      req.user = profile;
-      next();
-    })(req, res, next);
-  },
-  authController.facebookAuth2
-);
+// router.get('/facebook-mobile/callback',
+//   (req: Request, res: Response, next: NextFunction) => {
+//     passport.authenticate('facebook', (err: any, profile: any) => {
+//       if(err) {
+//         console.error("Error during authentication:", err);
+//         return next(err);
+//       }
+//       req.user = profile;
+//       next();
+//     })(req, res, next);
+//   },
+//   authController.facebookAuth2
+// );
 
 // router.post("/refresh", authController.requestRefreshToken);
 router.post("/refresh",middlewareController.verifyRefreshToken, authController.requestRefreshToken);

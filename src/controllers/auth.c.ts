@@ -104,7 +104,7 @@ const authController: any = {
     }
   },
 
-  googleAuth: async (req: Request, res: Response) => {
+  googleAuth2: async (req: Request, res: Response) => {
     let userFe: any = req.user;
     if (userFe) {
       const accessToken = authController.generateAccessToken(req.user);
@@ -136,7 +136,7 @@ const authController: any = {
       msg: "Authentication failed",
     });
   },
-  googleAuth2: async (req: Request, res: Response) => {
+  googleAuth: async (req: Request, res: Response) => {
     let userFe: any = req.user;
 
     console.log("USER_FB: ", userFe);
@@ -170,7 +170,7 @@ const authController: any = {
     });
   },
 
-  facebookAuth2: async (req: Request, res: Response) => {
+  facebookAuth: async (req: Request, res: Response) => {
     let userFe: any = req.user;
 
     console.log("USER_FB: ", userFe);
@@ -204,7 +204,7 @@ const authController: any = {
       msg: "Authentication failed",
     });
   },
-  facebookAuth: async (req: Request, res: Response) => {
+  facebookAuth2: async (req: Request, res: Response) => {
     let userFe: any = req.user;
 
     // console.log("USER_FB: ", userFe);

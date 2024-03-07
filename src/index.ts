@@ -7,7 +7,7 @@ import session from "express-session";
 import { createConnection } from "typeorm";
 import passport from "./config/passport";
 import dotenv from "dotenv";
-import { User } from "./entities/User";
+import {connectionString} from "./config/connect_db"
 
 dotenv.config();
 const app = express();
@@ -24,17 +24,10 @@ app.use(
   })
 );
 
+
+
 const port: number = parseInt(process.env.PORT as string, 10) || 5000;
-createConnection({
-  type: "postgres",
-  host: process.env.DB_HOST,
-  port: Number(process.env.DB_PORT),
-  username: process.env.DB_USERNAME,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
-  entities: [User],
-  synchronize: true,
-})
+createConnection(connectionString)
   .then(async (connection) => {
     const app = express();
     const corsOptions = {

@@ -61,8 +61,11 @@ export class User {
     @Length(0, 200)
     google!: string;
 
+    @Column()
+    aso!: number;
+
     init(user_id: string, username: string, password: string, fullname: string, gender: string, phone: string, email: string, address: string, 
-        date_of_birth: Date, avatar: string, role: string, facebook: string, google: string) {
+        date_of_birth: Date, avatar: string, role: string, facebook: string, google: string, aso: number) {
         this.user_id = user_id;
         this.username = username;
         this.password = password;
@@ -76,5 +79,6 @@ export class User {
         this.role = role;
         this.facebook = facebook;
         this.google = google;
+        this.aso = aso;
     }
 }
