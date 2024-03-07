@@ -67,7 +67,7 @@ router.post("/refresh", authController.requestRefreshToken);
 
 router.post("/logout", middlewareController.verifyToken, authController.logoutUser);
 
-// router.post("/invite", middlewareController.verifyToken, authController.inviteByEmail)
-router.post("/invite", authController.inviteByEmail)
+router.post("/invite", middlewareController.verifyToken, authController.inviteByEmail)
+// router.post("/invite", authController.inviteByEmail)
 router.get("/verify-invite/:token", authController.verifyInviteFromMail);
 export default router;
