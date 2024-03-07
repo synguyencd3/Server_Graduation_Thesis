@@ -136,40 +136,73 @@ const authController: any = {
       msg: "Authentication failed",
     });
   },
+  googleAuth2: async (req: Request, res: Response) => {
+    let userFe: any = req.user;
 
-  // facebookAuth: async (req: Request, res: Response) => {
-  //   let userFe: any = req.user;
+    console.log("USER_FB: ", userFe);
 
-  //   console.log("USER_FB: ", userFe);
+    if (userFe) {
+      const accessToken = authController.generateAccessToken(req.user);
+      const refreshToken = authController.generateRefreshToken(req.user);
 
-  //   if (userFe) {
-  //     const accessToken = authController.generateAccessToken(req.user);
-  //     const refreshToken = authController.generateRefreshToken(req.user);
+      refreshTokens.push(refreshToken);
 
-  //     refreshTokens.push(refreshToken);
+      res.cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        secure: true,
+        path: "/",
+        sameSite: "none",
+      });
 
-  //     res.cookie("refreshToken", refreshToken, {
-  //       httpOnly: true,
-  //       secure: true,
-  //       path: "/",
-  //       sameSite: "none",
-  //     });
+      const { password, ...others } = userFe;
 
-  //     const { password, ...others } = userFe;
+      return res.json({
+        user: others,
+        accessToken,
+        status: "success",
+        msg: "login successfully!",
+      });
+    }
 
-  //     res.json({
-  //       user: others,
-  //       accessToken,
-  //       status: "success",
-  //       msg: "login successfully!",
-  //     });
-  //   }
+    return res.status(401).json({
+      status: "failed",
+      msg: "Authentication failed",
+    });
+  },
 
-  //   return res.status(401).json({
-  //     status: "failed",
-  //     msg: "Authentication failed",
-  //   });
-  // },
+  facebookAuth2: async (req: Request, res: Response) => {
+    let userFe: any = req.user;
+
+    console.log("USER_FB: ", userFe);
+
+    if (userFe) {
+      const accessToken = authController.generateAccessToken(req.user);
+      const refreshToken = authController.generateRefreshToken(req.user);
+
+      refreshTokens.push(refreshToken);
+
+      res.cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        secure: true,
+        path: "/",
+        sameSite: "none",
+      });
+
+      const { password, ...others } = userFe;
+
+      return res.json({
+        user: others,
+        accessToken,
+        status: "success",
+        msg: "login successfully!",
+      });
+    }
+
+    return res.status(401).json({
+      status: "failed",
+      msg: "Authentication failed",
+    });
+  },
   facebookAuth: async (req: Request, res: Response) => {
     let userFe: any = req.user;
 
