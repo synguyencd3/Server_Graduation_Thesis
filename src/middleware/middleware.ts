@@ -19,6 +19,20 @@ const middlewareController = {
       return res.json({status: "failed", msg:"You're not authenticated!"});
     }
   },
+  
+  verifyRefreshToken: (req: Request, res: Response, next: NextFunction) => {
+    const refreshToken=req.cookies.refreshToken;
+    if(refreshToken){
+      jwt.verify(refreshToken, process.env.JWT_REFRESH_KEY as string, (err: any, user: any) => {
+        if (err) {
+          return res.status(401).json({status: "failed", msg:"Token isn't valid!"});
+        }
+        next();
+      });
+    }else{
+      return res.json({status: "failed", msg:"You're not authenticated!"});
+    }
+  }
 };
 
 export default middlewareController;

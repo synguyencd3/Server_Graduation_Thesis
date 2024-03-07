@@ -187,6 +187,7 @@ const authController: any = {
         path: "/",
         sameSite: "none",
       });
+      console.log("Refrest Token: ", refreshToken);
 
       const { password, ...others } = userFe;
 
