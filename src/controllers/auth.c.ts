@@ -20,7 +20,7 @@ const authController: any = {
         userId: user.id,
       },
       process.env.JWT_ACCESS_KEY as string,
-      { expiresIn: "1d" }
+      { expiresIn: "2h" }
     );
   },
 
@@ -31,7 +31,7 @@ const authController: any = {
         userId: user.id,
       },
       process.env.JWT_REFRESH_KEY as string,
-      { expiresIn: "2d" }
+      { expiresIn: "14d" }
     );
   },
 
@@ -46,16 +46,13 @@ const authController: any = {
     // user.email = req.body.email;
     // user.address = req.body.address;
     // user.date_of_birth = req.body.date_of_birth;
-    user.avatar = "https://cdn.icon-icons.com/icons2/1378/PNG/512/avatardefault_92824.png";
+    user.avatar =
+      "https://cdn.icon-icons.com/icons2/1378/PNG/512/avatardefault_92824.png";
     user.role = "User";
     // user.facebook = "";
     // user.google = ""
 
-    if (
-      user.username === undefined ||
-      user.password === undefined
-    ) {
-
+    if (user.username === undefined || user.password === undefined) {
       return res.json({
         status: "failed",
         msg: "Missing required input data",
@@ -67,7 +64,7 @@ const authController: any = {
       const userDb = await userRepository.findOne({
         select: ["user_id"],
         where: { username: user.username },
-      })
+      });
 
       if (userDb != null) {
         return res.json({ status: "failed", msg: "This username is existed." });
@@ -75,8 +72,10 @@ const authController: any = {
 
       //check length password >= 6 chars
       if (user.password.length < 6) {
-        return res
-          .json({ status: "failed", msg: "Password length must be at least 6 characters." });
+        return res.json({
+          status: "failed",
+          msg: "Password length must be at least 6 characters.",
+        });
       }
 
       try {
@@ -89,21 +88,19 @@ const authController: any = {
         return res.json({
           status: "success",
           msg: "Register successfully!",
-        })
-
+        });
       } catch (error) {
-        console.log(error)
+        console.log(error);
         return res.json({
           status: "failed",
-          msg: "Register failure."
-        })
+          msg: "Register failure.",
+        });
       }
-
     } catch (error) {
       return res.json({
         status: "failed",
-        msg: "Server error, please try later."
-      })
+        msg: "Server error, please try later.",
+      });
     }
   },
 
@@ -121,9 +118,7 @@ const authController: any = {
         path: "/",
         sameSite: "none",
       });
-
      
-
       const { password, ...others } = userFe;
       const data = {
         user: others,
@@ -131,8 +126,10 @@ const authController: any = {
         status: "success",
         msg: "login successfully!",
       };
-      
-      return res.redirect(`${process.env.URL_CLIENT}/login-social?access_token=${accessToken}&user_id=${others.user_id}`);
+
+      return res.redirect(
+        `${process.env.URL_CLIENT}/login-social?access_token=${accessToken}&user_id=${others.user_id}`
+      );
     }
     return res.status(401).json({
       status: "failed",
@@ -223,10 +220,12 @@ const authController: any = {
         path: "/",
         sameSite: "none",
       });
-
+     
       const { password, ...others } = userFe;
 
-      return res.redirect(`${process.env.URL_CLIENT}/login-social?access_token=${accessToken}&user_id=${others.user_id}`);
+      return res.redirect(
+        `${process.env.URL_CLIENT}/login-social?access_token=${accessToken}&user_id=${others.user_id}`
+      );
     } else {
       return res.status(401).json({
         status: "failed",
@@ -235,22 +234,21 @@ const authController: any = {
     }
   },
 
-
   // [POST] /login
-  loginUser: async (req: Request, res: Response) => {
+  loginUser: async (req: any, res: any) => {
     const username = req.body.username;
     const passwordInput = req.body.password;
     if (username === undefined || passwordInput === undefined) {
       return res.json({
-        status: 'failed',
-        msg: 'Missing required input data',
+        status: "failed",
+        msg: "Missing required input data",
       });
     }
 
-    if (typeof username !== 'string' || typeof passwordInput !== 'string') {
+    if (typeof username !== "string" || typeof passwordInput !== "string") {
       return res.json({
-        status: 'failed',
-        msg: 'Invalid data types for input (username should be string, password should be string)',
+        status: "failed",
+        msg: "Invalid data types for input (username should be string, password should be string)",
       });
     }
 
@@ -258,24 +256,44 @@ const authController: any = {
       // get user from database
       const userRepository = getRepository(User);
       const userDb = await userRepository.findOne({
-        select: ["user_id", "password", "username", "fullname", "gender", "phone", "email", "address", "avatar", "role"],
+        select: [
+          "user_id",
+          "password",
+          "username",
+          "fullname",
+          "gender",
+          "phone",
+          "email",
+          "address",
+          "avatar",
+          "role",
+        ],
         where: { username: username },
       });
 
       if (userDb == null) {
-        return res.json({ status: "failed", msg: "Username or password is incorect." });
+        return res.json({
+          status: "failed",
+          msg: "Username or password is incorect.",
+        });
       }
 
-      const validPassword = await bcrypt.compare(passwordInput, userDb.password);
+      const validPassword = await bcrypt.compare(
+        passwordInput,
+        userDb.password
+      );
 
       if (!validPassword) {
-        return res.json({ status: "failed", msg: "Username or password is incorect." });
+        return res.json({
+          status: "failed",
+          msg: "Username or password is incorect.",
+        });
       }
       const accessToken = authController.generateAccessToken(userDb);
       const refreshToken = authController.generateRefreshToken(userDb);
 
       refreshTokens.push(refreshToken);
-
+     
       res.cookie("refreshToken", refreshToken, {
         httpOnly: true,
         secure: true,
@@ -284,52 +302,55 @@ const authController: any = {
       });
 
       const { password, ...others } = userDb;
-      res.json({
+      return res.json({
         user: others,
         accessToken,
         status: "success",
         msg: "login successfully!",
       });
-    }
-    catch (error) {
+    } catch (error) {
       res.json({ status: "failed", msg: "login failure." });
     }
   },
 
   // [POST] /refresh
-  requestRefreshToken: async (req: Request, res: Response) => {
-    // take refresh token from user
+  requestRefreshToken: async (req:any, res:any) => {
     const refreshToken = req.cookies.refreshToken;
-
-    if (!refreshToken) return res.json({ status: "failed", msg: "401 Unauthorized!" });
+    
+    if (!refreshToken)
+      return res.json({ status: "failed", msg: "401 Unauthorized!" });
 
     // check if we have a refresh token but it isn't our refresh token
     if (!refreshTokens.includes(refreshToken)) {
       return res.json({ status: "failed", msg: "403 Forbidden!" });
     }
 
-    jwt.verify(refreshToken, process.env.JWT_REFRESH_KEY as string, (err: any, user: any) => {
-      if (err) {
-        console.log(err);
+    jwt.verify(
+      refreshToken,
+      process.env.JWT_REFRESH_KEY as string,
+      (err: any, user: any) => {
+        if (err) {
+          console.log(err);
+        }
+
+        // delete old refresh token
+        refreshTokens = refreshTokens.filter((token) => token !== refreshToken);
+
+        // create new JWT_ACCESS_TOKEN and JWT_REFRESH_TOKEN
+        const newAccessToken = authController.generateAccessToken(user);
+        const newRefreshToken = authController.generateRefreshToken(user);
+        refreshTokens.push(newRefreshToken);
+
+        res.cookie("refreshToken", newRefreshToken, {
+          httpOnly: true,
+          secure: true,
+          path: "/",
+          sameSite: "none",
+        });
+
+        return res.json({ accessToken: newAccessToken });
       }
-
-      // delete old refresh token
-      refreshTokens = refreshTokens.filter((token) => token !== refreshToken);
-
-      // create new JWT_ACCESS_TOKEN and JWT_REFRESH_TOKEN
-      const newAccessToken = authController.generateAccessToken(user);
-      const newRefreshToken = authController.generateRefreshToken(user);
-      refreshTokens.push(newRefreshToken);
-
-      res.cookie("refreshToken", newRefreshToken, {
-        httpOnly: true,
-        secure: true,
-        path: "/",
-        sameSite: "none",
-      });
-
-      return res.json({ accessToken: newAccessToken });
-    });
+    );
   },
 
   // [POST] /logout
@@ -337,18 +358,17 @@ const authController: any = {
     const { user_id } = req.body;
     if (user_id === undefined) {
       return res.json({
-        status: 'failed',
-        msg: 'Missing required input data',
+        status: "failed",
+        msg: "Missing required input data",
       });
     }
 
-    if (typeof user_id !== 'string') {
+    if (typeof user_id !== "string") {
       return res.json({
-        status: 'failed',
-        msg: 'Invalid data types for input (user_id should be string)',
+        status: "failed",
+        msg: "Invalid data types for input (user_id should be string)",
       });
     }
-
 
     refreshTokens = refreshTokens.filter(
       (token) => token !== req.cookies.refreshToken
@@ -360,18 +380,18 @@ const authController: any = {
   inviteByEmail: async (req: Request, res: Response) => {
     // check if email exists
     const { email } = req.body;
-    console.log(email)
+    console.log(email);
     if (email === undefined) {
       return res.status(400).json({
-        status: 'failed',
-        msg: 'Missing required input data',
+        status: "failed",
+        msg: "Missing required input data",
       });
     }
 
-    if (typeof email !== 'string') {
+    if (typeof email !== "string") {
       return res.status(400).json({
-        status: 'failed',
-        msg: 'Invalid data types for input (email should be string)',
+        status: "failed",
+        msg: "Invalid data types for input (email should be string)",
       });
     }
 
@@ -428,122 +448,123 @@ const authController: any = {
   verifyInviteFromMail: async (req: Request, res: Response) => {
     const { token } = req.params;
 
-    jwt.verify(token, process.env.JWT_SECRETKEY_MAIL || "jwt_key_mail", async (err, decoded: any) => {
-      if (!err) {
-        const email = decoded.email;
-        const group = decoded.group;
+    jwt.verify(
+      token,
+      process.env.JWT_SECRETKEY_MAIL || "jwt_key_mail",
+      async (err, decoded: any) => {
+        if (!err) {
+          const email = decoded.email;
+          const group = decoded.group;
 
-        try {
-          const userRepository = getRepository(User);
-          const userDb: any = await userRepository.findOne({
-            select: ["user_id", "username", "email"],
-            where: { email: email }
-          })
-
-          // the user does not have an account on the system
-          if (!userDb) {
-            // create new user with username = email
-            let user = new User();
-            const defaultPassword = "123abc@";
-            const salt = await bcrypt.genSalt(11);
-
-            user.user_id = await uuidv4();
-            user.username = email
-            user.password = await bcrypt.hash(defaultPassword, salt);
-            user.fullname = email;
-            user.email = email;
-            await userRepository.save(user);
-
-            const mailConfigurations = {
-              from: process.env.EMAIL_ADDRESS || "webnangcao.final@gmail.com",
-              to: email,
-              subject: "Email password - Cars Salon App",
-              text: "Your password is 123abc@. Please change it, thank you."
-            };
-
-            const transporter = nodemailer.createTransport({
-              service: process.env.EMAIL_SERVICE,
-              auth: {
-                user: process.env.EMAIL_ADDRESS,
-                pass: process.env.EMAIL_PASSWORD,
-              },
+          try {
+            const userRepository = getRepository(User);
+            const userDb: any = await userRepository.findOne({
+              select: ["user_id", "username", "email"],
+              where: { email: email },
             });
 
-            // send default password to user
-            transporter.sendMail(mailConfigurations, function (error) {
-              if (error) {
-                return res.json({
-                  status: "failed",
-                  msg: "Server is error now",
-                });
-              } else {
-                res.json({
-                  status: "success",
-                  msg: "The password sent to your mail.",
-                });
-              }
-            });
-            // login for user
-            const accessToken = authController.generateAccessToken(email);
-            const refreshToken = authController.generateRefreshToken(email);
+            // the user does not have an account on the system
+            if (!userDb) {
+              // create new user with username = email
+              let user = new User();
+              const defaultPassword = "123abc@";
+              const salt = await bcrypt.genSalt(11);
 
-            refreshTokens.push(refreshToken);
+              user.user_id = await uuidv4();
+              user.username = email;
+              user.password = await bcrypt.hash(defaultPassword, salt);
+              user.fullname = email;
+              user.email = email;
+              await userRepository.save(user);
 
-            res.cookie("refreshToken", refreshToken, {
-              httpOnly: true,
-              secure: true,
-              path: "/",
-              sameSite: "none",
-            });
+              const mailConfigurations = {
+                from: process.env.EMAIL_ADDRESS || "webnangcao.final@gmail.com",
+                to: email,
+                subject: "Email password - Cars Salon App",
+                text: "Your password is 123abc@. Please change it, thank you.",
+              };
 
-         
-      
-            const { password, ...others } = userDb;
+              const transporter = nodemailer.createTransport({
+                service: process.env.EMAIL_SERVICE,
+                auth: {
+                  user: process.env.EMAIL_ADDRESS,
+                  pass: process.env.EMAIL_PASSWORD,
+                },
+              });
+
+              // send default password to user
+              transporter.sendMail(mailConfigurations, function (error) {
+                if (error) {
+                  return res.json({
+                    status: "failed",
+                    msg: "Server is error now",
+                  });
+                } else {
+                  res.json({
+                    status: "success",
+                    msg: "The password sent to your mail.",
+                  });
+                }
+              });
+              // login for user
+              const accessToken = authController.generateAccessToken(email);
+              const refreshToken = authController.generateRefreshToken(email);
+
+              refreshTokens.push(refreshToken);
+
+              res.cookie("refreshToken", refreshToken, {
+                httpOnly: true,
+                secure: true,
+                path: "/",
+                sameSite: "none",
+              });
+
+              const { password, ...others } = userDb;
+              return res.json({
+                user: others,
+                accessToken,
+                status: "success",
+                msg: "login successfully!",
+              });
+            } else {
+              // call function loginUser in here
+
+              const accessToken = authController.generateAccessToken(userDb);
+              const refreshToken = authController.generateRefreshToken(userDb);
+
+              refreshTokens.push(refreshToken);
+
+              res.cookie("refreshToken", refreshToken, {
+                httpOnly: true,
+                secure: true,
+                path: "/",
+                sameSite: "none",
+              });
+
+              const { password, ...others } = userDb;
+              return res.json({
+                user: others,
+                accessToken,
+                status: "success",
+                msg: "login successfully!",
+              });
+            }
+          } catch (error) {
+            console.log(error);
             return res.json({
-              user: others,
-              accessToken,
-              status: "success",
-              msg: "login successfully!",
-            });
-          } else {
-            // call function loginUser in here
-
-            const accessToken = authController.generateAccessToken(userDb); 
-            const refreshToken = authController.generateRefreshToken(userDb);
-
-            refreshTokens.push(refreshToken);
-
-            res.cookie("refreshToken", refreshToken, {
-              httpOnly: true,
-              secure: true,
-              path: "/",
-              sameSite: "none",
-            });
-
-            const { password, ...others } = userDb;
-            return res.json({
-              user: others,
-              accessToken,
-              status: "success",
-              msg: "login successfully!",
+              status: "failed",
+              msg: "Error join, please try again.",
             });
           }
-        } catch (error) {
-          console.log(error)
-          return res.json({
-            status: "failed",
-            msg: "Error join, please try again.",
-          });
         }
+        // token is incorrect
+        return res.send({
+          status: "failed",
+          msg: "Token is not valid or expired",
+        });
       }
-      // token is incorrect
-      return res.send({
-        status: "failed",
-        msg: "Token is not valid or expired",
-      });
-    });
+    );
   },
-
 };
 
 export default authController;
