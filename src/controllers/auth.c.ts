@@ -41,16 +41,10 @@ const authController: any = {
     user.username = req.body.username;
     user.password = req.body.password;
     user.fullname = req.body.fullname;
-    // user.gender = req.body.gender;
-    // user.phone = req.body.phone;
-    // user.email = req.body.email;
-    // user.address = req.body.address;
-    // user.date_of_birth = req.body.date_of_birth;
     user.avatar =
       "https://cdn.icon-icons.com/icons2/1378/PNG/512/avatardefault_92824.png";
     user.role = "User";
-    // user.facebook = "";
-    // user.google = ""
+    user.aso = 0;
 
     if (user.username === undefined || user.password === undefined) {
       return res.json({
@@ -104,43 +98,9 @@ const authController: any = {
     }
   },
 
-  googleAuth2: async (req: Request, res: Response) => {
-    let userFe: any = req.user;
-    if (userFe) {
-      const accessToken = authController.generateAccessToken(req.user);
-      const refreshToken = authController.generateRefreshToken(req.user);
-
-      refreshTokens.push(refreshToken);
-
-      res.cookie("refreshToken", refreshToken, {
-        httpOnly: true,
-        secure: true,
-        path: "/",
-        sameSite: "none",
-      });
-     
-      const { password, ...others } = userFe;
-      const data = {
-        user: others,
-        accessToken,
-        status: "success",
-        msg: "login successfully!",
-      };
-
-      return res.redirect(
-        `${process.env.URL_CLIENT}/login-social?access_token=${accessToken}&user_id=${others.user_id}`
-      );
-    }
-    return res.status(401).json({
-      status: "failed",
-      msg: "Authentication failed",
-    });
-  },
   googleAuth: async (req: Request, res: Response) => {
     let userFe: any = req.user;
 
-    console.log("USER_FB: ", userFe);
-
     if (userFe) {
       const accessToken = authController.generateAccessToken(req.user);
       const refreshToken = authController.generateRefreshToken(req.user);
@@ -155,8 +115,10 @@ const authController: any = {
       });
 
       const { password, ...others } = userFe;
+      // console.log("USER: ", userFe);
 
       return res.json({
+        refreshToken,
         user: others,
         accessToken,
         status: "success",
@@ -204,36 +166,6 @@ const authController: any = {
       msg: "Authentication failed",
     });
   },
-  facebookAuth2: async (req: Request, res: Response) => {
-    let userFe: any = req.user;
-
-    // console.log("USER_FB: ", userFe);
-
-    if (userFe) {
-      const accessToken = authController.generateAccessToken(req.user);
-      const refreshToken = authController.generateRefreshToken(req.user);
-
-      refreshTokens.push(refreshToken);
-
-      res.cookie("refreshToken", refreshToken, {
-        httpOnly: true,
-        secure: true,
-        path: "/",
-        sameSite: "none",
-      });
-     
-      const { password, ...others } = userFe;
-
-      return res.redirect(
-        `${process.env.URL_CLIENT}/login-social?access_token=${accessToken}&user_id=${others.user_id}`
-      );
-    } else {
-      return res.status(401).json({
-        status: "failed",
-        msg: "Authentication failed",
-      });
-    }
-  },
 
   // [POST] /login
   loginUser: async (req: any, res: any) => {
@@ -257,18 +189,6 @@ const authController: any = {
       // get user from database
       const userRepository = getRepository(User);
       const userDb = await userRepository.findOne({
-        select: [
-          "user_id",
-          "password",
-          "username",
-          "fullname",
-          "gender",
-          "phone",
-          "email",
-          "address",
-          "avatar",
-          "role",
-        ],
         where: { username: username },
       });
 
@@ -304,6 +224,7 @@ const authController: any = {
 
       const { password, ...others } = userDb;
       return res.json({
+        refreshToken,
         user: others,
         accessToken,
         status: "success",
@@ -316,7 +237,7 @@ const authController: any = {
 
   // [POST] /refresh
   requestRefreshToken: async (req:any, res:any) => {
-    const refreshToken = req.cookies.refreshToken;
+    const refreshToken = req.cookies.refreshToken || req.body.refreshToken;
     
     if (!refreshToken)
       return res.json({ status: "failed", msg: "401 Unauthorized!" });
@@ -349,7 +270,7 @@ const authController: any = {
           sameSite: "none",
         });
 
-        return res.json({ accessToken: newAccessToken });
+        return res.json({ accessToken: newAccessToken, refreshToken:  newRefreshToken});
       }
     );
   },
@@ -372,7 +293,7 @@ const authController: any = {
     }
 
     refreshTokens = refreshTokens.filter(
-      (token) => token !== req.cookies.refreshToken
+      (token) => token !== req.cookies.refreshToken || req.body.refreshToken
     );
     res.clearCookie("refreshToken");
     res.json("Logged out successfully!");
@@ -447,7 +368,14 @@ const authController: any = {
 
   // [GET] /verify-invite/token
   verifyInviteFromMail: async (req: Request, res: Response) => {
-    const { token } = req.params;
+    const token: string|undefined = req.params.token;
+
+    if(!token) {
+      return res.json({
+        status: "failed",
+        "msg": "Token is invalid."
+      })
+    }
 
     jwt.verify(
       token,
@@ -476,6 +404,7 @@ const authController: any = {
               user.password = await bcrypt.hash(defaultPassword, salt);
               user.fullname = email;
               user.email = email;
+              user.aso = 0;
               await userRepository.save(user);
 
               const mailConfigurations = {
@@ -522,6 +451,7 @@ const authController: any = {
 
               const { password, ...others } = userDb;
               return res.json({
+                refreshToken,
                 user: others,
                 accessToken,
                 status: "success",

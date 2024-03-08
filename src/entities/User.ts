@@ -61,7 +61,7 @@ export class User {
     @Length(0, 200)
     google!: string;
 
-    @Column()
+    @Column({nullable: true})
     aso!: number;
 
     init(user_id: string, username: string, password: string, fullname: string, gender: string, phone: string, email: string, address: string, 

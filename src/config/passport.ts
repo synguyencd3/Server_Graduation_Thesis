@@ -50,6 +50,8 @@ passport.use(new GoogleStrategy({
             }
             const { password, ...others } = userDb;
 
+            // console.log("Others: ", others);
+
             return done(null, others);
         } catch (error: any) {
             return done(error);

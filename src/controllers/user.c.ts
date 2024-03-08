@@ -11,16 +11,19 @@ const userController = {
     getUserById: async (req: Request, res: Response) => {
         const userRepository = getRepository(User);
         const  user_id  = req.params.id; // Lấy id từ URL params
-        console.log("user_id", user_id);
+        // console.log("user_id", user_id);
         try {
-            const user = await userRepository.find({where: {user_id: user_id}});
-            if (!user) {
+            const userDb = await userRepository.find({where: {user_id: user_id}});
+            if (!userDb) {
                 return res.status(404).json({ message: "User not found" });
             }
-            return res.status(200).json(user[0]);
+            // fix by Cao Qui - delete password before sending client - 08/03/24
+            const { password, ...user } = userDb[0];
+
+            return res.status(200).json(user);
         } catch (error) {
             console.error("Error retrieving user:", error);
-            return res.status(500).json({ message: "Internal server error" });
+            return res.status(500).json({ msg: "Internal server error" });
         }
     }
     
