@@ -24,8 +24,6 @@ app.use(
   })
 );
 
-
-
 const port: number = parseInt(process.env.PORT as string, 10) || 5000;
 createConnection(connectionString)
   .then(async (connection) => {
