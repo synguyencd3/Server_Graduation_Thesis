@@ -12,7 +12,7 @@ export class Package {
     @Column({nullable: true})
     description!: string;
 
-    @Column({nullable: true})
+    @Column({nullable: true, type: 'float'})
     price!: number;
 
     @ManyToMany(() => Feature, { cascade: true })
