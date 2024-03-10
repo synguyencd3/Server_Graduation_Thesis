@@ -128,7 +128,12 @@ const packageController = {
         } catch (error) {
             return res.status(500).json({ msg: "Internal server error" });
         }
-    }
+    },
+
+    buyPackage:  async (req: Request, res: Response) => {
+
+    },
+
 }
 
 export default packageController;

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API SERVER</title>
+</head>
+<body>
+    <h1>API SERVER</h1>
+    <h2>AUTH</h2>
+    <li>[POST] /auth/refresh</li>
+    Cần truyền refreshToken vô bằng cookies - web or body - mobile để nhận lại token mới.
+    <li>[POST] /auth/logout</li>
+    Theo như lúc đầu code thì cần truyền vô user_id vài body. Có thể thay đổi nhưng không cần thiết.
+    <li>[POST] /auth/register</li>
+    Đăng kí tài khoản bằng username và password. Cần truyền vô username, password, fullname. Cần truyền vô body.
+    <li>[POST] /auth/login</li>
+    Đăng nhập bằng username và password. Truyền vô Db.
+    <li>[GET] /auth/google</li>
+    [WEB]: Gọi đến router này và server sẽ redirect về một trang html để chọn tài khoản google.
+    [MOBILE]: Tiến hành tự gọi đến api của google để chọn tài khoản google.
+    Toàn bộ sẽ nhận được một mã code và cần truyền mã code này đến callback.
+    <li>[GET] /auth/google/callback</li>
+    Sau khi nhận mã code ở trên thì cần gửi vào api này với cách truyền thêm ?code=...
+    <li>[GET] /auth/facebook</li>
+    Tương tự với google. Nhưng cần add tài khoản để thử nghiệm.
+    <li>[GET] /auth/facebook/callback</li>
+    Tương tự như trên.
+    <li>[POST] /auth/invite</li>
+    Cần đăng nhập để mời người dùng join vào group của mình (tương lai). Cần truyền vô email của người cần mời vào body.
+    Người được mời cần vô mail kích vào đường dẫn để đi đến xác thực. Hệ thống sẽ tự động thêm tài khoản mới cho người đó nếu chưa có tài khoản.
+    Username là email và password sẽ tự động được gửi vào email sau khi người dùng ấn liên kết.
+    <li>[GET] /auth/verify-invite/:token</li>
+    Bên web sẽ cần lấy ra token khi người dùng ấn liên kết trong email khi được mời. Web cần xử lý và gửi token về cho server để xác nhận.
+    
+    <h2>PROFILE</h2>
+    <li>[GET] /users/profile</li>
+    Chỉ cần login thành công và gọi tới là lấy được profile của user.
+    <li>[POST] /users/profile</li>
+    Đây là cập nhật thông tin profile.
+    Lưu ý cần truyền vào các thuộc tính giống với thông tin trong DB của bảng User.
+    Và đóng gọi lại một biến có tên là newProfile = {... thuộc tính cần thay đổi}.
+    Không cần truyền vào user_id vì khi login thành công, đã có token chứa user_id bên trong header.
+    
+</body>
+</html>
