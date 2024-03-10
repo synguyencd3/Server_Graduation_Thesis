@@ -1,4 +1,4 @@
-import passport, { use } from 'passport';
+import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import { Strategy as FacebookStrategy } from 'passport-facebook';
 import dotenv from 'dotenv';
@@ -7,6 +7,7 @@ import { getRepository } from "typeorm";
 
 dotenv.config({ path: "./server" });
 
+// login
 passport.serializeUser(function (user, done) {
     done(null, user);
 });
@@ -21,6 +22,8 @@ passport.deserializeUser(async function (user: any, done) {
         done(null, infoUserWithoutPassword)
     }
 });
+
+// login
 
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID || "clientId",
@@ -94,5 +97,6 @@ passport.use(new FacebookStrategy({
         }
     }
 ));
+
 
 export default passport;

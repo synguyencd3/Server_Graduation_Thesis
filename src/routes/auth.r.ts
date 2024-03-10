@@ -19,7 +19,7 @@ router.get('/google', passport.authenticate('google', { scope: ['email', 'profil
 router.get('/google/callback',
   (req: Request, res: Response, next: NextFunction) => {
     passport.authenticate('google', (err: any, profile: any) => {
-      if(err) {
+      if (err) {
         console.error("Error during authentication:", err);
         return next(err);
       }
@@ -36,22 +36,23 @@ router.get('/facebook', passport.authenticate('facebook', { scope: ['email', 'pu
 router.get('/facebook/callback',
   (req: Request, res: Response, next: NextFunction) => {
     passport.authenticate('facebook', (err: any, profile: any) => {
-      if(err) {
+      if (err) {
         console.error("Error during authentication:", err);
         return next(err);
       }
       req.user = profile;
       next();
     })(req, res, next);
-  },
+  }, middlewareController.getUserId,
   authController.facebookAuth
 );
 
-router.post("/refresh",middlewareController.verifyRefreshToken, authController.requestRefreshToken);
+router.post("/refresh", middlewareController.verifyRefreshToken, authController.requestRefreshToken);
 
 router.post("/logout", middlewareController.verifyToken, authController.logoutUser);
 
 router.post("/invite", middlewareController.verifyToken, authController.inviteByEmail)
-// router.post("/invite", authController.inviteByEmail)
+
 router.get("/verify-invite/:token", authController.verifyInviteFromMail);
+
 export default router;

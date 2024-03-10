@@ -3,7 +3,7 @@ import nodemailer from "nodemailer";
 import jwt, { decode } from "jsonwebtoken";
 import passport, { use } from "passport";
 import { Request, Response } from "express";
-import { getRepository } from "typeorm";
+import { getRepository, getManager  } from "typeorm";
 
 import { User } from "../entities/User";
 const { v4: uuidv4 } = require("uuid");
@@ -100,7 +100,76 @@ const authController: any = {
 
   googleAuth: async (req: Request, res: Response) => {
     let userFe: any = req.user;
+    const userIdAccount: any = req.headers['userId'];
 
+    // action for association
+    if(userIdAccount && typeof userIdAccount == "string") {
+      // check aso of this account in db
+      const userRepository = getRepository(User);
+      const userDb: User|null = await userRepository.findOne({
+        select: ["username", "facebook", "google"],
+        where: {user_id: userIdAccount}
+      })
+
+      const userGGDb: User|null = await userRepository.findOne({
+        select: ["aso"],
+        where: {google: userFe.google}
+      })
+
+      if(!userDb) {
+        return res.json({
+          status: "failed",
+          msg: "invalid information account."
+        })
+      }
+
+      if (userDb.google) {
+        return res.json({
+          status: "failed",
+          msg: "This account is linked."
+        })
+      }
+
+      try {
+        // link successfully
+        if ((!userGGDb) || (userGGDb.aso = 0) || (userDb.username && userFe.aso == 3) || (userDb.facebook && userFe.aso == 1)) {
+          userDb.google = userFe.google;
+          const entityManager = getManager();
+
+          await entityManager.transaction(async transactionalEntityManager => {
+            // find and delete old google account.
+            const oldUser = await transactionalEntityManager.findOne(User, { where: {google: userFe.google}});
+            if (oldUser) {
+              await transactionalEntityManager.remove(oldUser);
+            } else {
+              throw new Error('Cannot find old google account.');
+            }
+
+            // save new information for this user with new google.
+            await transactionalEntityManager.save(userDb);
+        });
+  
+          return res.json ({
+            status: "success",
+            msg: "linked with google successfully!"
+          })
+        } else {
+          return res.json({
+            status: "failed",
+            msg: "Not eligible for linking."
+          })
+        }
+        
+      } catch (error) {
+        return res.json({
+          status: "failed",
+          msg: "error with db."
+        })
+      }
+
+    } 
+
+    // action for login
     if (userFe) {
       const accessToken = authController.generateAccessToken(req.user);
       const refreshToken = authController.generateRefreshToken(req.user);
