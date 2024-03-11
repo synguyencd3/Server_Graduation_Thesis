@@ -26,7 +26,7 @@ router.get('/google/callback',
       req.user = profile;
       next();
     })(req, res, next);
-  },
+  }, middlewareController.getUserId,
   authController.googleAuth
 );
 

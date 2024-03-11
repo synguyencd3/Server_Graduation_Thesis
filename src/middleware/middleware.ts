@@ -28,6 +28,7 @@ const middlewareController = {
         if (err) {
           return res.status(401).json({ status: "failed", msg: "Token isn't valid!" });
         }
+        (req as Request).headers.userId = user.userId;
         next();
       });
     } else {
@@ -43,6 +44,7 @@ const middlewareController = {
     if (token) {
       // token is not null, we verify and get userId
       jwt.verify(token, process.env.JWT_ACCESS_KEY as string, (err, decoded: any) => {
+
         if (err) {
           return res.status(403).json({ msg: 'Forbidden' });
         }

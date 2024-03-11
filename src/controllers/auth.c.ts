@@ -14,10 +14,10 @@ let refreshTokens: string[] = [];
 
 const authController: any = {
   // generate JWT_ACCESS_TOKEN
-  generateAccessToken: (user: { id: string }) => {
+  generateAccessToken: (user: { user_id: string }) => {
     return jwt.sign(
       {
-        userId: user.id,
+        userId: user.user_id,
       },
       process.env.JWT_ACCESS_KEY as string,
       { expiresIn: "2h" }
@@ -25,10 +25,10 @@ const authController: any = {
   },
 
   // generate JWT_REFRESH_TOKEN
-  generateRefreshToken: (user: { id: string }) => {
+  generateRefreshToken: (user: { user_id: string }) => {
     return jwt.sign(
       {
-        userId: user.id,
+        userId: user.user_id,
       },
       process.env.JWT_REFRESH_KEY as string,
       { expiresIn: "14d" }
@@ -102,19 +102,23 @@ const authController: any = {
     let userFe: any = req.user;
     const userIdAccount: any = req.headers['userId'];
 
+    // console.log("USer id: ", userIdAccount);
+
     // action for association
     if(userIdAccount && typeof userIdAccount == "string") {
       // check aso of this account in db
       const userRepository = getRepository(User);
       const userDb: User|null = await userRepository.findOne({
-        select: ["username", "facebook", "google"],
         where: {user_id: userIdAccount}
       })
+
+      // console.log("USER_DB: ", userDb);
 
       const userGGDb: User|null = await userRepository.findOne({
         select: ["aso"],
         where: {google: userFe.google}
       })
+      // console.log("USER_GGDB: ", userGGDb);
 
       if(!userDb) {
         return res.json({
@@ -130,23 +134,30 @@ const authController: any = {
         })
       }
 
+      console.log("FLAG1");
+
       try {
         // link successfully
-        if ((!userGGDb) || (userGGDb.aso = 0) || (userDb.username && userFe.aso == 3) || (userDb.facebook && userFe.aso == 1)) {
+        if ((!userGGDb) || (userGGDb.aso == 0) || (userDb.username && userFe.aso == 3) || (userDb.facebook && userFe.aso == 1)) {
+          console.log("FLAG2");
           userDb.google = userFe.google;
           const entityManager = getManager();
 
           await entityManager.transaction(async transactionalEntityManager => {
             // find and delete old google account.
             const oldUser = await transactionalEntityManager.findOne(User, { where: {google: userFe.google}});
+            // console.log("OLD_USER: ", oldUser);
             if (oldUser) {
               await transactionalEntityManager.remove(oldUser);
+              console.log("FLAG4");             
             } else {
               throw new Error('Cannot find old google account.');
             }
-
+            console.log("FLAG3");
             // save new information for this user with new google.
             await transactionalEntityManager.save(userDb);
+
+            console.log("FLAG5");
         });
   
           return res.json ({
