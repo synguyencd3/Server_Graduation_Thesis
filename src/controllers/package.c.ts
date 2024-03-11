@@ -2,10 +2,12 @@ import { Request, Response } from 'express';
 import { Package } from "../entities/Package";
 import { getRepository } from "typeorm";
 const cloudinary = require("cloudinary").v2;
+import {isValidUUID, getFileName} from "../utils/index"
 
 interface MulterFileRequest extends Request {
     file: any; // Adjust this to match the type of your uploaded file
 }
+
 
 const packageController = {
     getAllPackages: async (req: Request, res: Response) => {
@@ -109,11 +111,29 @@ const packageController = {
         const { id } = req.params;
         const { name, description, price, features } = req.body;
         const packageRepository = getRepository(Package);
+        
+        const oldPackage = await packageRepository.findOne({
+            where: {
+                package_id: id,
+            },
+        })
+
         let image, filename = ""
         if ('file' in req && req.file) {
             image = req.file.path;
             filename = req.file.filename;
         }
+        
+        if(!oldPackage){
+            if(filename !== ""){
+                cloudinary.uploader.destroy(filename)
+            }
+            return res.status(404).json({ msg: `No package with id: ${id}` });
+        }
+        if(oldPackage.image){
+            cloudinary.uploader.destroy(getFileName(oldPackage.image));
+        }
+        
         try {
             if (price < 0) {
                 if(filename !== ""){
@@ -122,7 +142,15 @@ const packageController = {
                 return res.status(400).json({ msg: "Price must be greater than or equal to 0" });
             }
 
-            const updatedPackage = await packageRepository.update(id, { name, description, price, image});
+            const packageDataToUpdate: any = {};
+            if (name) packageDataToUpdate.name = name;
+            if (description) packageDataToUpdate.description = description;
+            if (price) packageDataToUpdate.price = price;
+            if (image) packageDataToUpdate.image = image;
+
+            if (Object.keys(packageDataToUpdate).length > 0) {
+                await packageRepository.update(id, packageDataToUpdate);
+            }
             const result = await packageRepository.findOne({
                 where: {
                     package_id: id,
@@ -136,22 +164,19 @@ const packageController = {
                     .relation(Package, "features")
                     .of(result)
                     .remove(result.features);
-
-                await packageRepository
+                if(isValidUUID(features[0])){
+                    await packageRepository
                     .createQueryBuilder()
                     .relation(Package, "features")
                     .of(result)
                     .add(features);
-            }
-            if (updatedPackage.affected === 0) {
-                 return res.status(404).json({ msg: `No feature with id: ${id}` });
+                }
             }
             res.status(200).json({ msg: "Package updated successfully" });
         } catch (error) {
             if(filename !== ""){
                 cloudinary.uploader.destroy(filename)
             }
-            console.log(error);
             return res.status(500).json({ msg: "Internal server error" });
         }
     },

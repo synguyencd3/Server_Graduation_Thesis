@@ -13,4 +13,19 @@ function generateRandomCode(length: number): string {
   return randomCode;
 }
 
-export default generateRandomCode;
+function isValidUUID(uuid: string) {
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  return uuidRegex.test(uuid);
+}
+
+function getFileName(url: string){
+  const parts = url.split("/");
+  const fileNameWithExtension = parts.pop();
+  if(fileNameWithExtension){
+    const desiredString = parts.slice(-1)[0] + "/" + fileNameWithExtension.replace(/\.[^.]+$/, "");
+    return desiredString;
+  }
+  return '';
+}
+
+export {generateRandomCode, isValidUUID, getFileName};
