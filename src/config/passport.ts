@@ -47,7 +47,7 @@ passport.use(new GoogleStrategy({
                 // user does not exist yet => add account to user db
                 user.google = profile.emails[0].value;
                 user.aso = 0;
-                await userRepository.save(user);
+                // await userRepository.save(user);
 
                 return done(null, user);
             }

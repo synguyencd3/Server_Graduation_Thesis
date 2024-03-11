@@ -150,8 +150,6 @@ const authController: any = {
             if (oldUser) {
               await transactionalEntityManager.remove(oldUser);
               console.log("FLAG4");             
-            } else {
-              throw new Error('Cannot find old google account.');
             }
             console.log("FLAG3");
             // save new information for this user with new google.
@@ -191,29 +189,36 @@ const authController: any = {
 
       refreshTokens.push(refreshToken);
 
-      res.cookie("refreshToken", refreshToken, {
-        httpOnly: true,
-        secure: true,
-        path: "/",
-        sameSite: "none",
-      });
+      // save user to db
+      const userRepository = getRepository(User);
+      try {
+        await userRepository.save(userFe);
 
-      const { password, ...others } = userFe;
-      // console.log("USER: ", userFe);
-
-      return res.json({
-        refreshToken,
-        user: others,
-        accessToken,
-        status: "success",
-        msg: "login successfully!",
-      });
+        res.cookie("refreshToken", refreshToken, {
+          httpOnly: true,
+          secure: true,
+          path: "/",
+          sameSite: "none",
+        });
+  
+        const { password, ...others } = userFe;
+        // console.log("USER: ", userFe);
+  
+        return res.json({
+          refreshToken,
+          user: others,
+          accessToken,
+          status: "success",
+          msg: "login successfully!",
+        });
+      } catch (error) {
+        return res.json({
+          status: "failed",
+          msg: "error information to save db."
+        })
+      }
+      
     }
-
-    return res.status(401).json({
-      status: "failed",
-      msg: "Authentication failed",
-    });
   },
 
   facebookAuth: async (req: Request, res: Response) => {
