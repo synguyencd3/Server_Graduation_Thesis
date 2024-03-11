@@ -2,7 +2,7 @@ import { Entity, PrimaryGeneratedColumn, Column } from "typeorm"
 
 @Entity()
 export class Feature {
-    @PrimaryGeneratedColumn()
+    @PrimaryGeneratedColumn('uuid')
     feature_id!: string;
 
     @Column({nullable: true})

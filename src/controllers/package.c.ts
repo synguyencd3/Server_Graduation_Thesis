@@ -1,7 +1,11 @@
 import { Request, Response } from 'express';
 import { Package } from "../entities/Package";
 import { getRepository } from "typeorm";
+const cloudinary = require("cloudinary").v2;
 
+interface MulterFileRequest extends Request {
+    file: any; // Adjust this to match the type of your uploaded file
+}
 
 const packageController = {
     getAllPackages: async (req: Request, res: Response) => {
@@ -19,6 +23,7 @@ const packageController = {
                         name: pkg.name,
                         description: pkg.description,
                         price: pkg.price,
+                        image: pkg.image,
                         features: pkg.features.map(feature => ({
                             feature_id: feature.feature_id,
                             name: feature.name,
@@ -52,6 +57,7 @@ const packageController = {
                         name: packagee.name,
                         description: packagee.description,
                         price: packagee.price,
+                        image: packagee.image,
                         features: packagee.features.map(feature => ({
                             feature_id: feature.feature_id,
                             name: feature.name,
@@ -64,29 +70,59 @@ const packageController = {
             return res.status(500).json({ msg: "Internal server error" });
         }
     },
-    createPackage: async (req: Request, res: Response) => {
+    createPackage: async (req: Request | MulterFileRequest, res: Response) => {
         const { name, description, price, features } = req.body;
         const packageRepository = getRepository(Package);
-        try {
-            const newPackage = packageRepository.create({ name, description, price });
-            const savedPackage = await packageRepository.save(newPackage);
 
+        let image, filename = ""
+        if ('file' in req && req.file) {
+            image = req.file.path;
+            filename = req.file.filename;
+        }
+    
+        try {
+            if (price < 0) {
+                if(filename !== ""){
+                    cloudinary.uploader.destroy(filename)
+                }
+                return res.status(400).json({ msg: "Price must be greater than or equal to 0" });
+            }
+
+            const newPackage = packageRepository.create({ name, description, price, image });
+            const savedPackage = await packageRepository.save(newPackage);
+            
             await packageRepository
                 .createQueryBuilder()
                 .relation(Package, "features")
                 .of(savedPackage)
                 .add(features);
-        res.status(201).json({ msg: "Package added successfully" });
+
+            res.status(201).json({ msg: "Package added successfully" });
         } catch (error) {
+            if(filename !== ""){
+                cloudinary.uploader.destroy(filename)
+            }
             return res.status(500).json({ msg: "Internal server error" });
         }
     },
-    updatePackage: async (req: Request, res: Response) => {
+    updatePackage: async (req: Request | MulterFileRequest, res: Response) => {
         const { id } = req.params;
         const { name, description, price, features } = req.body;
         const packageRepository = getRepository(Package);
+        let image, filename = ""
+        if ('file' in req && req.file) {
+            image = req.file.path;
+            filename = req.file.filename;
+        }
         try {
-            const updatedPackage = await packageRepository.update(id, { name, description, price});
+            if (price < 0) {
+                if(filename !== ""){
+                    cloudinary.uploader.destroy(filename)
+                }
+                return res.status(400).json({ msg: "Price must be greater than or equal to 0" });
+            }
+
+            const updatedPackage = await packageRepository.update(id, { name, description, price, image});
             const result = await packageRepository.findOne({
                 where: {
                     package_id: id,
@@ -112,6 +148,9 @@ const packageController = {
             }
             res.status(200).json({ msg: "Package updated successfully" });
         } catch (error) {
+            if(filename !== ""){
+                cloudinary.uploader.destroy(filename)
+            }
             console.log(error);
             return res.status(500).json({ msg: "Internal server error" });
         }

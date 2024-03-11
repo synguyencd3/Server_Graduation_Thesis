@@ -1,9 +1,9 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToMany, JoinTable } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToMany, JoinTable, Check } from 'typeorm';
 import { Feature } from './Feature';
 
 @Entity()
 export class Package {
-    @PrimaryGeneratedColumn()
+    @PrimaryGeneratedColumn('uuid')
     package_id!: string;
 
     @Column({nullable: true})
@@ -13,7 +13,11 @@ export class Package {
     description!: string;
 
     @Column({nullable: true, type: 'float'})
+    @Check(`"price" >= 0`)
     price!: number;
+
+    @Column({nullable: true})
+    image!: string;
 
     @ManyToMany(() => Feature, { cascade: true })
     @JoinTable()
