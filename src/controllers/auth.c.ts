@@ -155,6 +155,10 @@ const authController: any = {
             }
             console.log("FLAG3");
             // save new information for this user with new google.
+            //set value for aso
+            userDb.username?userDb.aso=1:userDb.aso=3;
+            (userDb.username && userDb.facebook)?userDb.aso=4:1;
+            //save to db
             await transactionalEntityManager.save(userDb);
 
             console.log("FLAG5");
