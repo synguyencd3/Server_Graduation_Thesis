@@ -219,41 +219,149 @@ const authController: any = {
       }
       
     }
+
+    return res.json({
+      status: "failed",
+      msg: "error google account."
+    })
   },
+
+  /*
+  aso = 
+  0: only login by this
+  1: with google + username
+  2: with facebook + username
+  3: with google + facebook
+  4: with username + google + facebook
+  */
+
 
   facebookAuth: async (req: Request, res: Response) => {
     let userFe: any = req.user;
+    const userIdAccount: any = req.headers['userId'];
 
-    console.log("USER_FB: ", userFe);
+    // console.log("USer id: ", userIdAccount);
 
+    // action for association
+    if(userIdAccount && typeof userIdAccount == "string") {
+      // check aso of this account in db
+      const userRepository = getRepository(User);
+      const userDb: User|null = await userRepository.findOne({
+        where: {user_id: userIdAccount}
+      })
+
+      // console.log("USER_DB: ", userDb);
+
+      const userGGDb: User|null = await userRepository.findOne({
+        select: ["aso"],
+        where: {facebook: userFe.facebook}
+      })
+      // console.log("USER_GGDB: ", userGGDb);
+
+      if(!userDb) {
+        return res.json({
+          status: "failed",
+          msg: "invalid information account."
+        })
+      }
+
+      if (userDb.facebook) {
+        return res.json({
+          status: "failed",
+          msg: "This account is linked."
+        })
+      }
+
+      console.log("FLAG1");
+
+      try {
+        // link successfully
+        if ((!userGGDb) || (userGGDb.aso == 0) || (userDb.username && userFe.aso == 3) || (userDb.google && userFe.aso == 2)) {
+          console.log("FLAG2");
+          userDb.facebook = userFe.facebook;
+          const entityManager = getManager();
+
+          await entityManager.transaction(async transactionalEntityManager => {
+            // find and delete old facebook account.
+            const oldUser = await transactionalEntityManager.findOne(User, { where: {facebook: userFe.facebook}});
+            // console.log("OLD_USER: ", oldUser);
+            if (oldUser) {
+              await transactionalEntityManager.remove(oldUser);
+              console.log("FLAG4");             
+            }
+            console.log("FLAG3");
+            // save new information for this user with new facebook.
+            //set value for aso
+            userDb.username?userDb.aso=2:userDb.aso=3;
+            (userDb.username && userDb.google)?userDb.aso=4:1;
+            //save to db
+            await transactionalEntityManager.save(userDb);
+
+            console.log("FLAG5");
+        });
+  
+          return res.json ({
+            status: "success",
+            msg: "linked with facebook successfully!"
+          })
+        } else {
+          return res.json({
+            status: "failed",
+            msg: "Not eligible for linking."
+          })
+        }
+        
+      } catch (error) {
+        return res.json({
+          status: "failed",
+          msg: "error with db."
+        })
+      }
+
+    } 
+
+    // action for login
     if (userFe) {
       const accessToken = authController.generateAccessToken(req.user);
       const refreshToken = authController.generateRefreshToken(req.user);
 
       refreshTokens.push(refreshToken);
 
-      res.cookie("refreshToken", refreshToken, {
-        httpOnly: true,
-        secure: true,
-        path: "/",
-        sameSite: "none",
-      });
-      console.log("Refrest Token: ", refreshToken);
+      // save user to db
+      const userRepository = getRepository(User);
+      try {
+        await userRepository.save(userFe);
 
-      const { password, ...others } = userFe;
-
-      return res.json({
-        user: others,
-        accessToken,
-        status: "success",
-        msg: "login successfully!",
-      });
+        res.cookie("refreshToken", refreshToken, {
+          httpOnly: true,
+          secure: true,
+          path: "/",
+          sameSite: "none",
+        });
+  
+        const { password, ...others } = userFe;
+        // console.log("USER: ", userFe);
+  
+        return res.json({
+          refreshToken,
+          user: others,
+          accessToken,
+          status: "success",
+          msg: "login successfully!",
+        });
+      } catch (error) {
+        return res.json({
+          status: "failed",
+          msg: "error information to save db."
+        })
+      }
+      
     }
 
-    return res.status(401).json({
+    return res.json({
       status: "failed",
-      msg: "Authentication failed",
-    });
+      msg: "error facebook account."
+    })
   },
 
   // [POST] /login
