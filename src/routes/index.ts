@@ -3,6 +3,7 @@ import authRouter from './auth.r';
 import userRouter from './user.r';
 import featureRouter from './feature.r';
 import packageRouter from './package.r';
+import carRouter from './car.r';
 import apidocRouter from './apidoc.r';
 
 function router(app: Express) {
@@ -10,6 +11,7 @@ function router(app: Express) {
   app.use("/users", userRouter);
   app.use("/features", featureRouter);
   app.use("/packages", packageRouter);
+  app.use("/cars", carRouter);
   app.use("/api", apidocRouter);
 }
 

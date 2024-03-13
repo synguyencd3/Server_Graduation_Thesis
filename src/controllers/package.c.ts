@@ -8,7 +8,6 @@ interface MulterFileRequest extends Request {
     file: any; // Adjust this to match the type of your uploaded file
 }
 
-
 const packageController = {
     getAllPackages: async (req: Request, res: Response) => {
         const packageRepository = getRepository(Package);
@@ -93,11 +92,13 @@ const packageController = {
             const newPackage = packageRepository.create({ name, description, price, image });
             const savedPackage = await packageRepository.save(newPackage);
             
-            await packageRepository
-                .createQueryBuilder()
-                .relation(Package, "features")
-                .of(savedPackage)
-                .add(features);
+            if(features && isValidUUID(features[0])){
+                await packageRepository
+                    .createQueryBuilder()
+                    .relation(Package, "features")
+                    .of(savedPackage)
+                    .add(features);
+            }
 
             res.status(201).json({ msg: "Package added successfully" });
         } catch (error) {
