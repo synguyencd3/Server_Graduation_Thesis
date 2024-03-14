@@ -56,16 +56,7 @@ const userController = {
     updateProfile: async (req: Request | MulterFileRequest, res: Response) => {
         const userRepository = getRepository(User);
         const userId = (req as any).user.userId
-        const { username, fullname, gender, phone, address, date_of_birth } = req.body;
-
-        const userDb = await userRepository.findOne({
-            select: ["user_id"],
-            where: { username: username },
-          });
-    
-        if (userDb != null) {
-            return res.json({ status: "failed", msg: "This username is existed." });
-        }
+        const {fullname, gender, phone, address, date_of_birth } = req.body;
 
         const oldUser = await userRepository.findOne({
             where: {
@@ -92,7 +83,6 @@ const userController = {
 
             const userDataToUpdate: any = {};
             
-            if (username) userDataToUpdate.username = username;
             if (fullname) userDataToUpdate.fullname = fullname;
             if (gender) userDataToUpdate.gender = gender;
             if (phone) userDataToUpdate.phone = phone;
