@@ -18,7 +18,7 @@ export class User {
     @Length(1,20)
     username!: string;
 
-    @Column({nullable: true})
+    @Column({nullable: true, select: false})
     @Length(1, 100)
     password!: string;
 

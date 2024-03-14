@@ -75,7 +75,7 @@ const packageController = {
         const { name, description, price, features } = req.body;
         const packageRepository = getRepository(Package);
 
-        let image, filename = ""
+        let image = "", filename = ""
         if ('file' in req && req.file) {
             image = req.file.path;
             filename = req.file.filename;
@@ -119,7 +119,7 @@ const packageController = {
             },
         })
 
-        let image, filename = ""
+        let image = "", filename = ""
         if ('file' in req && req.file) {
             image = req.file.path;
             filename = req.file.filename;
@@ -131,7 +131,7 @@ const packageController = {
             }
             return res.status(404).json({ msg: `No package with id: ${id}` });
         }
-        if(oldPackage.image){
+        if(image !== "" && oldPackage.image){
             cloudinary.uploader.destroy(getFileName(oldPackage.image));
         }
         
