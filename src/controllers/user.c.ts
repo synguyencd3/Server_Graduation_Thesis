@@ -58,6 +58,15 @@ const userController = {
         const userId = (req as any).user.userId
         const { username, fullname, gender, phone, address, date_of_birth } = req.body;
 
+        const userDb = await userRepository.findOne({
+            select: ["user_id"],
+            where: { username: username },
+          });
+    
+        if (userDb != null) {
+            return res.json({ status: "failed", msg: "This username is existed." });
+        }
+
         const oldUser = await userRepository.findOne({
             where: {
                 user_id: userId,
@@ -101,10 +110,16 @@ const userController = {
                 },
             })
 
+            let user;
+            if(result){
+                const { password, ...others } = result;
+                user = others
+            }
+
             return res.json({
                 status: "success", 
                 msg: "Update successfully!",
-                newUser: result,
+                newUser: user,
             })
         } catch (error) {
             console.log(error);
@@ -117,7 +132,6 @@ const userController = {
             });
         }
     },
-
 };
 
 export default userController;
