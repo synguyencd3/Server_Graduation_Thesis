@@ -428,6 +428,7 @@ const authController: any = {
         msg: "login successfully!",
       });
     } catch (error) {
+      console.log(error);
       res.json({ status: "failed", msg: "login failure." });
     }
   },

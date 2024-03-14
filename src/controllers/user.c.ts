@@ -53,7 +53,7 @@ const userController = {
         }
     },
 
-    updateProfile: async (req: Request | MulterFileRequest, res: Response) => {
+    updateProfile2: async (req: Request | MulterFileRequest, res: Response) => {
         const userRepository = getRepository(User);
         const userId = (req as any).user.userId
         const {fullname, gender, phone, address, date_of_birth } = req.body;
@@ -122,6 +122,30 @@ const userController = {
             });
         }
     },
+
+    updateProfile: async (req: Request, res: Response) => {
+        const userRepository = getRepository(User);
+        const userId: any = req.headers['userId'] || "";
+        let {newProfile} = req.body;
+        const {user_id, username, password, google, facebook, role, aso, ...other} = newProfile;
+
+        try {
+            const userDb = await userRepository.findOneOrFail({where: {user_id: userId}});
+            const saveProfile = {...userDb, ...other};
+            await userRepository.save(saveProfile);
+
+            return res.json({
+                status: "success",
+                msg: "Update successfully!"
+            })
+        } catch (error) {
+            console.log(error)
+            return res.json({
+                status: "failed",
+                msg: "Invalid information."
+            });
+        }
+    }
 };
 
 export default userController;
