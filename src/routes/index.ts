@@ -6,6 +6,7 @@ import packageRouter from './package.r';
 import carRouter from './car.r';
 import salonRouter from './salon.r';
 import apidocRouter from './apidoc.r';
+import paymentRouter from './payment.r';
 
 function router(app: Express) {
   app.use("/auth", authRouter);
@@ -15,6 +16,7 @@ function router(app: Express) {
   app.use("/cars", carRouter);
   app.use("/salons", salonRouter);
   app.use("/api", apidocRouter);
+  app.use("/payment", paymentRouter);
 }
 
 export default router;

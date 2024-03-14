@@ -41,6 +41,12 @@
     Lưu ý cần truyền vào các thuộc tính giống với thông tin trong DB của bảng User.
     Và đóng gọi lại một biến có tên là newProfile = {... thuộc tính cần thay đổi}.
     Không cần truyền vào user_id vì khi login thành công, đã có token chứa user_id bên trong header.
-    
+    <h2>PAYMENT</h2>
+    <li>[POST] /payment/createOrder</li>
+    Tạo đơn hàng. Chúng ta cần lưu lại app_tran_id để query đơn hàng khi cần.
+    Nếu không truyền vào dữ liệu gì thì mặt định là zalopay app và đơn hàng sẽ mang giá trị 0đ. Nếu muốn chuyển sang visa thì cần thêm
+    dữ liệu là {"bank_code": "CC", ... thêm amount: number, description nếu muốn}.
+    <li>[POST] /payment/queryOrder</li>
+    Đây là dùng để query trạng thái đơn hàng đã được thanh toán chưa. Cần truyền vô {"app_trans_id": "mã đơn hàng "}.
 </body>
 </html>
