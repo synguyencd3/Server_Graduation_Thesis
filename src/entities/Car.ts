@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column, Check } from "typeorm"
+import { Entity, PrimaryGeneratedColumn, Column, Check, ManyToOne } from "typeorm"
+import { Salon } from "./Salon"; // Import entities Salon
 
 @Entity()
 export class Car {
@@ -71,9 +72,12 @@ export class Car {
     @Column({ type: "text", array: true, nullable: true })
     image!: string[];
 
+    @ManyToOne(() => Salon, (salon) => salon.cars)
+    salon!: Salon;
+
     init(name: string, description: string, origin: string, price: number, brand: string, 
         model: string, type: string, capacity: number, door: number, seat: number, kilometer: number,
-        gear: string, mfg: Date, inColor: string, outColor: string, image: string[]) {
+        gear: string, mfg: Date, inColor: string, outColor: string, image: string[], salon: Salon) {
         this.name = name;
         this.description = description;
         this.origin = origin
@@ -90,5 +94,6 @@ export class Car {
         this.inColor = inColor
         this.outColor = outColor
         this.image = image
+        this.salon = salon
     }
 }

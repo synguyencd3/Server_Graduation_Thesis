@@ -1,13 +1,14 @@
 import { Router } from 'express';
 import userController from '../controllers/user.c';
 import middlewareController from '../middleware/middleware';
+import uploadCloud from "../middleware/uploader";
 
 const router = Router();
 
 router.get("/", userController.getAllUsers);
-router.get("/:id", userController.getUserById);
+// router.get("/:id", userController.getUserById);
 
 router.get("/profile", middlewareController.verifyToken, userController.getProfile);
-router.post("/profile", middlewareController.verifyToken, userController.updateProfile);
+router.patch("/profile", middlewareController.verifyToken, uploadCloud.single("avatar"), userController.updateProfile);
 
 export default router;

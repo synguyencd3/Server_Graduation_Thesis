@@ -1,6 +1,12 @@
 import { Request, Response } from 'express';
 import { User } from "../entities/User";
 import { getRepository } from "typeorm";
+const cloudinary = require("cloudinary").v2;
+import { getFileName } from "../utils/index"
+
+interface MulterFileRequest extends Request {
+    file: any; // Adjust this to match the type of your uploaded file
+}
 
 const userController = {
     getAllUsers: async (req: Request, res: Response) => {
@@ -29,7 +35,8 @@ const userController = {
 
     getProfile: async (req: Request, res: Response) => {
         const userRepository = getRepository(User);
-        const userId: any = req.headers['userId'] || "";
+        //const userId: any = req.headers['userId'] || "";
+        const userId = (req as any).user.userId
         try {
             const userDb = await userRepository.findOneOrFail({ where: { user_id: userId } });
             const { password, ...others } = userDb;
@@ -46,23 +53,64 @@ const userController = {
         }
     },
 
-    updateProfile: async (req: Request, res: Response) => {
+    updateProfile: async (req: Request | MulterFileRequest, res: Response) => {
         const userRepository = getRepository(User);
-        const userId: any = req.headers['userId'] || "";
-        let {newProfile} = req.body;
+        const userId = (req as any).user.userId
+        const { username, fullname, gender, phone, address, date_of_birth } = req.body;
 
-        const {user_id, username, password, google, facebook, role, aso, ...other} = newProfile;
-        
+        const oldUser = await userRepository.findOne({
+            where: {
+                user_id: userId,
+            },
+        })
+
+        let avatar = "", filename = ""
+        if ('file' in req && req.file) {
+            avatar = req.file.path;
+            filename = req.file.filename;
+        }
+
+        if(avatar !== "" && oldUser?.avatar){
+            if(!getFileName(oldUser.avatar).includes('default')){
+                cloudinary.uploader.destroy(getFileName(oldUser.avatar));
+            }
+        }
+
         try {
-            const userDb = await userRepository.findOneOrFail({ where: { user_id: userId } });
-            const saveProfile = {...userDb, ...other};
-            await userRepository.save(saveProfile);
+            // const userDb = await userRepository.findOneOrFail({ where: { user_id: userId } });
+            // const saveProfile = {...userDb};
+            // await userRepository.save(saveProfile);
+
+            const userDataToUpdate: any = {};
+            
+            if (username) userDataToUpdate.username = username;
+            if (fullname) userDataToUpdate.fullname = fullname;
+            if (gender) userDataToUpdate.gender = gender;
+            if (phone) userDataToUpdate.phone = phone;
+            if (address) userDataToUpdate.address = address;
+            if (date_of_birth) userDataToUpdate.date_of_birth = date_of_birth;
+            if (avatar) userDataToUpdate.avatar = avatar;
+
+            if (Object.keys(userDataToUpdate).length > 0) {
+                await userRepository.update(userId, userDataToUpdate);
+            }
+
+            const result = await userRepository.findOne({
+                where: {
+                    user_id: userId,
+                },
+            })
 
             return res.json({
                 status: "success", 
-                msg: "Update successfully!"
+                msg: "Update successfully!",
+                newUser: result,
             })
         } catch (error) {
+            console.log(error);
+            if(filename !== ""){
+                cloudinary.uploader.destroy(filename)
+            }
             return res.json({
                 status: "failed",
                 msg: "Invalid information."

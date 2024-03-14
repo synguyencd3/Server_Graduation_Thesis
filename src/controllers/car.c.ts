@@ -13,7 +13,7 @@ interface MulterFileRequest extends Request {
     files?: MulterFile[];
 }
 
-const featureController = {
+const carController = {
     getAllCars: async (req: Request, res: Response) => {
         const carRepository = getRepository(Car);
         try {
@@ -92,7 +92,7 @@ const featureController = {
             model, type, capacity, door, seat, kilometer,
             gear, mfg, inColor, outColor} = req.body;
 
-        let image, filename = [""]
+        let image = [""], filename = [""]
         if ('files' in req && req.files) {
             const arrayImages = req.files;
             image = arrayImages.map((obj) => obj.path);
@@ -137,7 +137,7 @@ const featureController = {
             },
         })
 
-        let image, filename = [""]
+        let image = null, filename = null
         if ('files' in req && req.files) {
             const arrayImages = req.files;
             image = arrayImages.map((obj) => obj.path);
@@ -145,7 +145,7 @@ const featureController = {
         }
 
         if(!oldCar){
-            if(filename.length !== 0){
+            if(filename && filename.length !== 0){
                 filename.forEach(async (url) => {
                     cloudinary.uploader.destroy(url)
                 })
@@ -153,7 +153,7 @@ const featureController = {
             return res.status(404).json({ msg: `No car with id: ${id}` });
         }
 
-        if (Array.isArray(oldCar.image) && oldCar.image.length > 0) {
+        if (image && image.length !== 0 && Array.isArray(oldCar.image) && oldCar.image.length > 0) {
             oldCar.image.forEach(image => {
                 cloudinary.uploader.destroy(getFileName(image));
             });
@@ -161,7 +161,7 @@ const featureController = {
         
         try {
             if (price < 0) {
-                if(filename.length !== 0){
+                if(filename && filename.length !== 0){
                     filename.forEach(async (url) => {
                         cloudinary.uploader.destroy(url)
                     })
@@ -204,6 +204,11 @@ const featureController = {
                 }})
             res.status(200).json({ result });
         } catch (error) {
+            if(filename && filename.length !== 0){
+                filename.forEach(async (url) => {
+                    cloudinary.uploader.destroy(url)
+                })
+            }
             return res.status(500).json({ msg: "Internal server error" });
         }
     },
@@ -222,4 +227,4 @@ const featureController = {
     },
 }
 
-export default featureController;
+export default carController;
