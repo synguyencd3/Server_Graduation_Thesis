@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>API SERVER</title>
 </head>
+
 <body>
     <h1>API SERVER</h1>
     <h2>AUTH</h2>
@@ -28,11 +30,13 @@
     Tương tự như trên.
     <li>[POST] /auth/invite</li>
     Cần đăng nhập để mời người dùng join vào group của mình (tương lai). Cần truyền vô email của người cần mời vào body.
-    Người được mời cần vô mail kích vào đường dẫn để đi đến xác thực. Hệ thống sẽ tự động thêm tài khoản mới cho người đó nếu chưa có tài khoản.
+    Người được mời cần vô mail kích vào đường dẫn để đi đến xác thực. Hệ thống sẽ tự động thêm tài khoản mới cho người
+    đó nếu chưa có tài khoản.
     Username là email và password sẽ tự động được gửi vào email sau khi người dùng ấn liên kết.
     <li>[GET] /auth/verify-invite/:token</li>
-    Bên web sẽ cần lấy ra token khi người dùng ấn liên kết trong email khi được mời. Web cần xử lý và gửi token về cho server để xác nhận.
-    
+    Bên web sẽ cần lấy ra token khi người dùng ấn liên kết trong email khi được mời. Web cần xử lý và gửi token về cho
+    server để xác nhận.
+
     <h2>PROFILE</h2>
     <li>[GET] /users/profile</li>
     Chỉ cần login thành công và gọi tới là lấy được profile của user.
@@ -44,10 +48,38 @@
     <h2>PAYMENT</h2>
     <li>[POST] /payment/createOrder</li>
     Tạo đơn hàng. Chúng ta cần lưu lại app_tran_id để query đơn hàng khi cần.
-    Nếu không truyền vào dữ liệu gì thì mặt định là zalopay app và đơn hàng sẽ mang giá trị 0đ. Nếu muốn chuyển sang visa thì cần thêm
+    Nếu không truyền vào dữ liệu gì thì mặt định là zalopay app và đơn hàng sẽ mang giá trị 0đ. Nếu muốn chuyển sang
+    visa thì cần thêm
     dữ liệu là {"bank_code": "CC", ... thêm amount: number, description nếu muốn}.
     <li>[POST] /payment/queryOrder</li>
     Đây là dùng để query trạng thái đơn hàng đã được thanh toán chưa. Cần truyền vô {"app_trans_id": "mã đơn hàng "}.
+    <h3>VN PAY</h3>
+    <li>[POST] /payment/vnpay</li>
+    Chỉ cần gọi để test và không cần truyền gì vô. Sẽ update doc này để hướng dẫn sử dụng khi hoàn thiện toàn bộ.
+    Khi gọi tới server thì server sẽ trả về url và mình mở link đó trên trình duyệt.
+    Chọn ngân hàng nội quốc và thông tin thẻ như sau:
+    <table>
+        <tr>
+            <th>Ngân hàng</th>
+            <td>NCB</td>
+        </tr>
+        <tr>
+            <th>Số thẻ</th>
+            <td>9704198526191432198</td>
+        </tr>
+        <tr>
+            <th>Tên chủ thẻ</th>
+            <td>NGUYEN VAN A</td>
+        </tr>
+        <tr>
+            <th>Ngày phát hành</th>
+            <td>07/15</td>
+        </tr>
+        <tr>
+            <th>Mật khẩu OTP</th>
+            <td>123456</td>
+        </tr>
+    </table>
 
     <h2>FEATURE</h2>
     <li>[GET] /features</li>
@@ -68,46 +100,51 @@
     Lấy được gói dịch vụ khi biết id
     <li>[POST] /packages</li>
     Truyền ở dạng form-data
-    Thêm một gói dịch vụ mới. Các fields truyền vào bao gồm: name, description, price, features (là một mảng (array) id các tính năng), image (1 file). Nếu price < 0 thì sẽ báo lỗi
-    <li>[PATCH] /packages/:id</li>
-    Truyền ở dạng form-data
-    Sửa một tính năng khi biết id. Các fields (giống post), muốn update cái nào thì truyền cái đó (Nếu price < 0 thì sẽ báo lỗi)
-    <li>[DELETE] /packages/:id</li>
-    Xóa gói dịch vụ khi biết id
+    Thêm một gói dịch vụ mới. Các fields truyền vào bao gồm: name, description, price, features (là một mảng (array) id
+    các tính năng), image (1 file). Nếu price < 0 thì sẽ báo lỗi <li>[PATCH] /packages/:id</li>
+        Truyền ở dạng form-data
+        Sửa một tính năng khi biết id. Các fields (giống post), muốn update cái nào thì truyền cái đó (Nếu price < 0 thì
+            sẽ báo lỗi) <li>[DELETE] /packages/:id</li>
+            Xóa gói dịch vụ khi biết id
 
-    <h2>CAR</h2>
-    <li>[GET] /cars</li>
-    Lấy được hết tất cả các xe kèm theo tên và địa chỉ salon mà xe đó thuộc về
-    <li>[GET] /cars/:id</li>
-    Lấy được xe khi biết id
-    <li>[GET] /cars/brand/:brand</li>
-    Lấy được hết tất cả xe của cùng hãng xem truyền vào tên hãng
-    <li>[POST] /cars</li>
-    Truyền ở dạng form-data
-    Thêm một xe mới. Các fields truyền vào bao gồm: name (Tên xe), description (Mô tả), origin (Xuất xứ), price (Giá), brand (Hãng xe), model (Mẫu mã xe), type (Dòng xe), capacity (Dung tích xe), door (Số cửa), seat (Số ghế ngồi), kilometer (Số km đã đi), gear (Hộp số), mfg (Năm sản xuất), inColor (Màu nội thất), outColor (Màu ngoại thất), salonSalonId (Id Salon mà xe này thuộc về), image (tối đa là 5 file). Nếu price < 0 thì sẽ báo lỗi
-    <li>[PATCH] /cars/:id</li>
-    Truyền ở dạng form-data
-    Sửa thông tin xe khi biết id. Các fields (giống post), muốn update cái nào thì truyền cái đó (Nếu price < 0 thì sẽ báo lỗi)
-    <li>[DELETE] /cars/:id</li>
-    Xóa xe khi biết id
+            <h2>CAR</h2>
+            <li>[GET] /cars</li>
+            Lấy được hết tất cả các xe kèm theo tên và địa chỉ salon mà xe đó thuộc về
+            <li>[GET] /cars/:id</li>
+            Lấy được xe khi biết id
+            <li>[GET] /cars/brand/:brand</li>
+            Lấy được hết tất cả xe của cùng hãng xem truyền vào tên hãng
+            <li>[POST] /cars</li>
+            Truyền ở dạng form-data
+            Thêm một xe mới. Các fields truyền vào bao gồm: name (Tên xe), description (Mô tả), origin (Xuất xứ), price
+            (Giá), brand (Hãng xe), model (Mẫu mã xe), type (Dòng xe), capacity (Dung tích xe), door (Số cửa), seat (Số
+            ghế ngồi), kilometer (Số km đã đi), gear (Hộp số), mfg (Năm sản xuất), inColor (Màu nội thất), outColor (Màu
+            ngoại thất), salonSalonId (Id Salon mà xe này thuộc về), image (tối đa là 5 file). Nếu price < 0 thì sẽ báo
+                lỗi <li>[PATCH] /cars/:id</li>
+                Truyền ở dạng form-data
+                Sửa thông tin xe khi biết id. Các fields (giống post), muốn update cái nào thì truyền cái đó (Nếu price
+                < 0 thì sẽ báo lỗi) <li>[DELETE] /cars/:id</li>
+                    Xóa xe khi biết id
 
-    <h2>SALON</h2>
-    <li>[GET] /salons</li>
-    Lấy được hết tất cả các thông tin của salon
-    <li>[GET] /salons/:id</li>
-    Lấy được thông tin salon khi biết id và các xe mà salon đó có
-    <li>[POST] /salons</li>
-    Truyền ở dạng form-data
-    Thêm một salon mới. Các fields truyền vào bao gồm: name, address, image (1 file), email, phoneNumber, banner (tối đa 5 file), introductionHtml, introductionMarkdown
-    <li>[PATCH] /salons/:id</li>
-    Truyền ở dạng form-data
-    Sửa một salon khi biết id. Các fields (giống post), muốn update cái nào thì truyền cái đó
-    <li>[DELETE] /salons/:id</li>
-    Xóa salon khi biết id
+                    <h2>SALON</h2>
+                    <li>[GET] /salons</li>
+                    Lấy được hết tất cả các thông tin của salon
+                    <li>[GET] /salons/:id</li>
+                    Lấy được thông tin salon khi biết id và các xe mà salon đó có
+                    <li>[POST] /salons</li>
+                    Truyền ở dạng form-data
+                    Thêm một salon mới. Các fields truyền vào bao gồm: name, address, image (1 file), email,
+                    phoneNumber, banner (tối đa 5 file), introductionHtml, introductionMarkdown
+                    <li>[PATCH] /salons/:id</li>
+                    Truyền ở dạng form-data
+                    Sửa một salon khi biết id. Các fields (giống post), muốn update cái nào thì truyền cái đó
+                    <li>[DELETE] /salons/:id</li>
+                    Xóa salon khi biết id
 
 
-    <h2></h2>
-    <h2></h2>
-    <h2></h2>
+                    <h2></h2>
+                    <h2></h2>
+                    <h2></h2>
 </body>
+
 </html>

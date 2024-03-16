@@ -1,6 +1,8 @@
 import { Request, Response } from 'express';
 import * as CryptoJS from 'crypto-js';
 import axios from 'axios';
+import querystring from 'qs';
+import * as crypto from 'crypto';
 
 const config = {
     appid: 2554,
@@ -21,6 +23,19 @@ function getCurrentDateInVNTimeZone() {
     return vnTime;
 }
 
+// function generateRandomNumber(min: number, max: number): number {
+//     const range = max - min + 1;
+//     const bytesNeeded = Math.ceil(Math.log2(range) / 8);
+//     const randomBytesBuffer = crypto.randomBytes(bytesNeeded);
+
+//     let randomNumber = 0;
+//     for (let i = 0; i < bytesNeeded; i++) {
+//         randomNumber = (randomNumber << 8) + randomBytesBuffer[i];
+//     }
+
+//     return min + randomNumber % range;
+// }
+
 // Hàm để format ngày thành dạng yymmdd
 function formatDateToYYMMDD(date: Date) {
     const year = date.getFullYear().toString().slice(-2);
@@ -34,6 +49,22 @@ function generateAppTransId(orderId: string | number) {
     const currentDate = getCurrentDateInVNTimeZone();
     const datePart = formatDateToYYMMDD(currentDate);
     return datePart + "_" + orderId;
+}
+
+function sortObject(obj: any) {
+    var sorted: any = {};
+    var str = [];
+    var key;
+    for (key in obj){
+        if (obj.hasOwnProperty(key)) {
+        str.push(encodeURIComponent(key));
+        }
+    }
+    str.sort();
+    for (key = 0; key < str.length; key++) {
+        sorted[str[key]] = encodeURIComponent(obj[str[key]]).replace(/%20/g, "+");
+    }
+    return sorted;
 }
 
 const apidocController = {
@@ -83,6 +114,57 @@ const apidocController = {
         .catch((error: any) => {
             return res.json(error);
         });
+    },
+
+    vnpay: (req: Request, res: Response) => {
+        const date = new Date();
+
+        date.setHours(date.getHours() + 7); // GMT+7
+
+        // Lấy các thành phần của ngày giờ (năm, tháng, ngày, giờ, phút, giây)
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0'); // Thêm số 0 đằng trước nếu cần
+        const day = String(date.getDate()).padStart(2, '0');
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        const seconds = String(date.getSeconds()).padStart(2, '0');
+
+
+        const config_vn = {
+            vnp_Url: "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html",
+            vnp_HashSecret: "BFMLNCHNKMQDFZVJAKCUJULATTDTAMKQ"
+        };
+
+        var vnp_Params: any = {};
+
+        vnp_Params['vnp_Version'] = '2.1.0';
+        vnp_Params['vnp_Command'] = 'pay';
+        vnp_Params['vnp_TmnCode'] = "DRQT53YH";
+        // vnp_Params['vnp_Merchant'] = ''
+        vnp_Params['vnp_Locale'] = "vn";
+        vnp_Params['vnp_CurrCode'] = 'VND';
+        vnp_Params['vnp_TxnRef'] = Math.floor(Math.random() * 100) + 1;        ;
+        vnp_Params['vnp_OrderInfo'] = req.body.description || "Demo thanh toan VN Pay";
+        vnp_Params['vnp_OrderType'] = "other";
+        vnp_Params['vnp_Amount'] = req.body.amount|| 1806000 * 100;
+        vnp_Params['vnp_ReturnUrl'] = "https://www.youtube.com/watch?v=mzqvF_rIOx8";
+        vnp_Params['vnp_IpAddr'] = "127.0.0.1";
+        vnp_Params['vnp_CreateDate'] = `${year}${month}${day}${hours}${minutes}${seconds}`;
+
+
+
+        let vnpUrl = config_vn.vnp_Url ;
+        let secretKey = config_vn.vnp_HashSecret;
+
+        vnp_Params = sortObject(vnp_Params);
+
+        var signData = querystring.stringify(vnp_Params, { encode: false });
+        var hmac = crypto.createHmac("sha512", secretKey);
+        var signed = hmac.update(new Buffer(signData, 'utf-8')).digest("hex");
+        vnp_Params['vnp_SecureHash'] = signed;
+        vnpUrl += '?' + querystring.stringify(vnp_Params, { encode: false });
+
+        return res.json({ vnpUrl});
     }
 };
 
