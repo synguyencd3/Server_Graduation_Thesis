@@ -5,19 +5,8 @@ import { getRepository } from "typeorm";
 const cloudinary = require("cloudinary").v2;
 import { getFileName } from "../utils/index"
 
-// interface MulterFile {
-//     path: string;
-//     filename: string;
-// }
-
-// interface MulterFileRequest extends Request {
-//     files?: MulterFile[];
-// }
-
 interface MulterFileRequest extends Request {
     files: {
-        //[fieldname: string]: Express.Multer.File[];
-        //[fieldname: string]: any;
         [fieldname: string]: { path: string, filename: string }[];
     };
 }
@@ -39,13 +28,13 @@ const salonController = {
 
             res.status(200).json({
                 status: "success",
-                data: {
-                salons,
-                nbHits: salons.length,
+                salons: {
+                    salons,
+                    nbHits: salons.length,
                 },
             });
         } catch (error) {
-            return res.status(500).json({ msg: "Internal server error" });
+            return res.status(500).json({ status: "failed", msg: "Internal server error" });
         }
     },
     getSalonById: async (req: Request, res: Response) => {
@@ -61,11 +50,14 @@ const salonController = {
             })
 
             if (!salon) {
-                return res.status(404).json({ msg: `No salon with id: ${id}` });
+                return res.status(404).json({ status: "failed", msg: `No salon with id: ${id}` });
             }
-            return res.status(200).json(salon);
+            return res.status(200).json({
+                status: "success",
+                salon: salon
+            });
         } catch (error) {
-            return res.status(500).json({ msg: "Internal server error" });
+            return res.status(500).json({ status: "failed", msg: "Internal server error" });
         }
     },
     createSalon: async (req: Request | MulterFileRequest, res: Response) => {
@@ -90,11 +82,14 @@ const salonController = {
         }
         
         try {
-
-            const newSalon = salonRepository.create({ name, address, image, email, phoneNumber, banner, introductionHtml, introductionMarkdown });
+            const newSalon = { name, address, image, email, phoneNumber, banner, introductionHtml, introductionMarkdown };
             const savedSalon = await salonRepository.save(newSalon);
 
-            res.status(201).json({ salon: savedSalon });
+            res.status(201).json({
+                tatus: "success",
+                msg: "Create successfully!",
+                salon: savedSalon
+            });
         } catch (error) {
             if(filenameImage !== ""){
                 cloudinary.uploader.destroy(filenameImage)
@@ -104,7 +99,7 @@ const salonController = {
                     cloudinary.uploader.destroy(url)
                 })
             }
-            return res.status(500).json({ msg: "Internal server error" });
+            return res.status(500).json({ status: "failed", msg: "Internal server error" });
         }
     },
     updateSalon: async (req: Request | MulterFileRequest, res: Response) => {
@@ -112,15 +107,8 @@ const salonController = {
         const { name, address, email, phoneNumber, introductionHtml, introductionMarkdown} = req.body;
         const salonRepository = getRepository(Salon);
 
-        const oldSalon = await salonRepository.findOne({
-            where: {
-                salon_id: id,
-            },
-        })
-
         let image = "", filenameImage = ""
         let banner = null, filenameBanner = null
-
         if ('files' in req && req.files) {
             if(req.files["image"] && req.files["image"][0]){
                 const imageData = req.files["image"][0];
@@ -135,6 +123,17 @@ const salonController = {
             }
         }
 
+        let newSalon: any = {name, address, email, phoneNumber, introductionHtml, introductionMarkdown,}
+        if(image !== "") newSalon.image = image;
+        if(Array.isArray(banner) && banner.length > 0) newSalon.banner = banner;
+        const {salon_id, ...other} = newSalon;
+
+        const oldSalon = await salonRepository.findOne({
+            where: {
+                salon_id: id,
+            },
+        })
+
         if(!oldSalon){
             if(filenameImage !== ""){
                 cloudinary.uploader.destroy(filenameImage)
@@ -144,7 +143,7 @@ const salonController = {
                     cloudinary.uploader.destroy(url)
                 })
             }
-            return res.status(404).json({ msg: `No salon with id: ${id}` });
+            return res.status(404).json({ status: "failed", msg: `No salon with id: ${id}` });
         }
 
         if(image !== "" && oldSalon.image){
@@ -158,33 +157,14 @@ const salonController = {
         }
         
         try {
-            const salonDataToUpdate: any = {};
+            const saveSalon = {...oldSalon, ...other};
+            const salon = await salonRepository.save(saveSalon);
 
-            if (name) salonDataToUpdate.name = name;
-            if (address) salonDataToUpdate.address = address;
-            if (image) salonDataToUpdate.image = image;
-            if (email) salonDataToUpdate.email = email;
-            if (phoneNumber) salonDataToUpdate.phoneNumber = phoneNumber;
-            if (banner) salonDataToUpdate.banner = banner;
-            if (introductionHtml) salonDataToUpdate.introductionHtml = introductionHtml;
-            if (introductionMarkdown) salonDataToUpdate.introductionMarkdown = introductionMarkdown;
-            
-
-            let salon = {}
-
-            if (Object.keys(salonDataToUpdate).length > 0) {
-                salon = await salonRepository.update(id, salonDataToUpdate);
-            }
-            
-            if ('affected' in salon && salon.affected === 0) {
-                return res.status(404).json({ msg: `No salon with id: ${id}` });
-            }
-
-            const result = await salonRepository.findOne({
-                where: {
-                    salon_id: id,
-                }})
-            res.status(200).json({ result });
+            res.status(200).json({
+                status: "success",
+                msg: "Update successfully!",
+                salon: salon
+            });
         } catch (error) {
             if(filenameImage !== ""){
                 cloudinary.uploader.destroy(filenameImage)
@@ -194,7 +174,7 @@ const salonController = {
                     cloudinary.uploader.destroy(url)
                 })
             }
-            return res.status(500).json({ msg: "Internal server error" });
+            return res.status(500).json({ status: "failed", msg: "Internal server error" });
         }
     },
     deleteSalon: async (req: Request, res: Response) => {
@@ -210,15 +190,28 @@ const salonController = {
             })
 
             if (!salon) {
-                return res.status(404).json({ msg: `No salon with id: ${id}` });
+                return res.status(404).json({status: "failed", msg: `No salon with id: ${id}` });
             }
+
+            if(salon.image){
+                cloudinary.uploader.destroy(getFileName(salon.image));
+            }
+    
+            if (Array.isArray(salon.banner) && salon.banner.length > 0) {
+                salon.banner.forEach(banner => {
+                    cloudinary.uploader.destroy(getFileName(banner));
+                });
+            }
+
             // Xóa các car tham chiếu đến salon
             await carRepository.delete({ salon: salon });
-            
             await salonRepository.delete(id);
-            res.status(200).json({ msg: "Success" });
+            res.status(200).json({
+                status: "success",
+                msg: "Delete successfully!"
+            });
         } catch (error) {
-            return res.status(500).json({ msg: "Internal server error" });
+            return res.status(500).json({status: "failed", msg: "Internal server error" });
         }
     },
 }

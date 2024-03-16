@@ -17,7 +17,23 @@ const carController = {
     getAllCars: async (req: Request, res: Response) => {
         const carRepository = getRepository(Car);
         try {
-            const cars = await carRepository.find({});
+            const cars = await carRepository.find({
+                relations: ['salon'], 
+                select: [
+                    'car_id', 'name', 'description', 'origin', 'price', 'brand', 
+                    'model', 'type', 'capacity', 'door', 'seat', 'kilometer', 
+                    'gear', 'mfg', 'inColor', 'outColor', 'image',
+                ]
+            });
+
+            const formattedCars = cars.map(car => ({
+                ...car,
+                salon: {
+                    salon_id: car.salon.salon_id,
+                    name: car.salon.name,
+                    address: car.salon.address
+                }
+            }));
 
             // const cars = await carRepository.find({
             //     select: [
@@ -38,13 +54,14 @@ const carController = {
 
             res.status(200).json({
                 status: "success",
-                data: {
-                cars,
-                nbHits: cars.length,
+                cars: {
+                    car: formattedCars,
+                    nbHits: formattedCars.length,
                 },
             });
         } catch (error) {
-            return res.status(500).json({ msg: "Internal server error" });
+            console.log(error);
+            return res.status(500).json({ status: "failed", msg: "Internal server error" });
         }
     },
     getCarById: async (req: Request, res: Response) => {
@@ -55,13 +72,27 @@ const carController = {
             const car = await carRepository.findOne({
                 where: {
                     car_id: id,
-                }})
+                },
+                relations: ['salon'],
+            })
             if (!car) {
-                return res.status(404).json({ msg: `No car with id: ${id}` });
+                return res.status(404).json({ status: "failed", msg: `No car with id: ${id}` });
             }
-            return res.status(200).json(car);
+            const { salon_id, name, address } = car.salon;
+
+            return res.status(200).json({
+                status: "success",
+                car: {
+                    ...car,
+                    salon: {
+                        salon_id,
+                        name,
+                        address
+                    }
+                }
+            });
         } catch (error) {
-            return res.status(500).json({ msg: "Internal server error" });
+            return res.status(500).json({ status: "failed", msg: "Internal server error" });
         }
     },
     getAllCarsByBrand: async (req: Request, res: Response) => {
@@ -73,24 +104,39 @@ const carController = {
                 where: {
                     brand: brand
                 },
+                relations: ['salon'],
+                select: [
+                    'car_id', 'name', 'description', 'origin', 'price', 'brand', 
+                    'model', 'type', 'capacity', 'door', 'seat', 'kilometer', 
+                    'gear', 'mfg', 'inColor', 'outColor', 'image',
+                ]
             });
+
+            const formattedCars = cars.map(car => ({
+                ...car,
+                salon: {
+                    salon_id: car.salon.salon_id,
+                    name: car.salon.name,
+                    address: car.salon.address
+                }
+            }));
 
             res.status(200).json({
                 status: "success",
                 data: {
-                    cars,
-                    nbHits: cars.length,
+                    cars: formattedCars,
+                    nbHits: formattedCars.length,
                 },
             });
         } catch (error) {
-            return res.status(500).json({ msg: "Internal server error" });
+            return res.status(500).json({ status: "failed", msg: "Internal server error" });
         }
     },
     createCar: async (req: Request | MulterFileRequest, res: Response) => {
         const carRepository = getRepository(Car);
         const { name, description, origin, price, brand, 
             model, type, capacity, door, seat, kilometer,
-            gear, mfg, inColor, outColor} = req.body;
+            gear, mfg, inColor, outColor, salonSalonId} = req.body;
 
         let image = [""], filename = [""]
         if ('files' in req && req.files) {
@@ -106,36 +152,34 @@ const carController = {
                         cloudinary.uploader.destroy(url)
                     })
                 }
-                return res.status(400).json({ msg: "Price must be greater than or equal to 0" });
+                return res.status(400).json({ status: "failed", msg: "Price must be greater than or equal to 0" });
             }
 
-            const newCar = carRepository.create({ name, description, origin, price, brand, 
+            const newCar = { name, description, origin, price, brand, 
             model, type, capacity, door, seat, kilometer,
-            gear, mfg, inColor, outColor, image });
+            gear, mfg, inColor, outColor, salon: { salon_id: salonSalonId }, image };
             const savedCar = await carRepository.save(newCar);
 
-            res.status(201).json({ car: savedCar });
+            res.status(201).json({
+                status: "success",
+                msg: "Create successfully!",
+                car: savedCar
+            });
         } catch (error) {
             if(filename.length !== 0){
                 filename.forEach(async (url) => {
                     cloudinary.uploader.destroy(url)
                 })
             }
-            return res.status(500).json({ msg: "Internal server error" });
+            return res.status(500).json({ status: "failed", msg: "Internal server error" });
         }
     },
     updateCar: async (req: Request | MulterFileRequest, res: Response) => {
         const { id } = req.params;
         const { name, description, origin, price, brand, 
             model, type, capacity, door, seat, kilometer,
-            gear, mfg, inColor, outColor} = req.body;
+            gear, mfg, inColor, outColor, salonSalonId} = req.body;
         const carRepository = getRepository(Car);
-
-        const oldCar = await carRepository.findOne({
-            where: {
-                car_id: id,
-            },
-        })
 
         let image = null, filename = null
         if ('files' in req && req.files) {
@@ -144,13 +188,25 @@ const carController = {
             filename = arrayImages.map((obj) => obj.filename);
         }
 
+        let newCar: any = {name, description, origin, price, brand, 
+            model, type, capacity, door, seat, kilometer,
+            gear, mfg, inColor, outColor, salon: { salon_id: salonSalonId } }
+        if(Array.isArray(image) && image.length > 0) newCar.image = image;
+        const {car_id, ...other} = newCar;
+
+        const oldCar = await carRepository.findOne({
+            where: {
+                car_id: id,
+            },
+        })
+
         if(!oldCar){
             if(filename && filename.length !== 0){
                 filename.forEach(async (url) => {
                     cloudinary.uploader.destroy(url)
                 })
             }
-            return res.status(404).json({ msg: `No car with id: ${id}` });
+            return res.status(404).json({ status: "failed", msg: `No car with id: ${id}` });
         }
 
         if (image && image.length !== 0 && Array.isArray(oldCar.image) && oldCar.image.length > 0) {
@@ -166,63 +222,51 @@ const carController = {
                         cloudinary.uploader.destroy(url)
                     })
                 }
-                return res.status(400).json({ msg: "Price must be greater than or equal to 0" });
+                return res.status(400).json({ status: "failed", msg: "Price must be greater than or equal to 0" });
             }
 
-            const carDataToUpdate: any = {};
+            const saveCar = {...oldCar, ...other};
+            const car = await carRepository.save(saveCar);
 
-            if (name) carDataToUpdate.name = name;
-            if (description) carDataToUpdate.description = description;
-            if (origin) carDataToUpdate.origin = origin;
-            if (price) carDataToUpdate.price = price;
-            if (brand) carDataToUpdate.brand = brand;
-            if (model) carDataToUpdate.model = model;
-            if (type) carDataToUpdate.type = type;
-            if (capacity) carDataToUpdate.capacity = capacity;
-            if (door) carDataToUpdate.door = door;
-            if (seat) carDataToUpdate.seat = seat;
-            if (kilometer) carDataToUpdate.kilometer = kilometer;
-            if (gear) carDataToUpdate.gear = gear;
-            if (mfg) carDataToUpdate.mfg = mfg;
-            if (inColor) carDataToUpdate.inColor = inColor;
-            if (outColor) carDataToUpdate.outColor = outColor;
-            if (image) carDataToUpdate.image = image;
-
-            let car = {}
-
-            if (Object.keys(carDataToUpdate).length > 0) {
-                car = await carRepository.update(id, carDataToUpdate);
-            }
-            
-            if ('affected' in car && car.affected === 0) {
-                return res.status(404).json({ msg: `No car with id: ${id}` });
-            }
-
-            const result = await carRepository.findOne({
-                where: {
-                    car_id: id,
-                }})
-            res.status(200).json({ result });
+            res.status(200).json({
+                status: "success",
+                msg: "Update successfully!",
+                car: car
+            });
         } catch (error) {
             if(filename && filename.length !== 0){
                 filename.forEach(async (url) => {
                     cloudinary.uploader.destroy(url)
                 })
             }
-            return res.status(500).json({ msg: "Internal server error" });
+            return res.status(500).json({ status: "failed", msg: "Internal server error" });
         }
     },
     deleteCar: async (req: Request, res: Response) => {
         const { id } = req.params;
         const carRepository = getRepository(Car);
         try {
-            const car = await carRepository.delete(id);
-            if (car.affected === 0) {
-                return res.status(404).json({ msg: `No car with id: ${id}` });
+            const car = await carRepository.findOne({
+                where: {
+                    car_id: id,
+                }})
+            if (!car) {
+                return res.status(404).json({ status: "failed", msg: `No car with id: ${id}` });
             }
-            res.status(200).json({ msg: "Success" });
+
+            if (Array.isArray(car.image) && car.image.length > 0) {
+                car.image.forEach(image => {
+                    cloudinary.uploader.destroy(getFileName(image));
+                });
+            }
+
+            await carRepository.delete(id);
+            res.status(200).json({
+                status: "success",
+                msg: "Delete successfully!"
+            });
         } catch (error) {
-            return res.status(500).json({ msg: "Internal server error" });
+            return res.status(500).json({ status: "failed", msg: "Internal server error" });
         }
     },
 }

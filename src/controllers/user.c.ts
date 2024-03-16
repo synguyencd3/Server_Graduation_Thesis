@@ -35,8 +35,8 @@ const userController = {
 
     getProfile: async (req: Request, res: Response) => {
         const userRepository = getRepository(User);
-        //const userId: any = req.headers['userId'] || "";
-        const userId = (req as any).user.userId
+        const userId: any = req.headers['userId'] || "";
+        
         try {
             const userDb = await userRepository.findOneOrFail({ where: { user_id: userId } });
             const { password, ...others } = userDb;
@@ -53,84 +53,29 @@ const userController = {
         }
     },
 
-    updateProfile2: async (req: Request | MulterFileRequest, res: Response) => {
+    updateProfile: async (req: Request | MulterFileRequest, res: Response) => {
         const userRepository = getRepository(User);
-        const userId = (req as any).user.userId
-        const {fullname, gender, phone, address, date_of_birth } = req.body;
-
-        const oldUser = await userRepository.findOne({
-            where: {
-                user_id: userId,
-            },
-        })
+        const userId: any = req.headers['userId'] || "";
 
         let avatar = "", filename = ""
         if ('file' in req && req.file) {
             avatar = req.file.path;
             filename = req.file.filename;
         }
-
-        if(avatar !== "" && oldUser?.avatar){
-            if(!getFileName(oldUser.avatar).includes('default')){
-                cloudinary.uploader.destroy(getFileName(oldUser.avatar));
-            }
-        }
-
-        try {
-            // const userDb = await userRepository.findOneOrFail({ where: { user_id: userId } });
-            // const saveProfile = {...userDb};
-            // await userRepository.save(saveProfile);
-
-            const userDataToUpdate: any = {};
-            
-            if (fullname) userDataToUpdate.fullname = fullname;
-            if (gender) userDataToUpdate.gender = gender;
-            if (phone) userDataToUpdate.phone = phone;
-            if (address) userDataToUpdate.address = address;
-            if (date_of_birth) userDataToUpdate.date_of_birth = date_of_birth;
-            if (avatar) userDataToUpdate.avatar = avatar;
-
-            if (Object.keys(userDataToUpdate).length > 0) {
-                await userRepository.update(userId, userDataToUpdate);
-            }
-
-            const result = await userRepository.findOne({
-                where: {
-                    user_id: userId,
-                },
-            })
-
-            let user;
-            if(result){
-                const { password, ...others } = result;
-                user = others
-            }
-
-            return res.json({
-                status: "success", 
-                msg: "Update successfully!",
-                newUser: user,
-            })
-        } catch (error) {
-            console.log(error);
-            if(filename !== ""){
-                cloudinary.uploader.destroy(filename)
-            }
-            return res.json({
-                status: "failed",
-                msg: "Invalid information."
-            });
-        }
-    },
-
-    updateProfile: async (req: Request, res: Response) => {
-        const userRepository = getRepository(User);
-        const userId: any = req.headers['userId'] || "";
-        let {newProfile} = req.body;
-        const {user_id, username, password, google, facebook, role, aso, ...other} = newProfile;
+        
+        const {fullname, gender, phone, address, date_of_birth } = req.body;
+        let newProfile: any = {fullname, gender, phone, address, date_of_birth}
+        if(avatar !== "") newProfile.avatar = avatar;
+        const {user_id, username, password, email, google, facebook, role, aso, ...other} = newProfile;
 
         try {
             const userDb = await userRepository.findOneOrFail({where: {user_id: userId}});
+
+            if(avatar !== "" && userDb.avatar){
+                if(!getFileName(userDb.avatar).includes('default')){
+                    cloudinary.uploader.destroy(getFileName(userDb.avatar));
+                }
+            }
             const saveProfile = {...userDb, ...other};
             await userRepository.save(saveProfile);
 
@@ -139,7 +84,9 @@ const userController = {
                 msg: "Update successfully!"
             })
         } catch (error) {
-            console.log(error)
+            if(filename !== ""){
+                cloudinary.uploader.destroy(filename)
+            }
             return res.json({
                 status: "failed",
                 msg: "Invalid information."

@@ -18,7 +18,7 @@ const packageController = {
     
             res.status(200).json({
                 status: "success",
-                data: {
+                packages: {
                     packages: packages.map(pkg => ({
                         package_id: pkg.package_id,
                         name: pkg.name,
@@ -35,7 +35,7 @@ const packageController = {
                 },
             });
         } catch (error) {
-            return res.status(500).json({ msg: "Internal server error" });
+            return res.status(500).json({ status: "failed", msg: "Internal server error" });
         }
     },
     getPackageById: async (req: Request, res: Response) => {
@@ -48,11 +48,11 @@ const packageController = {
             .where("package.package_id = :id", { id: id })
             .getOne()
             if (!packagee) {
-                return res.status(404).json({ msg: `No package with id: ${id}` });
+                return res.status(404).json({ status: "failed", msg: `No package with id: ${id}` });
             }
             res.status(200).json({
                 status: "success",
-                data: {
+                package: {
                     package: {
                         package_id: packagee.package_id,
                         name: packagee.name,
@@ -68,7 +68,7 @@ const packageController = {
                 }
             });
         } catch (error) {
-            return res.status(500).json({ msg: "Internal server error" });
+            return res.status(500).json({ status: "failed", msg: "Internal server error" });
         }
     },
     createPackage: async (req: Request | MulterFileRequest, res: Response) => {
@@ -86,10 +86,10 @@ const packageController = {
                 if(filename !== ""){
                     cloudinary.uploader.destroy(filename)
                 }
-                return res.status(400).json({ msg: "Price must be greater than or equal to 0" });
+                return res.status(400).json({ status: "failed", msg: "Price must be greater than or equal to 0" });
             }
 
-            const newPackage = packageRepository.create({ name, description, price, image });
+            const newPackage = { name, description, price, image };
             const savedPackage = await packageRepository.save(newPackage);
             
             if(features && isValidUUID(features[0])){
@@ -100,37 +100,45 @@ const packageController = {
                     .add(features);
             }
 
-            res.status(201).json({ msg: "Package added successfully" });
+            res.status(201).json({
+                status: "success",
+                msg: "Create successfully!"
+             });
         } catch (error) {
             if(filename !== ""){
                 cloudinary.uploader.destroy(filename)
             }
-            return res.status(500).json({ msg: "Internal server error" });
+            return res.status(500).json({ status: "failed", msg: "Internal server error" });
         }
     },
     updatePackage: async (req: Request | MulterFileRequest, res: Response) => {
         const { id } = req.params;
         const { name, description, price, features } = req.body;
         const packageRepository = getRepository(Package);
-        
-        const oldPackage = await packageRepository.findOne({
-            where: {
-                package_id: id,
-            },
-        })
 
         let image = "", filename = ""
         if ('file' in req && req.file) {
             image = req.file.path;
             filename = req.file.filename;
         }
+
+        let newPackage: any = {name, description, price, features}
+        if(image !== "") newPackage.image = image;
+        const {package_id, ...other} = newPackage;
+        
+        const oldPackage = await packageRepository.findOne({
+            where: {
+                package_id: id,
+            },
+        })
         
         if(!oldPackage){
             if(filename !== ""){
                 cloudinary.uploader.destroy(filename)
             }
-            return res.status(404).json({ msg: `No package with id: ${id}` });
+            return res.status(404).json({ status: "failed", msg: `No package with id: ${id}` });
         }
+
         if(image !== "" && oldPackage.image){
             cloudinary.uploader.destroy(getFileName(oldPackage.image));
         }
@@ -140,18 +148,12 @@ const packageController = {
                 if(filename !== ""){
                     cloudinary.uploader.destroy(filename)
                 }
-                return res.status(400).json({ msg: "Price must be greater than or equal to 0" });
+                return res.status(400).json({ status: "failed", msg: "Price must be greater than or equal to 0" });
             }
 
-            const packageDataToUpdate: any = {};
-            if (name) packageDataToUpdate.name = name;
-            if (description) packageDataToUpdate.description = description;
-            if (price) packageDataToUpdate.price = price;
-            if (image) packageDataToUpdate.image = image;
+            const savePackage = {...oldPackage, ...other};
+            await packageRepository.save(savePackage);
 
-            if (Object.keys(packageDataToUpdate).length > 0) {
-                await packageRepository.update(id, packageDataToUpdate);
-            }
             const result = await packageRepository.findOne({
                 where: {
                     package_id: id,
@@ -173,28 +175,42 @@ const packageController = {
                     .add(features);
                 }
             }
-            res.status(200).json({ msg: "Package updated successfully" });
+            res.status(200).json({
+                status: "success",
+                msg: "Update successfully!"
+            });
         } catch (error) {
             if(filename !== ""){
                 cloudinary.uploader.destroy(filename)
             }
-            return res.status(500).json({ msg: "Internal server error" });
+            return res.status(500).json({ status: "failed", msg: "Internal server error" });
         }
     },
     deletePackage: async (req: Request, res: Response) => {
         const { id } = req.params;
         const packageRepository = getRepository(Package);
         try {
-            const packagee = await packageRepository.delete(id);
-            if (packagee.affected === 0) {
-                return res.status(404).json({ msg: `No package with id: ${id}` });
+            const oldPackage = await packageRepository.findOne({
+                where: {
+                    package_id: id,
+                }})
+            if (!oldPackage) {
+                return res.status(404).json({ status: "failed", msg: `No package with id: ${id}` });
             }
-            res.status(200).json({ msg: "Success" });
+
+            if(oldPackage.image){
+                cloudinary.uploader.destroy(getFileName(oldPackage.image));
+            }
+
+            await packageRepository.delete(id);
+            res.status(200).json({
+                status: "success",
+                msg: "Delete successfully!"
+            });
         } catch (error) {
-            return res.status(500).json({ msg: "Internal server error" });
+            return res.status(500).json({ status: "failed", msg: "Internal server error" });
         }
     },
-
     buyPackage:  async (req: Request, res: Response) => {
 
     },

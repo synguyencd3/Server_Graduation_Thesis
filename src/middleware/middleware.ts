@@ -8,11 +8,12 @@ const middlewareController = {
     if (token) {
       const accessToken = token.split(" ")[1];
       // console.log("accessToken1: ", accessToken);
-      jwt.verify(accessToken, process.env.JWT_ACCESS_KEY as string, (err: any, user: any) => {
+      jwt.verify(accessToken, process.env.JWT_ACCESS_KEY as string, (err: any, decoded: any) => {
         if (err) {
           return res.status(401).json({ status: "failed", msg: "Token isn't valid!" });
         }
-        req.user = user;
+        //req.user = user;
+        (req as Request).headers.userId = decoded.userId;
         next();
       });
     } else {
