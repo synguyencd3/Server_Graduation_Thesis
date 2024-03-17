@@ -3,9 +3,9 @@ import nodemailer from "nodemailer";
 import jwt, { decode } from "jsonwebtoken";
 import passport, { use } from "passport";
 import { Request, Response } from "express";
-import { getRepository, getManager  } from "typeorm";
+import { getRepository, getManager } from "typeorm";
 
-import { User } from "../entities/User";
+import { User, Notification } from "../entities";
 const { v4: uuidv4 } = require("uuid");
 
 require("dotenv").config({ path: "./server/.env" });
@@ -105,22 +105,22 @@ const authController: any = {
     // console.log("USer id: ", userIdAccount);
 
     // action for association
-    if(userIdAccount && typeof userIdAccount == "string") {
+    if (userIdAccount && typeof userIdAccount == "string") {
       // check aso of this account in db
       const userRepository = getRepository(User);
-      const userDb: User|null = await userRepository.findOne({
-        where: {user_id: userIdAccount}
+      const userDb: User | null = await userRepository.findOne({
+        where: { user_id: userIdAccount }
       })
 
       // console.log("USER_DB: ", userDb);
 
-      const userGGDb: User|null = await userRepository.findOne({
+      const userGGDb: User | null = await userRepository.findOne({
         select: ["aso"],
-        where: {google: userFe.google}
+        where: { google: userFe.google }
       })
       // console.log("USER_GGDB: ", userGGDb);
 
-      if(!userDb) {
+      if (!userDb) {
         return res.json({
           status: "failed",
           msg: "invalid information account."
@@ -145,24 +145,24 @@ const authController: any = {
 
           await entityManager.transaction(async transactionalEntityManager => {
             // find and delete old google account.
-            const oldUser = await transactionalEntityManager.findOne(User, { where: {google: userFe.google}});
+            const oldUser = await transactionalEntityManager.findOne(User, { where: { google: userFe.google } });
             // console.log("OLD_USER: ", oldUser);
             if (oldUser) {
               await transactionalEntityManager.remove(oldUser);
-              console.log("FLAG4");             
+              console.log("FLAG4");
             }
             console.log("FLAG3");
             // save new information for this user with new google.
             //set value for aso
-            userDb.username?userDb.aso=1:userDb.aso=3;
-            (userDb.username && userDb.facebook)?userDb.aso=4:1;
+            userDb.username ? userDb.aso = 1 : userDb.aso = 3;
+            (userDb.username && userDb.facebook) ? userDb.aso = 4 : 1;
             //save to db
             await transactionalEntityManager.save(userDb);
 
             console.log("FLAG5");
-        });
-  
-          return res.json ({
+          });
+
+          return res.json({
             status: "success",
             msg: "linked with google successfully!"
           })
@@ -172,7 +172,7 @@ const authController: any = {
             msg: "Not eligible for linking."
           })
         }
-        
+
       } catch (error) {
         return res.json({
           status: "failed",
@@ -180,7 +180,7 @@ const authController: any = {
         })
       }
 
-    } 
+    }
 
     // action for login
     if (userFe) {
@@ -200,10 +200,10 @@ const authController: any = {
           path: "/",
           sameSite: "none",
         });
-  
+
         const { password, ...others } = userFe;
         // console.log("USER: ", userFe);
-  
+
         return res.json({
           refreshToken,
           user: others,
@@ -217,7 +217,7 @@ const authController: any = {
           msg: "error information to save db."
         })
       }
-      
+
     }
 
     return res.json({
@@ -243,22 +243,22 @@ const authController: any = {
     // console.log("USer id: ", userIdAccount);
 
     // action for association
-    if(userIdAccount && typeof userIdAccount == "string") {
+    if (userIdAccount && typeof userIdAccount == "string") {
       // check aso of this account in db
       const userRepository = getRepository(User);
-      const userDb: User|null = await userRepository.findOne({
-        where: {user_id: userIdAccount}
+      const userDb: User | null = await userRepository.findOne({
+        where: { user_id: userIdAccount }
       })
 
       // console.log("USER_DB: ", userDb);
 
-      const userGGDb: User|null = await userRepository.findOne({
+      const userGGDb: User | null = await userRepository.findOne({
         select: ["aso"],
-        where: {facebook: userFe.facebook}
+        where: { facebook: userFe.facebook }
       })
       // console.log("USER_GGDB: ", userGGDb);
 
-      if(!userDb) {
+      if (!userDb) {
         return res.json({
           status: "failed",
           msg: "invalid information account."
@@ -283,24 +283,24 @@ const authController: any = {
 
           await entityManager.transaction(async transactionalEntityManager => {
             // find and delete old facebook account.
-            const oldUser = await transactionalEntityManager.findOne(User, { where: {facebook: userFe.facebook}});
+            const oldUser = await transactionalEntityManager.findOne(User, { where: { facebook: userFe.facebook } });
             // console.log("OLD_USER: ", oldUser);
             if (oldUser) {
               await transactionalEntityManager.remove(oldUser);
-              console.log("FLAG4");             
+              console.log("FLAG4");
             }
             console.log("FLAG3");
             // save new information for this user with new facebook.
             //set value for aso
-            userDb.username?userDb.aso=2:userDb.aso=3;
-            (userDb.username && userDb.google)?userDb.aso=4:1;
+            userDb.username ? userDb.aso = 2 : userDb.aso = 3;
+            (userDb.username && userDb.google) ? userDb.aso = 4 : 1;
             //save to db
             await transactionalEntityManager.save(userDb);
 
             console.log("FLAG5");
-        });
-  
-          return res.json ({
+          });
+
+          return res.json({
             status: "success",
             msg: "linked with facebook successfully!"
           })
@@ -310,7 +310,7 @@ const authController: any = {
             msg: "Not eligible for linking."
           })
         }
-        
+
       } catch (error) {
         return res.json({
           status: "failed",
@@ -318,7 +318,7 @@ const authController: any = {
         })
       }
 
-    } 
+    }
 
     // action for login
     if (userFe) {
@@ -338,10 +338,10 @@ const authController: any = {
           path: "/",
           sameSite: "none",
         });
-  
+
         const { password, ...others } = userFe;
         // console.log("USER: ", userFe);
-  
+
         return res.json({
           refreshToken,
           user: others,
@@ -355,7 +355,7 @@ const authController: any = {
           msg: "error information to save db."
         })
       }
-      
+
     }
 
     return res.json({
@@ -411,7 +411,7 @@ const authController: any = {
       const refreshToken = authController.generateRefreshToken(userDb);
 
       refreshTokens.push(refreshToken);
-     
+
       res.cookie("refreshToken", refreshToken, {
         httpOnly: true,
         secure: true,
@@ -434,9 +434,9 @@ const authController: any = {
   },
 
   // [POST] /refresh
-  requestRefreshToken: async (req:any, res:any) => {
+  requestRefreshToken: async (req: any, res: any) => {
     const refreshToken = req.cookies.refreshToken || req.body.refreshToken;
-    
+
     if (!refreshToken)
       return res.json({ status: "failed", msg: "401 Unauthorized!" });
 
@@ -468,7 +468,7 @@ const authController: any = {
           sameSite: "none",
         });
 
-        return res.json({ accessToken: newAccessToken, refreshToken:  newRefreshToken});
+        return res.json({ accessToken: newAccessToken, refreshToken: newRefreshToken });
       }
     );
   },
@@ -499,8 +499,14 @@ const authController: any = {
 
   inviteByEmail: async (req: Request, res: Response) => {
     // check if email exists
-    const { email } = req.body;
-    console.log(email);
+    const { email, group } = req.body;
+    const userId: any = req.headers['userId'] || "";
+
+    // console.log("[1]: ", email, group, userId);
+
+    // check admin of group
+    // code here
+    // console.log(email);
     if (email === undefined) {
       return res.status(400).json({
         status: "failed",
@@ -517,12 +523,43 @@ const authController: any = {
 
     try {
       const token = jwt.sign(
-        { email, group: "" },
+        { email, group: group },
         process.env.JWT_SECRETKEY_MAIL || "jwt_key_mail",
         {
-          expiresIn: "10m",
+          expiresIn: "7d",
         }
       );
+
+      // check email is existed yet.
+      const userRepository = getRepository(User);
+      const userDb: any = await userRepository.findOne({
+        where: { email: email }
+      });
+
+      if (userDb) {
+        // get info of from user
+        const fromUser = await userRepository.findOneOrFail({
+          where: { user_id: userId }
+        })
+        // user is existed already.
+        // send notification to this user
+        const notificationRepofistory = getRepository(Notification);
+        const saveNotification = new Notification();
+        saveNotification.from = userId;
+        saveNotification.to = userDb.user_id;
+        saveNotification.description = `${fromUser.fullname} invited you to join their group.`;
+        saveNotification.token = token;
+        // console.log("[2]: ", saveNotification);
+        await notificationRepofistory.save(saveNotification);
+        // console.log("[3]")
+
+        return res.status(200).json({
+          status: "success",
+          msg: "Invited successfully!"
+        });
+      }
+      // user is existed yet => send mail.
+
 
       const mailConfigurations = {
         from: process.env.EMAIL_ADDRESS || "webnangcao.final@gmail.com",
@@ -557,6 +594,7 @@ const authController: any = {
         }
       });
     } catch (error) {
+      // console.log("[ERROR]: ", error)
       return res.json({
         status: "failed",
         msg: "Error invite, please check information again.",
@@ -566,9 +604,9 @@ const authController: any = {
 
   // [GET] /verify-invite/token
   verifyInviteFromMail: async (req: Request, res: Response) => {
-    const token: string|undefined = req.params.token;
+    const token: string | undefined = req.params.token;
 
-    if(!token) {
+    if (!token) {
       return res.json({
         status: "failed",
         "msg": "Token is invalid."

@@ -14,14 +14,18 @@ export class Notification {
     @Column()
     description!: string;
 
-    @Column()
+    @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
     date!: Date;
 
-    init(id: string, from: string, to: string, description: string, date: Date) {
+    @Column({nullable: true})
+    token!: string;
+
+    init(id: string, from: string, to: string, description: string, date: Date, token: string) {
         this.id = id;
         this.from = from;
         this.to = to;
         this.description = description;
         this.date = date;
+        this.token = token;
     }
 }
