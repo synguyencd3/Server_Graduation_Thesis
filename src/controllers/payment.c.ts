@@ -146,7 +146,7 @@ const apidocController = {
         vnp_Params['vnp_TxnRef'] = Math.floor(Math.random() * 100) + 1;        ;
         vnp_Params['vnp_OrderInfo'] = req.body.description || "Demo thanh toan VN Pay";
         vnp_Params['vnp_OrderType'] = "other";
-        vnp_Params['vnp_Amount'] = req.body.amount|| 1806000 * 100;
+        vnp_Params['vnp_Amount'] = req.body.amount* 100 || 1806000 * 100;
         vnp_Params['vnp_ReturnUrl'] = "https://www.youtube.com/watch?v=mzqvF_rIOx8";
         vnp_Params['vnp_IpAddr'] = "127.0.0.1";
         vnp_Params['vnp_CreateDate'] = `${year}${month}${day}${hours}${minutes}${seconds}`;
