@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, OneToOne, JoinColumn } from "typeorm";
+import { User } from "./User"
 import { Car } from "./Car"; // Import entities Car
 
 @Entity()
@@ -30,11 +31,18 @@ export class Salon {
     @Column({nullable: true })
     introductionMarkdown!: string;
 
+    @Column({nullable: true})
+    user_id!: string;
+
+    @OneToOne(() => User)
+    @JoinColumn({ name: 'user_id' })
+    user!: User;
+
     @OneToMany(() => Car, (car) => car.salon)
     cars!: Car[];
 
     init(name: string, address: string, image: string, email: string, phoneNumber: string,
-        banner: string[], introductionHtml: string, introductionMarkdown: string, cars: Car[]) {
+        banner: string[], introductionHtml: string, introductionMarkdown: string, user_id: string, cars: Car[]) {
         this.name = name;
         this.address = address;
         this.image = image;
@@ -43,6 +51,7 @@ export class Salon {
         this.banner = banner;
         this.introductionHtml = introductionHtml;
         this.introductionMarkdown = introductionMarkdown;
+        this.user_id = user_id
         this.cars = cars;
     }
 }

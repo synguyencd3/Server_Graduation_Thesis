@@ -43,7 +43,7 @@
     <li>[PATCH] /users/profile</li>
     Đây là cập nhật thông tin profile.
     Lưu ý cần truyền vào các thuộc tính giống với thông tin trong DB của bảng User.
-    Và đóng gọi lại một biến có tên là newProfile = {... thuộc tính cần thay đổi}.
+    Các fields bao gồm: fullname, gender, phone, address, date_of_birth, avatar. Muốn update cái nào thì truyền cái đó
     Không cần truyền vào user_id vì khi login thành công, đã có token chứa user_id bên trong header.
     <h2>PAYMENT</h2>
     <li>[POST] /payment/createOrder</li>
@@ -101,50 +101,54 @@
     <li>[POST] /packages</li>
     Truyền ở dạng form-data
     Thêm một gói dịch vụ mới. Các fields truyền vào bao gồm: name, description, price, features (là một mảng (array) id
-    các tính năng), image (1 file). Nếu price < 0 thì sẽ báo lỗi <li>[PATCH] /packages/:id</li>
-        Truyền ở dạng form-data
-        Sửa một tính năng khi biết id. Các fields (giống post), muốn update cái nào thì truyền cái đó (Nếu price < 0 thì
-            sẽ báo lỗi) <li>[DELETE] /packages/:id</li>
-            Xóa gói dịch vụ khi biết id
+    các tính năng), image (1 file). Nếu price < 0 thì sẽ báo lỗi
+    <li>[PATCH] /packages/:id</li>
+    Truyền ở dạng form-data
+    Sửa một tính năng khi biết id. Các fields (giống post), muốn update cái nào thì truyền cái đó (Nếu price < 0 thì
+    sẽ báo lỗi)
+    <li>[DELETE] /packages/:id</li>
+    Xóa gói dịch vụ khi biết id
 
-            <h2>CAR</h2>
-            <li>[GET] /cars</li>
-            Lấy được hết tất cả các xe kèm theo tên và địa chỉ salon mà xe đó thuộc về
-            <li>[GET] /cars/:id</li>
-            Lấy được xe khi biết id
-            <li>[GET] /cars/brand/:brand</li>
-            Lấy được hết tất cả xe của cùng hãng xem truyền vào tên hãng
-            <li>[POST] /cars</li>
-            Truyền ở dạng form-data
-            Thêm một xe mới. Các fields truyền vào bao gồm: name (Tên xe), description (Mô tả), origin (Xuất xứ), price
-            (Giá), brand (Hãng xe), model (Mẫu mã xe), type (Dòng xe), capacity (Dung tích xe), door (Số cửa), seat (Số
-            ghế ngồi), kilometer (Số km đã đi), gear (Hộp số), mfg (Năm sản xuất), inColor (Màu nội thất), outColor (Màu
-            ngoại thất), salonSalonId (Id Salon mà xe này thuộc về), image (tối đa là 5 file). Nếu price < 0 thì sẽ báo
-                lỗi <li>[PATCH] /cars/:id</li>
-                Truyền ở dạng form-data
-                Sửa thông tin xe khi biết id. Các fields (giống post), muốn update cái nào thì truyền cái đó (Nếu price
-                < 0 thì sẽ báo lỗi) <li>[DELETE] /cars/:id</li>
-                    Xóa xe khi biết id
+    <h2>CAR</h2>
+    <li>[GET] /cars</li>
+    Lấy được hết tất cả các xe kèm theo tên và địa chỉ salon mà xe đó thuộc về
+    <li>[GET] /cars/:id</li>
+    Lấy được xe khi biết id
+    <li>[GET] /cars/brand/:brand/salon/:salon_id</li>
+    Lấy được hết tất cả xe của cùng hãng xem truyền vào tên hãng trong 1 salon
+    <li>[POST] /cars</li>
+    Truyền ở dạng form-data
+    Thêm một xe mới. Các fields truyền vào bao gồm: name (Tên xe), description (Mô tả), origin (Xuất xứ), price
+    (Giá), brand (Hãng xe), model (Mẫu mã xe), type (Dòng xe), capacity (Dung tích xe), door (Số cửa), seat (Số
+    ghế ngồi), kilometer (Số km đã đi), gear (Hộp số), mfg (Năm sản xuất), inColor (Màu nội thất), outColor (Màu
+    ngoại thất), salonSalonId (Id Salon mà xe này thuộc về), image (tối đa là 5 file). Nếu price < 0 thì sẽ báo
+    lỗi
+    <li>[PATCH] /cars/:id</li>
+    Truyền ở dạng form-data
+    Sửa thông tin xe khi biết id. Các fields (giống post), muốn update cái nào thì truyền cái đó (Nếu price
+    < 0 thì sẽ báo lỗi)
+    <li>[DELETE] /cars/:id</li>
+    Xóa xe khi biết id
 
-                    <h2>SALON</h2>
-                    <li>[GET] /salons</li>
-                    Lấy được hết tất cả các thông tin của salon
-                    <li>[GET] /salons/:id</li>
-                    Lấy được thông tin salon khi biết id và các xe mà salon đó có
-                    <li>[POST] /salons</li>
-                    Truyền ở dạng form-data
-                    Thêm một salon mới. Các fields truyền vào bao gồm: name, address, image (1 file), email,
-                    phoneNumber, banner (tối đa 5 file), introductionHtml, introductionMarkdown
-                    <li>[PATCH] /salons/:id</li>
-                    Truyền ở dạng form-data
-                    Sửa một salon khi biết id. Các fields (giống post), muốn update cái nào thì truyền cái đó
-                    <li>[DELETE] /salons/:id</li>
-                    Xóa salon khi biết id
+    <h2>SALON</h2>
+    <li>[GET] /salons</li>
+    Lấy được hết tất cả các thông tin của salon
+    <li>[GET] /salons/my-salon</li>
+    Lấy được thông tin salon của user đang đăng nhập và các xe mà salon đó có
+    <li>[POST] /salons</li>
+    Truyền ở dạng form-data
+    Thêm một salon mới. Các fields truyền vào bao gồm: name, address, image (1 file), email,
+    phoneNumber, banner (tối đa 5 file), introductionHtml, introductionMarkdown
+    <li>[PATCH] /salons/:id</li>
+    Truyền ở dạng form-data
+    Sửa một salon khi biết id. Các fields (giống post), muốn update cái nào thì truyền cái đó
+    <li>[DELETE] /salons/:id</li>
+    Xóa salon khi biết id
 
 
-                    <h2></h2>
-                    <h2></h2>
-                    <h2></h2>
+    <h2></h2>
+    <h2></h2>
+    <h2></h2>
 </body>
 
 </html>

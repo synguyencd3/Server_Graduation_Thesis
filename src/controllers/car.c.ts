@@ -95,37 +95,38 @@ const carController = {
             return res.status(500).json({ status: "failed", msg: "Internal server error" });
         }
     },
-    getAllCarsByBrand: async (req: Request, res: Response) => {
-        const { brand } = req.params;
+    getAllCarsByBrandOfSalon: async (req: Request, res: Response) => {
+        const { brand, salon_id } = req.params;
         const carRepository = getRepository(Car);
 
         try {
             const cars = await carRepository.find({
                 where: {
-                    brand: brand
+                    brand: brand,
+                    salon: { salon_id: salon_id }
                 },
-                relations: ['salon'],
-                select: [
-                    'car_id', 'name', 'description', 'origin', 'price', 'brand', 
-                    'model', 'type', 'capacity', 'door', 'seat', 'kilometer', 
-                    'gear', 'mfg', 'inColor', 'outColor', 'image',
-                ]
+                //relations: ['salon'],
+                //select: [
+                //    'car_id', 'name', 'description', 'origin', 'price', 'brand', 
+                //    'model', 'type', 'capacity', 'door', 'seat', 'kilometer', 
+                //    'gear', 'mfg', 'inColor', 'outColor', 'image',
+                //]
             });
 
-            const formattedCars = cars.map(car => ({
-                ...car,
-                salon: {
-                    salon_id: car.salon.salon_id,
-                    name: car.salon.name,
-                    address: car.salon.address
-                }
-            }));
+            // const formattedCars = cars.map(car => ({
+            //     ...car,
+            //     salon: {
+            //         salon_id: car.salon.salon_id,
+            //         name: car.salon.name,
+            //         address: car.salon.address
+            //     }
+            // }));
 
             res.status(200).json({
                 status: "success",
                 data: {
-                    cars: formattedCars,
-                    nbHits: formattedCars.length,
+                    cars: cars,
+                    nbHits: cars.length,
                 },
             });
         } catch (error) {

@@ -37,20 +37,20 @@ const salonController = {
             return res.status(500).json({ status: "failed", msg: "Internal server error" });
         }
     },
-    getSalonById: async (req: Request, res: Response) => {
+    getSalonByUserId: async (req: Request, res: Response) => {
         const salonRepository = getRepository(Salon);
-        const { id } = req.params;
+        const user_id: any = req.headers['userId'] || "";
 
         try {
             const salon = await salonRepository.findOne({
                 where: {
-                    salon_id: id,
+                    user_id: user_id,
                 }, 
                 relations: ["cars"],
             })
 
             if (!salon) {
-                return res.status(404).json({ status: "failed", msg: `No salon with id: ${id}` });
+                return res.status(404).json({ status: "failed", msg: `No salon car found for user with id: ${user_id}` });
             }
             return res.status(200).json({
                 status: "success",
@@ -63,6 +63,7 @@ const salonController = {
     createSalon: async (req: Request | MulterFileRequest, res: Response) => {
         const salonRepository = getRepository(Salon);
         const { name, address, email, phoneNumber, introductionHtml, introductionMarkdown} = req.body;
+        const user_id: any = req.headers['userId'] || "";
 
         let image = "", filenameImage = ""
         let banner = [""], filenameBanner = [""]
@@ -82,7 +83,8 @@ const salonController = {
         }
         
         try {
-            const newSalon = { name, address, image, email, phoneNumber, banner, introductionHtml, introductionMarkdown };
+            const newSalon = { name, address, image, email, phoneNumber, banner, introductionHtml, introductionMarkdown, user_id };
+            console.log(newSalon);
             const savedSalon = await salonRepository.save(newSalon);
 
             res.status(201).json({
@@ -126,7 +128,7 @@ const salonController = {
         let newSalon: any = {name, address, email, phoneNumber, introductionHtml, introductionMarkdown,}
         if(image !== "") newSalon.image = image;
         if(Array.isArray(banner) && banner.length > 0) newSalon.banner = banner;
-        const {salon_id, ...other} = newSalon;
+        const {salon_id, user_id, ...other} = newSalon;
 
         const oldSalon = await salonRepository.findOne({
             where: {
