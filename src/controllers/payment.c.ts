@@ -3,6 +3,8 @@ import { Request, Response } from 'express';
 // import axios from 'axios';
 import querystring from 'qs';
 import * as crypto from 'crypto';
+import { getRepository } from 'typeorm';
+import { Package, User_Package } from '../entities';
 
 // const config = {
 //     appid: 2554,
@@ -124,7 +126,24 @@ const apidocController = {
     // },
     // ------------------- VNPAY------------------------//
 
-    createPaymentUrl: (req: Request, res: Response) => {
+    createPaymentUrl: async (req: Request, res: Response) => {
+        const userId: any = req.headers['userId'] || "u-test";
+        try {
+            const packageRepository = getRepository(Package);
+            const userPackageRepository = getRepository(User_Package);
+        const pkgDb = await packageRepository.findOneOrFail({
+            where: {package_id: req.body.description.package_id}
+        });
+        const userPkgDb = await userPackageRepository.findOne({
+            where: {user_id: userId, package_id: pkgDb.package_id}
+        })
+        if(userPkgDb) {
+            return res.json({
+                status: "failed",
+                msg: "This user is registerThis user has already registered for this service package."
+            })
+        }
+
         const date = new Date();
 
         date.setHours(date.getHours() + 7); // GMT+7
@@ -166,12 +185,17 @@ const apidocController = {
         vnpUrl += '?' + querystring.stringify(vnp_Params, { encode: false });
 
         return res.json({ vnpUrl });
+        } catch (error) {
+            return res.redirect((process.env.URL_CLIENT || "url_client") + "/payment/vnpay?rs=error&msg=invalid+information");
+        }
+        
+        
     },
 
     vnpayIPN: (req: Request, res: Response) => {
         var vnp_Params = req.query;
         var secureHash = vnp_Params['vnp_SecureHash'];
-        console.log("PARAMS: ", vnp_Params);
+        // console.log("PARAMS: ", vnp_Params);
 
         delete vnp_Params['vnp_SecureHash'];
         delete vnp_Params['vnp_SecureHashType'];
@@ -192,7 +216,8 @@ const apidocController = {
         return res.status(200).json({ RspCode: '97', Message: 'Fail checksum' })
     },
 
-    vnpayReturn: (req: Request, res: Response) => {
+    vnpayReturn: async (req: Request, res: Response) => {
+        const userId: any = req.headers['userId'] || "u-test";
         var vnp_Params = req.query;
         var secureHash = vnp_Params['vnp_SecureHash'];
 
@@ -211,16 +236,35 @@ const apidocController = {
         var hmac = crypto.createHmac("sha512", secretKey);
         var signed = hmac.update(new Buffer(signData, 'utf-8')).digest("hex");
 
-        if (secureHash === signed && vnp_Params.vnp_ResponseCode == "00") {
-            // Khong luu du lieu o day nhung day la test o localhost nen luu tam o day
-            // add package for user
+        // find information for orderid
+        try {
+            const packageRepository = getRepository(Package);
+            const packageDb = await packageRepository.findOneOrFail({
+                where: {package_id: orderInfor.package_id}
+            })
 
-            return res.redirect((process.env.URL_CLIENT || "url_client") + "/payment/vnpay?rs=success");
+            if (secureHash === signed && vnp_Params.vnp_ResponseCode == "00") {
+                // Khong luu du lieu o day nhung day la test o localhost nen luu tam o day
+                // add package for user
+                const userPackageRepository = getRepository(User_Package);
+                const saveInfo = new User_Package();
+                saveInfo.user_id = userId;
+                saveInfo.package_id = orderInfor.package_id;
+                await userPackageRepository.save(saveInfo)
+    
+                return res.redirect((process.env.URL_CLIENT || "url_client") + `/payment/vnpay?rs=success&amount=${vnp_Params.vnp_Amount}&item=${packageDb.name}`);
+            }
+    
+            // console.log("OrderInfor: ", orderInfor, orderInfor.orderId, orderInfor.userId);
+            return res.redirect((process.env.URL_CLIENT || "url_client") + "/payment/vnpay?rs=failed");
+    
+        } catch (error) {
+            console.log(error);
+            return res.redirect((process.env.URL_CLIENT || "url_client") + "/payment/vnpay?rs=error&msg=invalid+information");
         }
 
-        // console.log("OrderInfor: ", orderInfor, orderInfor.orderId, orderInfor.userId);
 
-        return res.redirect((process.env.URL_CLIENT || "url_client") + "/payment/vnpay?rs=failed");
+
     }
 };
 
