@@ -2,9 +2,11 @@ import {
     Entity,
     Column,
     Unique,
-    PrimaryColumn
+    PrimaryColumn,
+    OneToMany
 } from "typeorm";
 import { Length, IsNotEmpty } from "class-validator";
+import { Purchase } from "./Purchase";
 
 @Entity()
 @Unique(["username"])
@@ -42,7 +44,7 @@ export class User {
     @Length(0, 200)
     address!: string;
 
-    @Column({nullable: true})
+    @Column({ type: 'timestamptz', nullable: true})
     date_of_birth!: Date;
 
     @Column({nullable: true})
@@ -63,6 +65,9 @@ export class User {
 
     @Column({nullable: true})
     aso!: number;
+
+    @OneToMany(() => Purchase, purchase => purchase.user)
+    packages!: Purchase[];
 
     init(user_id: string, username: string, password: string, fullname: string, gender: string, phone: string, email: string, address: string, 
         date_of_birth: Date, avatar: string, role: string, facebook: string, google: string, aso: number) {

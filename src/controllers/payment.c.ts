@@ -4,7 +4,7 @@ import { Request, Response } from 'express';
 import querystring from 'qs';
 import * as crypto from 'crypto';
 import { getRepository } from 'typeorm';
-import { Package, User_Package } from '../entities';
+import { Package, Purchase } from '../entities';
 
 // const config = {
 //     appid: 2554,
@@ -132,13 +132,13 @@ const apidocController = {
 
         try {
             const packageRepository = getRepository(Package);
-            const userPackageRepository = getRepository(User_Package);
+            const userPackageRepository = getRepository(Purchase);
             const packageDb = await packageRepository.findOneOrFail({
                 where: { package_id: packageId }
             });
 
             const userPkgDb = await userPackageRepository.findOne({
-                where: { user_id: userId, package_id: packageId }
+                where: { userId: userId, packageId: packageId }
             })
 
             if (userPkgDb) {
@@ -257,10 +257,10 @@ const apidocController = {
             if (secureHash === signed && vnp_Params.vnp_ResponseCode == "00") {
                 // Khong luu du lieu o day nhung day la test o localhost nen luu tam o day
                 // add package for user
-                const userPackageRepository = getRepository(User_Package);
-                const saveInfo = new User_Package();
-                saveInfo.user_id = userId;
-                saveInfo.package_id = package_id;
+                const userPackageRepository = getRepository(Purchase);
+                const saveInfo = new Purchase();
+                saveInfo.userId = userId;
+                saveInfo.packageId = package_id;
                 await userPackageRepository.save(saveInfo)
 
                 return res.redirect((process.env.URL_CLIENT || "url_client") + `/payment/vnpay?rs=success&amount=${vnp_Params.vnp_Amount}&item=${packageDb.name}`);

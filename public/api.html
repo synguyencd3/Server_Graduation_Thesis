@@ -149,8 +149,16 @@
     <li>[DELETE] /salons/:id</li>
     Xóa salon khi biết id
 
-
-    <h2></h2>
+    <h2>PURCHASE</h2>
+    <li>[GET] /purchase</li>
+    Cho biết user đã mua được những gói dịch vụ nào rồi và các chức năng có trong gói đó. Cái tính năng bây giờ có
+    thêm cái keyMap để mình có thể dựa vào đó để render ra các tính năng tương ứng cho user sử dụng. Cái id nó generate ra
+    ngẫu nhiên nên không dùng được
+    <li>[POST] /purchase</li>
+    Khi mua gói dịch vụ thành công (thanh toán rồi) thì ta sẽ gọi để thêm vào bảng purchase cho biết
+    user này đã mua được các gói dịch vụ nào.
+    Các fields cần truyền vào bao gồm: packageId, purchaseDate(ngày mua), expirationDate(ngày hết hạn), total
+    Cái price trong gói dịch vụ ban đầu là tiền trong 1 tháng. Tổng tiền (total) ở đây là tiền/tháng * số tháng
     <h2></h2>
     <h2></h2>
 </body>

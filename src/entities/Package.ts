@@ -1,5 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToMany, JoinTable, Check } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToMany, JoinTable, Check, OneToMany } from 'typeorm';
 import { Feature } from './Feature';
+import { Purchase } from "./Purchase";
 
 @Entity()
 export class Package {
@@ -22,6 +23,9 @@ export class Package {
     @ManyToMany(() => Feature, { cascade: true })
     @JoinTable()
     features!: Feature[];
+
+    @OneToMany(() => Purchase, purchase => purchase.package)
+    users!: Purchase[];
 
     init(name: string, description: string, price: number, features: Feature[]) {
         this.name = name;

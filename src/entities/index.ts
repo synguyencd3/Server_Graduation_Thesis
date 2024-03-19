@@ -4,4 +4,4 @@ export * from './Feature';
 export * from './Car';
 export * from './Salon';
 export * from './Notification';
-export * from './User_Package';
+export * from './Purchase';

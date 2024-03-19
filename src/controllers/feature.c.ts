@@ -43,10 +43,10 @@ const featureController = {
     },
     createFeature: async (req: Request, res: Response) => {
         const featureRepository = getRepository(Feature);
-        const { name, description } = req.body;
+        const { name, description, keyMap } = req.body;
         
         try {
-            const newFeature = { name, description };
+            const newFeature = { name, description, keyMap };
             const savedFeature = await featureRepository.save(newFeature);
             res.status(201).json({
                 status: "success",
@@ -59,11 +59,11 @@ const featureController = {
     },
     updateFeature: async (req: Request, res: Response) => {
         const { id } = req.params;
-        const { name, description } = req.body;
+        const { name, description, keyMap } = req.body;
         const featureRepository = getRepository(Feature);
         
         try {
-            const feature = await featureRepository.update(id, { name, description });
+            const feature = await featureRepository.update(id, { name, description, keyMap });
             if (feature.affected === 0) {
                 return res.status(404).json({ status: "failed", msg: `No feature with id: ${id}` });
             }

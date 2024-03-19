@@ -57,7 +57,7 @@ export class Car {
     gear!: string;
 
     // Năm sản xuất
-    @Column({nullable: true})
+    @Column({ type: 'timestamptz', nullable: true})
     mfg!: Date;
 
     // Màu nội thất

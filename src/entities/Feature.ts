@@ -11,8 +11,12 @@ export class Feature {
     @Column({nullable: true})
     description!: string;
 
-    init(name: string, description: string) {
+    @Column({nullable: true})
+    keyMap!: string;
+
+    init(name: string, description: string, keyMap: string) {
         this.name = name;
         this.description = description;
+        this.keyMap = keyMap
     }
 }

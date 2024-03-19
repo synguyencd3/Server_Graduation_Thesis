@@ -7,6 +7,7 @@ import carRouter from './car.r';
 import salonRouter from './salon.r';
 import apidocRouter from './apidoc.r';
 import paymentRouter from './payment.r';
+import purchaseRouter from './purchase';
 
 function router(app: Express) {
   app.use("/auth", authRouter);
@@ -17,6 +18,7 @@ function router(app: Express) {
   app.use("/salons", salonRouter);
   app.use("/api", apidocRouter);
   app.use("/payment", paymentRouter);
+  app.use("/purchase", purchaseRouter);
 }
 
 export default router;
