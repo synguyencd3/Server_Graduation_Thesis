@@ -55,9 +55,8 @@
     Đây là dùng để query trạng thái đơn hàng đã được thanh toán chưa. Cần truyền vô {"app_trans_id": "mã đơn hàng "}.
     <h3>VN PAY</h3>
     <li>[POST] /payment/create_payment_url</li>
-    có thể truyền vô thông tin như sau nếu muốn: {"amount": 100011, "description": {"orderId": "123asd","userId" : "82hdhcmnhawie1"}}
-    <b>description:</b> đây là thông tin cần để lưu lại là người dùng đã mua thành công trong database. Sẽ cần thảo luận lại sau. Trước mắt thì
-    không cần truyền cũng chả sao.
+    Cần truyền vô id của gói mà muốn mua {package_id : "id"}. Để gọi được thì người dùng cần phải login thành công.
+    Sẽ nhận lại một url, cần mở link lên trong trình duyệt và thực hiện nhập thông tin thanh toán.
     Chọn ngân hàng nội quốc và thông tin thẻ như sau:
     <table>
         <tr>
@@ -81,10 +80,11 @@
             <td>123456</td>
         </tr>
     </table>
-    Thanh toán thành công thì sẽ được redirect đến localhost:3000/payment/vnpay?rs=success
+    Thanh toán thành công thì sẽ được redirect đến localhost:3000/payment/vnpay?rs=success& ...với chuỗi thì cần giải mã để ra chuỗi đúng.
+    Cần hiển thị lại cho người dùng là thanh toán thành công và thông tin đã thanh toán.
     Thất bại thì  localhost:3000/payment/vnpay?rs=failed
     Bên web chú ý tạo thêm router để nhận và hiển thị hoặc thông báo nhé.
-    Mobile: Có lẻ cần nghiên cứu thêm, cơ chế khác nhau.
+    
     <h2>FEATURE</h2>
     <li>[GET] /features</li>
     Lấy được hết tất cả những tính năng

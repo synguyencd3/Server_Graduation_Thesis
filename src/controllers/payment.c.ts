@@ -128,68 +128,77 @@ const apidocController = {
 
     createPaymentUrl: async (req: Request, res: Response) => {
         const userId: any = req.headers['userId'] || "u-test";
+        const packageId: any = req.body.package_id;
+
         try {
             const packageRepository = getRepository(Package);
             const userPackageRepository = getRepository(User_Package);
-        const pkgDb = await packageRepository.findOneOrFail({
-            where: {package_id: req.body.description.package_id}
-        });
-        const userPkgDb = await userPackageRepository.findOne({
-            where: {user_id: userId, package_id: pkgDb.package_id}
-        })
-        if(userPkgDb) {
-            return res.json({
-                status: "failed",
-                msg: "This user is registerThis user has already registered for this service package."
+            const packageDb = await packageRepository.findOneOrFail({
+                where: { package_id: packageId }
+            });
+
+            const userPkgDb = await userPackageRepository.findOne({
+                where: { user_id: userId, package_id: packageId }
             })
-        }
 
-        const date = new Date();
+            if (userPkgDb) {
+                return res.json({
+                    status: "failed",
+                    msg: "This user is registerThis user has already registered for this service package."
+                })
+            }
 
-        date.setHours(date.getHours() + 7); // GMT+7
+            const orderInfor = {
+                user_id: userId,
+                package_id: packageId
+            }
 
-        // Lấy các thành phần của ngày giờ (năm, tháng, ngày, giờ, phút, giây)
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0'); // Thêm số 0 đằng trước nếu cần
-        const day = String(date.getDate()).padStart(2, '0');
-        const hours = String(date.getHours()).padStart(2, '0');
-        const minutes = String(date.getMinutes()).padStart(2, '0');
-        const seconds = String(date.getSeconds()).padStart(2, '0');
+            const date = new Date();
 
-        var vnp_Params: any = {};
+            date.setHours(date.getHours() + 7); // GMT+7
 
-        vnp_Params['vnp_Version'] = '2.1.0';
-        vnp_Params['vnp_Command'] = 'pay';
-        vnp_Params['vnp_TmnCode'] = "DRQT53YH";
-        // vnp_Params['vnp_Merchant'] = ''
-        vnp_Params['vnp_Locale'] = "vn";
-        vnp_Params['vnp_CurrCode'] = 'VND';
-        vnp_Params['vnp_TxnRef'] = Math.floor(Math.random() * 100) + 1;;
-        vnp_Params['vnp_OrderInfo'] = JSON.stringify(req.body.description) || "Demo thanh toan VN Pay";
-        vnp_Params['vnp_OrderType'] = "other";
-        vnp_Params['vnp_Amount'] = req.body.amount * 100 || 180600 * 100;
-        vnp_Params['vnp_ReturnUrl'] = "http://localhost:5000/payment/vnpay_return";
-        vnp_Params['vnp_IpAddr'] = "127.0.0.1";
-        vnp_Params['vnp_CreateDate'] = `${year}${month}${day}${hours}${minutes}${seconds}`;
-        vnp_Params['vnp_BankCode'] = "NCB";
+            // Lấy các thành phần của ngày giờ (năm, tháng, ngày, giờ, phút, giây)
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0'); // Thêm số 0 đằng trước nếu cần
+            const day = String(date.getDate()).padStart(2, '0');
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            const seconds = String(date.getSeconds()).padStart(2, '0');
 
-        let vnpUrl = config_vn.vnp_Url;
-        let secretKey = config_vn.vnp_HashSecret;
+            var vnp_Params: any = {};
 
-        vnp_Params = sortObject(vnp_Params);
+            vnp_Params['vnp_Version'] = '2.1.0';
+            vnp_Params['vnp_Command'] = 'pay';
+            vnp_Params['vnp_TmnCode'] = "DRQT53YH";
+            // vnp_Params['vnp_Merchant'] = ''
+            vnp_Params['vnp_Locale'] = "vn";
+            vnp_Params['vnp_CurrCode'] = 'VND';
+            vnp_Params['vnp_TxnRef'] = Math.floor(Math.random() * 100) + 1;;
+            vnp_Params['vnp_OrderInfo'] = JSON.stringify(orderInfor) || "Demo thanh toan VN Pay";
+            vnp_Params['vnp_OrderType'] = "other";
+            vnp_Params['vnp_Amount'] = packageDb.price * 100;
+            vnp_Params['vnp_ReturnUrl'] = "http://localhost:5000/payment/vnpay_return";
+            vnp_Params['vnp_IpAddr'] = "127.0.0.1";
+            vnp_Params['vnp_CreateDate'] = `${year}${month}${day}${hours}${minutes}${seconds}`;
+            vnp_Params['vnp_BankCode'] = "NCB";
 
-        var signData = querystring.stringify(vnp_Params, { encode: false });
-        var hmac = crypto.createHmac("sha512", secretKey);
-        var signed = hmac.update(new Buffer(signData, 'utf-8')).digest("hex");
-        vnp_Params['vnp_SecureHash'] = signed;
-        vnpUrl += '?' + querystring.stringify(vnp_Params, { encode: false });
+            let vnpUrl = config_vn.vnp_Url;
+            let secretKey = config_vn.vnp_HashSecret;
 
-        return res.json({ vnpUrl });
+            vnp_Params = sortObject(vnp_Params);
+
+            var signData = querystring.stringify(vnp_Params, { encode: false });
+            var hmac = crypto.createHmac("sha512", secretKey);
+            var signed = hmac.update(new Buffer(signData, 'utf-8')).digest("hex");
+            vnp_Params['vnp_SecureHash'] = signed;
+            vnpUrl += '?' + querystring.stringify(vnp_Params, { encode: false });
+
+            return res.json({ vnpUrl });
         } catch (error) {
             return res.redirect((process.env.URL_CLIENT || "url_client") + "/payment/vnpay?rs=error&msg=invalid+information");
         }
-        
-        
+
+
     },
 
     vnpayIPN: (req: Request, res: Response) => {
@@ -217,11 +226,13 @@ const apidocController = {
     },
 
     vnpayReturn: async (req: Request, res: Response) => {
-        const userId: any = req.headers['userId'] || "u-test";
+        
         var vnp_Params = req.query;
         var secureHash = vnp_Params['vnp_SecureHash'];
 
         const orderInfor = JSON.parse(decodeURIComponent(vnp_Params.vnp_OrderInfo as any));
+        const userId: any = orderInfor.user_id;
+        const package_id: any = orderInfor.package_id;
 
         // console.log("PARAM VNPAY RETURN: ", vnp_Params);
 
@@ -240,7 +251,7 @@ const apidocController = {
         try {
             const packageRepository = getRepository(Package);
             const packageDb = await packageRepository.findOneOrFail({
-                where: {package_id: orderInfor.package_id}
+                where: { package_id: package_id }
             })
 
             if (secureHash === signed && vnp_Params.vnp_ResponseCode == "00") {
@@ -249,15 +260,15 @@ const apidocController = {
                 const userPackageRepository = getRepository(User_Package);
                 const saveInfo = new User_Package();
                 saveInfo.user_id = userId;
-                saveInfo.package_id = orderInfor.package_id;
+                saveInfo.package_id = package_id;
                 await userPackageRepository.save(saveInfo)
-    
+
                 return res.redirect((process.env.URL_CLIENT || "url_client") + `/payment/vnpay?rs=success&amount=${vnp_Params.vnp_Amount}&item=${packageDb.name}`);
             }
-    
+
             // console.log("OrderInfor: ", orderInfor, orderInfor.orderId, orderInfor.userId);
             return res.redirect((process.env.URL_CLIENT || "url_client") + "/payment/vnpay?rs=failed");
-    
+
         } catch (error) {
             console.log(error);
             return res.redirect((process.env.URL_CLIENT || "url_client") + "/payment/vnpay?rs=error&msg=invalid+information");
