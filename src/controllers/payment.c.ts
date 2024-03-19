@@ -261,7 +261,10 @@ const apidocController = {
                 const saveInfo = new Purchase();
                 saveInfo.userId = userId;
                 saveInfo.packageId = package_id;
-                saveInfo.purchaseDate = new Date();
+                let today: Date = new Date();
+                saveInfo.purchaseDate = today;
+                today.setMonth(today.getMonth() + 6);
+                saveInfo.expirationDate = today;
                 await userPackageRepository.save(saveInfo)
 
                 return res.redirect((process.env.URL_CLIENT || "url_client") + `/payment/vnpay?rs=success&amount=${vnp_Params.vnp_Amount}&item=${packageDb.name}`);
