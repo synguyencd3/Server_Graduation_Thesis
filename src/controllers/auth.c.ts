@@ -369,6 +369,8 @@ const authController: any = {
     const FACEBOOK_GRAPH_API_VERSION = 'v15.0';
     const userIdAccount: any = req.headers['userId'];
 
+    // console.log("accessToken: ", accessToken);
+
     if(!accessToken) {
       return res.json({
         status: "failed",
@@ -384,13 +386,15 @@ const authController: any = {
         where: { facebook: email }
       })
 
+      // console.log("respone: ", response);
+
       if (!userFe) {
         userFe = new User();
         userFe.user_id = id;
         userFe.aso = 1;
         userFe.facebook = email;
       }
-
+      // console.log("User fe: ", userFe);
       // action for association
       if (userIdAccount && typeof userIdAccount == "string") {
         // check aso of this account in db
@@ -399,13 +403,13 @@ const authController: any = {
           where: { user_id: userIdAccount }
         })
 
-        // console.log("USER_DB: ", userDb);
+        console.log("USER_DB: ", userDb);
 
         const userGGDb: User | null = await userRepository.findOne({
           select: ["aso"],
           where: { facebook: userFe.facebook }
         })
-        // console.log("USER_GGDB: ", userGGDb);
+        console.log("USER_GGDB: ", userGGDb);
 
         if (!userDb) {
           return res.json({
@@ -433,7 +437,7 @@ const authController: any = {
             await entityManager.transaction(async transactionalEntityManager => {
               // find and delete old facebook account.
               const oldUser = await transactionalEntityManager.findOne(User, { where: { facebook: userFe.facebook } });
-              // console.log("OLD_USER: ", oldUser);
+              console.log("OLD_USER: ", oldUser);
               if (oldUser) {
                 await transactionalEntityManager.remove(oldUser);
                 console.log("FLAG4");
@@ -471,8 +475,8 @@ const authController: any = {
 
       // action for login
       if (userFe) {
-        const accessToken = authController.generateAccessToken(req.user);
-        const refreshToken = authController.generateRefreshToken(req.user);
+        const accessToken = authController.generateAccessToken(userFe);
+        const refreshToken = authController.generateRefreshToken(userFe);
 
         refreshTokens.push(refreshToken);
 
@@ -480,13 +484,6 @@ const authController: any = {
         const userRepository = getRepository(User);
         try {
           await userRepository.save(userFe);
-
-          res.cookie("refreshToken", refreshToken, {
-            httpOnly: true,
-            secure: true,
-            path: "/",
-            sameSite: "none",
-          });
 
           const { password, ...others } = userFe;
           // console.log("USER: ", userFe);
@@ -514,8 +511,9 @@ const authController: any = {
 
     } catch (error) {
       return res.json({
+        error,
         status: "failed",
-        msg: "acess token is invalid or expired."
+        msg: "The access token is invalid or has expired."
       });
     }
   },
@@ -584,7 +582,7 @@ const authController: any = {
         msg: "login successfully!",
       });
     } catch (error) {
-      console.log(error);
+      // console.log(error);
       res.json({ status: "failed", msg: "login failure." });
     }
   },
