@@ -18,14 +18,14 @@ export class Notification {
     date!: Date;
 
     @Column({nullable: true})
-    token!: string;
+    url!: string;
 
-    init(id: string, from: string, to: string, description: string, date: Date, token: string) {
+    init(id: string, from: string, to: string, description: string, date: Date, url: string) {
         this.id = id;
         this.from = from;
         this.to = to;
         this.description = description;
         this.date = date;
-        this.token = token;
+        this.url = url;
     }
 }

@@ -3,8 +3,8 @@ import nodemailer from "nodemailer";
 import jwt, { decode } from "jsonwebtoken";
 import passport, { use } from "passport";
 import { Request, Response } from "express";
-import { getRepository, getManager } from "typeorm";
-
+import { getRepository, getManager, Any } from "typeorm";
+import axios from "axios";
 import { User, Notification } from "../entities";
 const { v4: uuidv4 } = require("uuid");
 
@@ -364,6 +364,162 @@ const authController: any = {
     })
   },
 
+  facebookAuthMobile: async (req: Request, res: Response) => {
+    const accessToken = req.body.accessToken;
+    const FACEBOOK_GRAPH_API_VERSION = 'v15.0';
+    const userIdAccount: any = req.headers['userId'];
+
+    if(!accessToken) {
+      return res.json({
+        status: "failed",
+        msg: "invalid acesstoken facebook."
+      })
+    }
+
+    try {
+      const response = await axios.get(`https://graph.facebook.com/${FACEBOOK_GRAPH_API_VERSION}/me?access_token=${accessToken}&fields=id,name,email`);
+      const { id, name, email } = response.data;
+      const userRepository = getRepository(User);
+      let userFe: any = await userRepository.findOne({
+        where: { facebook: email }
+      })
+
+      if (!userFe) {
+        userFe = new User();
+        userFe.user_id = id;
+        userFe.aso = 1;
+        userFe.facebook = email;
+      }
+
+      // action for association
+      if (userIdAccount && typeof userIdAccount == "string") {
+        // check aso of this account in db
+        const userRepository = getRepository(User);
+        const userDb: User | null = await userRepository.findOne({
+          where: { user_id: userIdAccount }
+        })
+
+        // console.log("USER_DB: ", userDb);
+
+        const userGGDb: User | null = await userRepository.findOne({
+          select: ["aso"],
+          where: { facebook: userFe.facebook }
+        })
+        // console.log("USER_GGDB: ", userGGDb);
+
+        if (!userDb) {
+          return res.json({
+            status: "failed",
+            msg: "invalid information account."
+          })
+        }
+
+        if (userDb.facebook) {
+          return res.json({
+            status: "failed",
+            msg: "This account is linked."
+          })
+        }
+
+        console.log("FLAG1");
+
+        try {
+          // link successfully
+          if ((!userGGDb) || (userGGDb.aso == 0) || (userDb.username && userFe.aso == 3) || (userDb.google && userFe.aso == 2)) {
+            console.log("FLAG2");
+            userDb.facebook = userFe.facebook;
+            const entityManager = getManager();
+
+            await entityManager.transaction(async transactionalEntityManager => {
+              // find and delete old facebook account.
+              const oldUser = await transactionalEntityManager.findOne(User, { where: { facebook: userFe.facebook } });
+              // console.log("OLD_USER: ", oldUser);
+              if (oldUser) {
+                await transactionalEntityManager.remove(oldUser);
+                console.log("FLAG4");
+              }
+              console.log("FLAG3");
+              // save new information for this user with new facebook.
+              //set value for aso
+              userDb.username ? userDb.aso = 2 : userDb.aso = 3;
+              (userDb.username && userDb.google) ? userDb.aso = 4 : 1;
+              //save to db
+              await transactionalEntityManager.save(userDb);
+
+              console.log("FLAG5");
+            });
+
+            return res.json({
+              status: "success",
+              msg: "linked with facebook successfully!"
+            })
+          } else {
+            return res.json({
+              status: "failed",
+              msg: "Not eligible for linking."
+            })
+          }
+
+        } catch (error) {
+          return res.json({
+            status: "failed",
+            msg: "error with db."
+          })
+        }
+
+      }
+
+      // action for login
+      if (userFe) {
+        const accessToken = authController.generateAccessToken(req.user);
+        const refreshToken = authController.generateRefreshToken(req.user);
+
+        refreshTokens.push(refreshToken);
+
+        // save user to db
+        const userRepository = getRepository(User);
+        try {
+          await userRepository.save(userFe);
+
+          res.cookie("refreshToken", refreshToken, {
+            httpOnly: true,
+            secure: true,
+            path: "/",
+            sameSite: "none",
+          });
+
+          const { password, ...others } = userFe;
+          // console.log("USER: ", userFe);
+
+          return res.json({
+            refreshToken,
+            user: others,
+            accessToken,
+            status: "success",
+            msg: "login successfully!",
+          });
+        } catch (error) {
+          return res.json({
+            status: "failed",
+            msg: "error information to save db."
+          })
+        }
+
+      }
+
+      return res.json({
+        status: "failed",
+        msg: "error facebook account."
+      })
+
+    } catch (error) {
+      return res.json({
+        status: "failed",
+        msg: "acess token is invalid or expired."
+      });
+    }
+  },
+
   // [POST] /login
   loginUser: async (req: any, res: any) => {
     const username = req.body.username;
@@ -548,7 +704,7 @@ const authController: any = {
         saveNotification.from = userId;
         saveNotification.to = userDb.user_id;
         saveNotification.description = `${fromUser.fullname} invited you to join their group.`;
-        saveNotification.token = token;
+        saveNotification.url = token;
         // console.log("[2]: ", saveNotification);
         await notificationRepofistory.save(saveNotification);
         // console.log("[3]")

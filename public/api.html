@@ -36,6 +36,10 @@
     <li>[GET] /auth/verify-invite/:token</li>
     Bên web sẽ cần lấy ra token khi người dùng ấn liên kết trong email khi được mời. Web cần xử lý và gửi token về cho
     server để xác nhận.
+    <h3>FACEBOOK MOBILE</h3>
+    <li>[POST] /auth/facebook-mobile</li>
+    Cần truyền vô accesstoken. Về liên kết tài khoản thì cũng gọi đến router này luôn. Và không cần truyền gì thêm chỉ truyền accesstoken
+    của account mới cần liên kết với nó (account cần liên kết không phải account đang login).
 
     <h2>PROFILE</h2>
     <li>[GET] /users/profile</li>

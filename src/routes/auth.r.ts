@@ -47,6 +47,8 @@ router.get('/facebook/callback',
   authController.facebookAuth
 );
 
+router.post('/facebook-mobile', authController.facebookAuthMobile);
+
 router.post("/refresh", middlewareController.verifyRefreshToken, authController.requestRefreshToken);
 
 router.post("/logout", middlewareController.verifyToken, authController.logoutUser);
