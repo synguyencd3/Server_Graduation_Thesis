@@ -51,7 +51,8 @@ router.post('/facebook-mobile', middlewareController.getUserId, authController.f
 
 router.post("/refresh", middlewareController.verifyRefreshToken, authController.requestRefreshToken);
 
-router.post("/logout", middlewareController.verifyToken, authController.logoutUser);
+// router.post("/logout", middlewareController.verifyToken, authController.logoutUser);
+router.post("/logout", authController.logoutUser);
 
 router.post("/invite", middlewareController.verifyToken, authController.inviteByEmail)
 

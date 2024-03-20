@@ -629,20 +629,20 @@ const authController: any = {
 
   // [POST] /logout
   logoutUser: async (req: Request, res: Response) => {
-    const { user_id } = req.body;
-    if (user_id === undefined) {
-      return res.json({
-        status: "failed",
-        msg: "Missing required input data",
-      });
-    }
+    // const { user_id } = req.body;
+    // if (user_id === undefined) {
+    //   return res.json({
+    //     status: "failed",
+    //     msg: "Missing required input data",
+    //   });
+    // }
 
-    if (typeof user_id !== "string") {
-      return res.json({
-        status: "failed",
-        msg: "Invalid data types for input (user_id should be string)",
-      });
-    }
+    // if (typeof user_id !== "string") {
+    //   return res.json({
+    //     status: "failed",
+    //     msg: "Invalid data types for input (user_id should be string)",
+    //   });
+    // }
 
     refreshTokens = refreshTokens.filter(
       (token) => token !== req.cookies.refreshToken || req.body.refreshToken
