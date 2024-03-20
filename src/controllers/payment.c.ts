@@ -267,7 +267,7 @@ const apidocController = {
                 saveInfo.expirationDate = today;
                 await userPackageRepository.save(saveInfo)
 
-                return res.redirect((process.env.URL_CLIENT || "url_client") + `/payment/vnpay?rs=success&amount=${vnp_Params.vnp_Amount}&item=${packageDb.name}`);
+                return res.redirect((process.env.URL_CLIENT || "url_client") + `/payment/vnpay?rs=success&amount=${Number(vnp_Params.vnp_Amount)/100}&item=${packageDb.name}`);
             }
 
             // console.log("OrderInfor: ", orderInfor, orderInfor.orderId, orderInfor.userId);
