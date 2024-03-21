@@ -6,8 +6,8 @@ import uploadCloud from "../middleware/uploader";
 const router = Router();
 
 router.get("/", salonController.getAllSalons);
-router.get("/:id", salonController.getSalonById);
 router.get("/my-salon", middlewareController.verifyToken, salonController.getSalonByUserId);
+router.get("/:id", salonController.getSalonById);
 router.post("/", middlewareController.verifyToken, uploadCloud.fields([
     { name: "image", maxCount: 1 },
     { name: "banner", maxCount: 5 },

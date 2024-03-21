@@ -42,7 +42,7 @@ const authController: any = {
     user.password = req.body.password;
     user.fullname = req.body.fullname;
     user.avatar =
-      "https://cdn.icon-icons.com/icons2/1378/PNG/512/avatardefault_92824.png";
+      `https://avatar.iran.liara.run/username?username=${user.username}`;
     user.role = "User";
     user.aso = 0;
 
