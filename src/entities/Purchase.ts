@@ -18,10 +18,10 @@ export class Purchase {
   @JoinColumn({ name: "packageId" })
   package!: Package;
 
-  @Column({ type: 'timestamptz', nullable: true })
+  @Column({ type: 'timestamptz' })
   purchaseDate!: Date;
 
-  @Column({ type: 'timestamptz', nullable: true })
+  @Column({ type: 'timestamptz' })
   expirationDate!: Date;
 
   @Column({nullable: true, type: 'float'})

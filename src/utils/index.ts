@@ -18,7 +18,7 @@ function isValidUUID(uuid: string) {
   return uuidRegex.test(uuid);
 }
 
-function getFileName(url: string){
+function getFileName(url: string) {
   const parts = url.split("/");
   const fileNameWithExtension = parts.pop();
   if(fileNameWithExtension){
@@ -28,4 +28,17 @@ function getFileName(url: string){
   return '';
 }
 
-export {generateRandomCode, isValidUUID, getFileName};
+function getLocalDateTime() {
+  const date = new Date();
+
+  return date.toLocaleString();
+}
+
+function calExpiryDate(purchaseDate: string, duration: number) {
+  const date = new Date(purchaseDate);
+  date.setMonth(date.getMonth() + duration);
+
+  return date.toLocaleString();
+}
+
+export {generateRandomCode, isValidUUID, getFileName, getLocalDateTime, calExpiryDate};

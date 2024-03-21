@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { Purchase } from "../entities/Purchase";
 import { getRepository } from "typeorm";
+import { getLocalDateTime, calExpiryDate } from "../utils/index"
 
 const userPurchaseController = {
     getAllPurchasePackages: async (req: Request, res: Response) => {
@@ -32,7 +33,9 @@ const userPurchaseController = {
     },
     createPurchasePackage: async (req: Request, res: Response) => {
         const userPurchaseRepository = getRepository(Purchase);
-        const { packageId, purchaseDate, expirationDate, total } = req.body;
+        const { packageId, month, total } = req.body;
+        const purchaseDate = getLocalDateTime();
+        const expirationDate  = calExpiryDate(purchaseDate, month);
         const userId: any = req.headers['userId'] || "";
 
         try {

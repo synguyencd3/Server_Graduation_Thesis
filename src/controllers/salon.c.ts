@@ -37,29 +37,6 @@ const salonController = {
             return res.status(500).json({ status: "failed", msg: "Internal server error" });
         }
     },
-    getSalonById: async (req: Request, res: Response) => {
-        const salonRepository = getRepository(Salon);
-        const { id } = req.params;
-
-        try {
-            const salon = await salonRepository.findOne({
-                where: {
-                    salon_id: id,
-                }, 
-                relations: ["cars"],
-            })
-
-            if (!salon) {
-                return res.status(404).json({ status: "failed", msg: `No salon with id: ${id}` });
-            }
-            return res.status(200).json({
-                status: "success",
-                salon: salon
-            });
-        } catch (error) {
-            return res.status(500).json({ status: "failed", msg: "Internal server error" });
-        }
-    },
     getSalonByUserId: async (req: Request, res: Response) => {
         const salonRepository = getRepository(Salon);
         const user_id: any = req.headers['userId'] || "";
@@ -74,6 +51,29 @@ const salonController = {
 
             if (!salon) {
                 return res.status(200).json({ status: "failed", msg: `No salon car found for user with id: ${user_id}` });
+            }
+            return res.status(200).json({
+                status: "success",
+                salon: salon
+            });
+        } catch (error) {
+            return res.status(500).json({ status: "failed", msg: "Internal server error" });
+        }
+    },
+    getSalonById: async (req: Request, res: Response) => {
+        const salonRepository = getRepository(Salon);
+        const { id } = req.params;
+
+        try {
+            const salon = await salonRepository.findOne({
+                where: {
+                    salon_id: id,
+                }, 
+                relations: ["cars"],
+            })
+
+            if (!salon) {
+                return res.status(404).json({ status: "failed", msg: `No salon with id: ${id}` });
             }
             return res.status(200).json({
                 status: "success",
