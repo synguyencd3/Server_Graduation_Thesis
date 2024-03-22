@@ -59,7 +59,7 @@
     Đây là dùng để query trạng thái đơn hàng đã được thanh toán chưa. Cần truyền vô {"app_trans_id": "mã đơn hàng "}.
     <h3>VN PAY</h3>
     <li>[POST] /payment/create_payment_url</li>
-    Cần truyền vô id của gói mà muốn mua {package_id : "id"}. Để gọi được thì người dùng cần phải login thành công.
+    Cần truyền vô id của gói mà muốn mua {package_id : "id", months: number}. Để gọi được thì người dùng cần phải login thành công.
     Sẽ nhận lại một url, cần mở link lên trong trình duyệt và thực hiện nhập thông tin thanh toán.
     Chọn ngân hàng nội quốc và thông tin thẻ như sau:
     <table>
