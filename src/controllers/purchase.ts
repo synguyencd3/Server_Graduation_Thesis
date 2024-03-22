@@ -31,25 +31,25 @@ const userPurchaseController = {
             return { status: 'failed', msg: 'Internal server error' };
         }
     },
-    createPurchasePackage: async (req: Request, res: Response) => {
-        const userPurchaseRepository = getRepository(Purchase);
-        const { packageId, month, total } = req.body;
-        const purchaseDate = getLocalDateTime();
-        const expirationDate  = calExpiryDate(purchaseDate, month);
-        const userId: any = req.headers['userId'] || "";
+    // createPurchasePackage: async (req: Request, res: Response) => {
+    //     const userPurchaseRepository = getRepository(Purchase);
+    //     const { packageId, month, total } = req.body;
+    //     const purchaseDate = getLocalDateTime();
+    //     const expirationDate  = calExpiryDate(purchaseDate, month);
+    //     const userId: any = req.headers['userId'] || "";
 
-        try {
-            const newPurchase = { userId, packageId, purchaseDate, expirationDate, total };
-            const savedPurchase = await userPurchaseRepository.save(newPurchase);
-            res.status(201).json({
-                status: "success",
-                msg: "Create successfully!", 
-                feature: savedPurchase
-            });
-        } catch (error) {
-            return res.status(500).json({ status: "failed", msg: "Internal server error" });
-        }
-    },
+    //     try {
+    //         const newPurchase = { userId, packageId, purchaseDate, expirationDate, total };
+    //         const savedPurchase = await userPurchaseRepository.save(newPurchase);
+    //         res.status(201).json({
+    //             status: "success",
+    //             msg: "Create successfully!", 
+    //             feature: savedPurchase
+    //         });
+    //     } catch (error) {
+    //         return res.status(500).json({ status: "failed", msg: "Internal server error" });
+    //     }
+    // },
 }
 
 export default userPurchaseController;
