@@ -129,6 +129,7 @@ const apidocController = {
     createPaymentUrl: async (req: Request, res: Response) => {
         const userId: any = req.headers['userId'] || "u-test";
         const packageId: any = req.body.package_id;
+        const months: any = req.body.months;
 
         try {
             const packageRepository = getRepository(Package);
@@ -150,7 +151,8 @@ const apidocController = {
 
             const orderInfor = {
                 user_id: userId,
-                package_id: packageId
+                package_id: packageId,
+                months
             }
 
             const date = new Date();
@@ -176,7 +178,7 @@ const apidocController = {
             vnp_Params['vnp_TxnRef'] = Math.floor(Math.random() * 100) + 1;;
             vnp_Params['vnp_OrderInfo'] = JSON.stringify(orderInfor) || "Demo thanh toan VN Pay";
             vnp_Params['vnp_OrderType'] = "other";
-            vnp_Params['vnp_Amount'] = packageDb.price * 100;
+            vnp_Params['vnp_Amount'] = packageDb.price * Number(month) * 100;
             vnp_Params['vnp_ReturnUrl'] = "http://localhost:5000/payment/vnpay_return";
             vnp_Params['vnp_IpAddr'] = "127.0.0.1";
             vnp_Params['vnp_CreateDate'] = `${year}${month}${day}${hours}${minutes}${seconds}`;
@@ -233,6 +235,7 @@ const apidocController = {
         const orderInfor = JSON.parse(decodeURIComponent(vnp_Params.vnp_OrderInfo as any));
         const userId: any = orderInfor.user_id;
         const package_id: any = orderInfor.package_id;
+        const months: any = orderInfor.months;
 
         // console.log("PARAM VNPAY RETURN: ", vnp_Params);
 
@@ -263,8 +266,9 @@ const apidocController = {
                 saveInfo.packageId = package_id;
                 let today: Date = new Date();
                 saveInfo.purchaseDate = today;
-                today.setMonth(today.getMonth() + 6);
+                today.setMonth(today.getMonth() + Number(months));
                 saveInfo.expirationDate = today;
+                saveInfo.total = Number(vnp_Params.vnp_Amount)/100;
                 await userPackageRepository.save(saveInfo)
 
                 return res.redirect((process.env.URL_CLIENT || "url_client") + `/payment/vnpay?rs=success&amount=${Number(vnp_Params.vnp_Amount)/100}&item=${packageDb.name}`);
