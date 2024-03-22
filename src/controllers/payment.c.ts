@@ -259,15 +259,16 @@ const apidocController = {
 
             if (secureHash === signed && vnp_Params.vnp_ResponseCode == "00") {
                 // Khong luu du lieu o day nhung day la test o localhost nen luu tam o day
-                // add package for user
+                let today: Date = new Date();
+                let expirationDate = new Date(today);
                 const userPackageRepository = getRepository(Purchase);
                 const saveInfo = new Purchase();
+                // add package for user
                 saveInfo.userId = userId;
                 saveInfo.packageId = package_id;
-                let today: Date = new Date();
                 saveInfo.purchaseDate = today;
-                today.setMonth(today.getMonth() + Number(months));
-                saveInfo.expirationDate = today;
+                expirationDate.setMonth(expirationDate.getMonth() + Number(months));
+                saveInfo.expirationDate = expirationDate;
                 saveInfo.total = Number(vnp_Params.vnp_Amount)/100;
                 await userPackageRepository.save(saveInfo)
 
