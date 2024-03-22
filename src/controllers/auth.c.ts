@@ -702,7 +702,7 @@ const authController: any = {
         saveNotification.from = userId;
         saveNotification.to = userDb.user_id;
         saveNotification.description = `${fromUser.fullname} invited you to join their group.`;
-        saveNotification.url = token;
+        saveNotification.url = `/auth/join-groupt?token=${token}`;
         // console.log("[2]: ", saveNotification);
         await notificationRepofistory.save(saveNotification);
         // console.log("[3]")
@@ -886,6 +886,10 @@ const authController: any = {
       }
     );
   },
+
+  verifyInviteFromNotification: async (req: Request, res: Response) => {
+    const group = req.body;
+  }
 };
 
 export default authController;

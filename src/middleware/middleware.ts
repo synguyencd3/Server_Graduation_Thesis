@@ -1,5 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
+import { getRepository } from 'typeorm';
+import { Salon } from '../entities';
 
 const middlewareController = {
   // verify token
@@ -56,6 +58,25 @@ const middlewareController = {
 
     next();
 
+  },
+
+  isAdminOfGroup: async (req: Request, res: Response, next:NextFunction ) => {
+    const userId: any = req.headers['userId'] || "";
+    const {salonId} = req.body;
+    const salonRepository = getRepository(Salon);
+    try {
+      await salonRepository.findOneOrFail({
+        where: {user: userId, salon_id: salonId}
+      })
+      
+      next();
+    } catch (error) {
+      return res.status(403).json({
+        status: "failed",
+        msg: "Unauthorized"
+      })
+    }
+    
   }
 };
 
