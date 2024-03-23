@@ -60,7 +60,7 @@ const middlewareController = {
 
   },
 
-  isAdminOfGroup: async (req: Request, res: Response, next:NextFunction ) => {
+  isAdminOfSalon: async (req: Request, res: Response, next:NextFunction ) => {
     const userId: any = req.headers['userId'] || "";
     const {salonId} = req.body;
     const salonRepository = getRepository(Salon);

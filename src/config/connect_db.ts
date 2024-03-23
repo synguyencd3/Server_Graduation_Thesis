@@ -1,5 +1,5 @@
 import dotenv from 'dotenv';
-import { User, Package, Feature, Car, Salon, Notification, Purchase } from "../entities";
+import { User, Package, Feature, Car, Salon, Notification, Purchase, Appointment } from "../entities";
 import { DataSourceOptions } from 'typeorm';
 
 dotenv.config({ path: './server/.env' });
@@ -11,6 +11,6 @@ export const connectionString: DataSourceOptions = {
     username: process.env.DB_USERNAME,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
-    entities: [User, Package, Feature, Car, Salon, Notification, Purchase],
+    entities: [User, Package, Feature, Car, Salon, Notification, Purchase, Appointment],
     synchronize: true
   }
