@@ -1,17 +1,20 @@
-import { Entity, Column, PrimaryColumn } from "typeorm"
+import { Entity, Column, PrimaryColumn, PrimaryGeneratedColumn} from "typeorm"
 
 @Entity()
 export class Appointment {
-    @PrimaryColumn()
+    @PrimaryGeneratedColumn('uuid')
+    id!: string;
+    
+    @Column()
     salon_id!: string;
 
-    @PrimaryColumn()
+    @Column()
     user_id!: string;
 
     @Column()
     date!: Date
 
-    @Column({nullable: true})
+    @Column()
     description!: string;
 
     @Column({default: false})

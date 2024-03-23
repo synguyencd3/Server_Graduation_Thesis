@@ -158,6 +158,29 @@
     Cho biết user đã mua được những gói dịch vụ nào rồi và các chức năng có trong gói đó. Cái tính năng bây giờ có
     thêm cái keyMap để mình có thể dựa vào đó để render ra các tính năng tương ứng cho user sử dụng. Cái id nó generate ra
     ngẫu nhiên nên không dùng được
+
+    <h2>Lịch hẹn</h2>
+    <h3>User: Cần đăng nhập thành công.</h3>
+    <li>[POST] /appointment/create-appointment</li>
+    cần truyền vô các thông tin: { "salonId": "6f15ea80-b5b5-4546-8cb3-08d3f6c45445","date": "2025-02-22","description": "lich hen voi salon 2"}
+    <li>[POST] /appointment/get-appoint-user</li>
+    không truyền = get all.
+    truyền vô id = get theo id.
+    <li>[PATCH] /appointment/update-one-user</li>
+    truyền vô id, và thông tin cần update như description, date: 2024-01-28. Không thể update accepted.
+    <li>[DELETE] /appointment/delete-appoint-user</li>
+    không truyền gì: xóa tất cả.
+	truyền vô id: xóa lịch hẹn theo id đó.
+
+    <h3>Salon admin: cần đăng nhập thành công và là admin của group đó. Luôn phải truyền vào salonId.</h3>
+    <li>[POST] /appointment/get-appoint-admin</li>
+    Không truyền thêm = lấy tất cả cuộc hẹn.
+	Truyền thêm id = lấy cuộc hẹn có id đó.
+    <li>[PATCH] /appointment/update-one-admin</li>
+    cần truyền thêm id của cuộc hẹn. Không thể update description. Có thể update date: nam-thang-ngay, accepted: true/false.
+    <li>[DELETE] /appointment/delete-appoint-admin</li>
+    không truyền gì thêm: xóa hết.
+	truyền thêm id: xóa cuộc hẹn đó.
 </body>
 
 </html>

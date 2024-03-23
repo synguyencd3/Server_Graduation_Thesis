@@ -60,15 +60,36 @@ const middlewareController = {
 
   },
 
-  isAdminOfSalon: async (req: Request, res: Response, next:NextFunction ) => {
-    const userId: any = req.headers['userId'] || "";
-    const {salonId} = req.body;
-    const salonRepository = getRepository(Salon);
-    try {
-      await salonRepository.findOneOrFail({
-        where: {user: userId, salon_id: salonId}
+  isAdminOfSalon: async (req: Request, res: Response, next: NextFunction) => {
+    const token = req.headers.authorization || req.headers['authorization'];
+    const { salonId } = req.body; 
+    let userId: any = "";
+
+    if (!salonId) {
+      return res.status(400).json({
+        status: "failed",
+        msg: "Invalid information."
       })
-      
+    }
+
+    if (token) {
+      const accessToken = token.split(" ")[1];
+      jwt.verify(accessToken, process.env.JWT_ACCESS_KEY as string, (err: any, decoded: any) => {
+        if (err) {
+          return res.status(401).json({ status: "failed", msg: "Token isn't valid!" });
+        }
+        userId = decoded.userId;
+        delete (req as Request).headers.userId;
+      });
+    } else {
+      return res.json({ status: "failed", msg: "You're not authenticated!" });
+    }
+    try {
+      const salonRepository = getRepository(Salon);
+      await salonRepository.findOneOrFail({
+        where: { user_id: userId, salon_id: salonId }
+      })
+
       next();
     } catch (error) {
       return res.status(403).json({
@@ -76,7 +97,7 @@ const middlewareController = {
         msg: "Unauthorized"
       })
     }
-    
+
   }
 };
 
