@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { getRepository } from 'typeorm';
-import { Appointment } from '../entities';
+import { Appointment, User } from '../entities';
 
 const appointmentController = {
   createAppointment: async (req: Request, res: Response) => {
@@ -31,9 +31,16 @@ const appointmentController = {
     const appointmentRepository = getRepository(Appointment)
 
     try {
-      const appointDb = await appointmentRepository.find({
-        where: { salon_id: salonId, accepted: accepted, id: id, user_id: userId }
+      let appointDb: any = await appointmentRepository.find({
+        where: { salon_id: salonId, accepted: accepted, id: id, user_id: userId },
+        relations: ['user', 'salon'],
+        select: ['id', 'date', 'description', 'accepted', 'user', 'salon']
       })
+
+      for (let app in appointDb) {
+        appointDb[app].user = appointDb[app].user.fullname;
+        appointDb[app].salon = appointDb[app].salon.name;
+      }
   
       return res.status(200).json({
         status: "success",
@@ -71,7 +78,7 @@ const appointmentController = {
       })
 
     } catch (error) {
-      console.log(error)
+      // console.log(error)
       return res.status(404).json({
         status: "failed",
         msg: "Update error."
@@ -87,7 +94,7 @@ const appointmentController = {
     const notifiRepository = getRepository(Appointment)
     try {
       await notifiRepository.delete(filteredObject);
-      console.log(filteredObject)
+      // console.log(filteredObject)
       return res.status(200).json({
         status: "success",
         msg: "delete successfully!"

@@ -1,4 +1,6 @@
-import { Entity, Column, PrimaryColumn, PrimaryGeneratedColumn} from "typeorm"
+import { Entity, Column, PrimaryColumn, PrimaryGeneratedColumn, ManyToOne, JoinColumn} from "typeorm"
+import { User } from "./User"
+import { Salon } from "./Salon";
 
 @Entity()
 export class Appointment {
@@ -9,9 +11,6 @@ export class Appointment {
     salon_id!: string;
 
     @Column()
-    user_id!: string;
-
-    @Column()
     date!: Date
 
     @Column()
@@ -19,6 +18,17 @@ export class Appointment {
 
     @Column({default: false})
     accepted!: boolean;
+
+    @Column()
+    user_id!: string;
+
+    @ManyToOne(() => User, user => user.user_id)
+    @JoinColumn({ name: 'user_id' })
+    user!: User;
+
+    @ManyToOne(() => Salon, salon => salon.salon_id)
+    @JoinColumn({ name: 'salon_id' })
+    salon!: Salon;
 
     init(salon_id: string, user_id: string, date: Date, description: string, accepted: boolean) {
         this.salon_id = salon_id;
