@@ -5,4 +5,6 @@ export * from './Car';
 export * from './Salon';
 export * from './Notification';
 export * from './Purchase';
+export * from './Message';
+export * from './Conversation';
 export * from './Appointment';

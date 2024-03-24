@@ -143,6 +143,8 @@
     Lấy được hết tất cả các thông tin của salon
     <li>[GET] /salons/my-salon</li>
     Lấy được thông tin salon của user đang đăng nhập và các xe mà salon đó có
+    <li>[GET] /salons/:id</li>
+    Lấy được thông tin salon khi biết id và các xe mà salon đó có
     <li>[POST] /salons</li>
     Truyền ở dạng form-data
     Thêm một salon mới. Các fields truyền vào bao gồm: name, address, image (1 file), email,
@@ -181,6 +183,35 @@
     <li>[DELETE] /appointment/delete-appoint-admin</li>
     không truyền gì thêm: xóa hết.
 	truyền thêm id: xóa cuộc hẹn đó.
+
+    <h2>Nhắn tin</h2>
+    <li>[GET] /messages/:id (id là userId người nhận)</li>
+    Sẽ lấy ra được một các object message mà user đang đăng nhập đã gửi cho userId phía trên, sẽ trả về như sau.
+    Trong code tui cũng đã có comment lại chỗ chỉ lấy message thôi
+    <pre>
+        {
+            "message_id": "667eaac1-65f0-4a85-b3ba-725bb8c3cacd",
+            "senderId": "b4f61ebe-aed1-4a49-924c-ec54dd38e27c",
+            "receiverId": "d44bedce-4033-4831-b172-ac8fccfa627b",
+            "message": "Nguyen test",
+            "createdAt": "2024-03-24 20:26:03",
+            "updatedAt": "2024-03-24 20:26:03"
+        },
+        {
+            ...
+        }
+    </pre>
+    <li>[POST] /messages/send/:id (id là userId người nhận)</li>
+    Cần truyền vào nội dung của tui nhắn. VD như sau:
+    <pre>
+        {
+            "message": "Nguyen test"
+        }
+    </pre>
+
+    <h2></h2>
+    <h2></h2>
+    <h2></h2>
 </body>
 
 </html>
