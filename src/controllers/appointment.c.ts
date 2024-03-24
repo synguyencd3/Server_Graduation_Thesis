@@ -42,7 +42,7 @@ const appointmentController = {
       })
 
       for (let app in appointDb) {
-        appointDb[app].user = appointDb[app].user.fullname;
+        appointDb[app].user = {fullname: appointDb[app].user.fullname, phone: appointDb[app].user.phone};
         appointDb[app].salon = appointDb[app].salon.name;
       }
   
@@ -64,7 +64,7 @@ const appointmentController = {
   updateOne: async (req: Request, res: Response) => {
     const userId: any = req.headers['userId'];
     // console.log(userId)
-    const { salonId, accepted, id, date }: any = req.body;
+    const { salonId, accepted, id }: any = req.body;
     let description: any = !userId? undefined: req.body.description;
     const updateObject: Object = { id: id, user_id: userId, salon_id: salonId}
     const filteredObject: any = Object.fromEntries(Object.entries(updateObject).filter(([key, value]) => value !== undefined));
@@ -74,7 +74,7 @@ const appointmentController = {
       const appointDb = await appointmentRepository.findOneOrFail({
         where: filteredObject
       });
-      await appointmentRepository.save({...appointDb, accepted, description, date});
+      await appointmentRepository.save({...appointDb, accepted, description});
 
       return res.status(200).json({
         status: "success",
