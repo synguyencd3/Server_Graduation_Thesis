@@ -30,7 +30,7 @@ function getFileName(url: string) {
 
 function getLocalDateTime() {
   const date = new Date();
-  console.log(date.toLocaleString());
+
   return date.toLocaleString();
 }
 
