@@ -16,7 +16,11 @@ const appointmentController = {
       appoint.description = description;
       await appointmentRepository.save(appoint);
 
-      return res.status(201).json(appoint);
+      return res.status(201).json({
+        status: "success",
+        msg: "Create appointment successfully!",
+        appoint
+      });
     } catch (error) {
       return res.status(400).json({
         status: "failed",
