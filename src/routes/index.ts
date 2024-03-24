@@ -8,6 +8,7 @@ import salonRouter from './salon.r';
 import apidocRouter from './apidoc.r';
 import paymentRouter from './payment.r';
 import purchaseRouter from './purchase';
+import messageRouter from './message.r';
 import appointmentRouter from './appointment.r';
 
 function router(app: Express) {
@@ -20,6 +21,7 @@ function router(app: Express) {
   app.use("/api", apidocRouter);
   app.use("/payment", paymentRouter);
   app.use("/purchase", purchaseRouter);
+  app.use("/messages", messageRouter);
   app.use("/appointment", appointmentRouter);
 }
 

@@ -1,7 +1,6 @@
 import { Request, Response } from 'express';
 import { Purchase } from "../entities/Purchase";
 import { getRepository } from "typeorm";
-import { getLocalDateTime, calExpiryDate } from "../utils/index"
 
 const userPurchaseController = {
     getAllPurchasePackages: async (req: Request, res: Response) => {
