@@ -22,6 +22,9 @@ export class Appointment {
     @Column()
     user_id!: string;
 
+    @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
+    create_at!: Date
+
     @ManyToOne(() => User, user => user.user_id)
     @JoinColumn({ name: 'user_id' })
     user!: User;
