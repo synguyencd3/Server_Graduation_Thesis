@@ -16,8 +16,8 @@ export class Appointment {
     @Column()
     description!: string;
 
-    @Column({default: false})
-    accepted!: boolean;
+    @Column({default: 0})
+    status!: number;
 
     @Column()
     user_id!: string;
@@ -30,11 +30,11 @@ export class Appointment {
     @JoinColumn({ name: 'salon_id' })
     salon!: Salon;
 
-    init(salon_id: string, user_id: string, date: Date, description: string, accepted: boolean) {
+    init(salon_id: string, user_id: string, date: Date, description: string, status: number) {
         this.salon_id = salon_id;
         this.user_id = user_id;
         this.date = date;
         this.description = description;
-        this.accepted = accepted;
+        this.status = status;
     }
 }

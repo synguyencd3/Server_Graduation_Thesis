@@ -31,14 +31,14 @@ const appointmentController = {
 
   get: async (req: Request, res: Response) => {
     const userId: any = req.headers['userId'] || req.body.userId;
-    const { salonId, accepted, id }: any = req.body;
+    const { salonId, status, id }: any = req.body;
     const appointmentRepository = getRepository(Appointment)
 
     try {
       let appointDb: any = await appointmentRepository.find({
-        where: { salon_id: salonId, accepted: accepted, id: id, user_id: userId },
+        where: { salon_id: salonId, status: status, id: id, user_id: userId },
         relations: ['user', 'salon'],
-        select: ['id', 'date', 'description', 'accepted', 'user', 'salon']
+        select: ['id', 'date', 'description', 'status', 'user', 'salon']
       })
 
       for (let app in appointDb) {
@@ -64,8 +64,9 @@ const appointmentController = {
   updateOne: async (req: Request, res: Response) => {
     const userId: any = req.headers['userId'];
     // console.log(userId)
-    const { salonId, accepted, id }: any = req.body;
+    const { salonId, id }: any = req.body;
     let description: any = !userId? undefined: req.body.description;
+    let status: any = !userId? req.body.status:undefined;
     const updateObject: Object = { id: id, user_id: userId, salon_id: salonId}
     const filteredObject: any = Object.fromEntries(Object.entries(updateObject).filter(([key, value]) => value !== undefined));
     const appointmentRepository = getRepository(Appointment)
@@ -74,7 +75,7 @@ const appointmentController = {
       const appointDb = await appointmentRepository.findOneOrFail({
         where: filteredObject
       });
-      await appointmentRepository.save({...appointDb, accepted, description});
+      await appointmentRepository.save({...appointDb, status, description});
 
       return res.status(200).json({
         status: "success",
@@ -92,8 +93,8 @@ const appointmentController = {
 
   delete: async (req: Request, res: Response) => {
     const userId: any = req.headers['userId'] || req.body.userId;
-    const { salonId, accepted, id }: any = req.body;
-    const deleteObject: Object = { id: id, user_id: userId, salon_id: salonId, accepted: accepted}
+    const { salonId, status, id }: any = req.body;
+    const deleteObject: Object = { id: id, user_id: userId, salon_id: salonId, status: status}
     const filteredObject = Object.fromEntries(Object.entries(deleteObject).filter(([key, value]) => value !== undefined));
     const notifiRepository = getRepository(Appointment)
     try {
