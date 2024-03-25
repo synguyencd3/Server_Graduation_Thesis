@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { Conversation } from "../entities/Conversation";
 import { Message } from "../entities/Message";
-import { getRepository } from "typeorm";
+import { getRepository, In } from "typeorm";
 import { getReceiverSocketId, io } from "../socket/socket"
 import { getLocalDateTime } from "../utils/index"
 import moment from 'moment';
@@ -11,11 +11,18 @@ const messageController = {
     try {
       const userToChatId: string = req.params.id;
       const senderId: any = req.headers['userId'] || "";
-      const participants = [senderId, userToChatId];
+      let participants = [senderId, userToChatId];
         
-      const conversation = await getRepository(Conversation).createQueryBuilder("conversation")
-        .where("conversation.participants LIKE :participants", { participants: `%${participants.join(",")}%` })
-        .getOne();
+      let conversation = await getRepository(Conversation).createQueryBuilder("conversation")
+          .where("conversation.participants LIKE :participants", { participants: `%${participants.join(",")}%` })
+          .getOne();
+
+      if (!conversation){
+        participants = [userToChatId, senderId];
+        conversation = await getRepository(Conversation).createQueryBuilder("conversation")
+          .where("conversation.participants LIKE :participants", { participants: `%${participants.join(",")}%` })
+          .getOne();
+      }
         
       if (!conversation) return res.status(200).json([]);
         
@@ -50,11 +57,18 @@ const messageController = {
       const { message } = req.body;
       const receiverId: string = req.params.id;
       const senderId: string = req.headers['userId'] ? String(req.headers['userId']) : "";
-      const participants = [senderId, receiverId];
+      let participants = [senderId, receiverId];
             
       let conversation = await getRepository(Conversation).createQueryBuilder("conversation")
       .where("conversation.participants LIKE :participants", { participants: `%${participants.join(",")}%` })
       .getOne();
+
+      if (!conversation){
+        participants = [receiverId, senderId];
+        conversation = await getRepository(Conversation).createQueryBuilder("conversation")
+          .where("conversation.participants LIKE :participants", { participants: `%${participants.join(",")}%` })
+          .getOne();
+      }
             
       if (!conversation) {
       // Create new conversation if not exist

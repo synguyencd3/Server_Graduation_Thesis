@@ -1,8 +1,8 @@
 import { Server, Socket } from "socket.io";
 import http from "http";
-import express, { Application } from "express";
+import express from "express";
 
-const app: Application = express();
+const app = express();
 
 const server = http.createServer(app);
 const io:any = new Server(server, {

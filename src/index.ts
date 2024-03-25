@@ -8,9 +8,10 @@ import { createConnection } from "typeorm";
 import passport from "./config/passport";
 import dotenv from "dotenv";
 import {connectionString} from "./config/connect_db"
+import { app, server} from "./socket/socket"
 
 dotenv.config();
-const app = express();
+//const app = express();
 app.use(express.urlencoded({ extended: true }));
 
 app.use(express.json());
@@ -27,7 +28,7 @@ app.use(
 const port: number = parseInt(process.env.PORT as string, 10) || 5000;
 createConnection(connectionString)
   .then(async (connection) => {
-    const app = express();
+    //const app = express();
     const corsOptions = {
       origin: ["http://localhost:3000"],
       methods:["GET", "POST", "PUT", "DELETE", "PATCH"],
@@ -53,7 +54,7 @@ createConnection(connectionString)
     app.use(passport.session());
 
     router(app);
-    app.listen(port, () => {
+    server.listen(port, () => {
       console.log(`Server is running on port ${port}`);
     });
   })
