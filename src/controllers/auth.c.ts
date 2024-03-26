@@ -699,10 +699,10 @@ const authController: any = {
         // send notification to this user
         const notificationRepofistory = getRepository(Notification);
         const saveNotification = new Notification();
-        saveNotification.from = userId;
+        // saveNotification.from = userId;
         saveNotification.to = userDb.user_id;
         saveNotification.description = `${fromUser.fullname} invited you to join their group.`;
-        saveNotification.url = `/auth/join-groupt?token=${token}`;
+        saveNotification.data = `/auth/join-groupt?token=${token}`;
         // console.log("[2]: ", saveNotification);
         await notificationRepofistory.save(saveNotification);
         // console.log("[3]")

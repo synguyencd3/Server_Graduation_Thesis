@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { getRepository } from 'typeorm';
 import { Appointment, User } from '../entities';
+import createNotification from '../helper/createNotification';
 
 const appointmentController = {
   createAppointment: async (req: Request, res: Response) => {
@@ -15,6 +16,11 @@ const appointmentController = {
       appoint.date = date;
       appoint.description = description;
       await appointmentRepository.save(appoint);
+      createNotification({
+        to: salonId,
+        description: "you have a new appointment.",
+        types: "appointment"
+      })
 
       return res.status(201).json({
         status: "success",
