@@ -112,8 +112,22 @@ const appointmentController = {
     const filteredObject = Object.fromEntries(Object.entries(deleteObject).filter(([key, value]) => value !== undefined));
     const notifiRepository = getRepository(Appointment)
     try {
+      const recordToDelete: any = await notifiRepository.findOne({
+        where: {id: id},
+        relations: ['salon', 'user']
+      });
       await notifiRepository.delete(filteredObject);
       // console.log(filteredObject)
+      // check date to send notification
+      const currentDate = new Date();
+
+      if (recordToDelete?.date <= currentDate ) {
+        createNotification({
+          to: salonId?recordToDelete?.user_id:recordToDelete?.salon_id,
+          description: salonId?`Salon ${recordToDelete?.salon.name} canceled your appointment.`: `User ${recordToDelete?.user.fullname} canceled appointment with salon.`,
+          types: "appointment"
+        })
+      }
 
       return res.status(200).json({
         status: "success",
