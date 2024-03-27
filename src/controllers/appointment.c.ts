@@ -15,11 +15,12 @@ const appointmentController = {
       appoint.user_id = userId;
       appoint.date = date;
       appoint.description = description;
-      await appointmentRepository.save(appoint);
+      const saveAppoint = await appointmentRepository.save(appoint);
       createNotification({
         to: salonId,
-        description: "you have a new appointment.",
-        types: "appointment"
+        description: "Have a new appointment.",
+        types: "appointment",
+        data: saveAppoint.id
       })
 
       return res.status(201).json({
@@ -83,6 +84,12 @@ const appointmentController = {
         where: filteredObject
       });
       await appointmentRepository.save({...appointDb, status, description});
+      createNotification({
+        to: salonId?appointDb.user_id:appointDb.salon_id,
+        description: "Have a new update for appointment.",
+        types: "appointment",
+        data: id
+      })
 
       return res.status(200).json({
         status: "success",
@@ -107,6 +114,7 @@ const appointmentController = {
     try {
       await notifiRepository.delete(filteredObject);
       // console.log(filteredObject)
+
       return res.status(200).json({
         status: "success",
         msg: "delete successfully!"

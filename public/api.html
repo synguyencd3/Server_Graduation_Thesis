@@ -223,6 +223,29 @@
     </pre>
 
     <h2></h2>
+    <h2>Thông báo</h2>
+    <h3>User: Cần đăng nhập thành công.</h3>
+    <li>[POST] /notification/get-notification-user</li>
+    không truyền = get all.
+    truyền vô id = get theo id.
+    <li>[DELETE] /notification/delete-notification-user</li>
+    <div>
+        <b>Lưu ý: phương thức delete có đặc thù là bỏ hết vô biến data thì mới truyền bằng body được.</b>
+    </div>
+    không truyền gì: xóa tất cả.
+	truyền vô id: xóa lịch hẹn theo id đó.
+
+    <h3>Salon admin: cần đăng nhập thành công và là admin của group đó. Luôn phải truyền vào salonId.</h3>
+    <li>[POST] /notification/get-notification-admin</li>
+    Không truyền thêm = lấy tất cả cuộc hẹn.
+	Truyền thêm id = lấy cuộc hẹn có id đó.
+    <li>[DELETE] /notification/delete-appoint-admin</li>
+    <div>
+        <b>Lưu ý: phương thức delete có đặc thù là bỏ hết vô biến data thì mới truyền bằng body được.</b>
+    </div>
+    không truyền gì thêm: xóa hết.
+	truyền thêm id: xóa cuộc hẹn đó.
+    <b>Socket sẽ được thêm vào sau.</b> 
     <h2></h2>
     <h2></h2>
 </body>

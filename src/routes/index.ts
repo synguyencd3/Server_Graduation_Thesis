@@ -10,6 +10,7 @@ import paymentRouter from './payment.r';
 import purchaseRouter from './purchase';
 import messageRouter from './message.r';
 import appointmentRouter from './appointment.r';
+import notificationRouter from './notification.r';
 
 function router(app: Express) {
   app.use("/auth", authRouter);
@@ -23,6 +24,7 @@ function router(app: Express) {
   app.use("/purchase", purchaseRouter);
   app.use("/messages", messageRouter);
   app.use("/appointment", appointmentRouter);
+  app.use("/notification", notificationRouter);
 }
 
 export default router;
