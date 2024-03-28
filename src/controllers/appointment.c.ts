@@ -150,13 +150,15 @@ const appointmentController = {
       // check date to send notification
       const currentDate = new Date();
 
-      if (recordToDelete?.date <= currentDate) {
+      if (recordToDelete?.date >= currentDate) {
         createNotification({
           to: salonId ? recordToDelete?.user_id : recordToDelete?.salon_id,
           description: salonId ? `Salon ${recordToDelete?.salon.name} đã hủy lịch hẹn với bạn.` : `User ${recordToDelete?.user.fullname} đã hủy lịch hẹn với salon của bạn.`,
           types: "appointment",
-          avatar: salonId ? recordToDelete.salon.image: recordToDelete.user.avartar
+          avatar: salonId ? recordToDelete.salon.image: recordToDelete.user.avatar
         })
+
+        // console.log("Delete: ", salonId ? recordToDelete.salon.image: recordToDelete.user.avatar)
       }
 
       return res.status(200).json({
