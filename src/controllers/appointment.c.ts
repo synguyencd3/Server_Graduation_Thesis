@@ -115,8 +115,10 @@ const appointmentController = {
         description: salonId? responeSalon: `${userDb?.fullname} đã chỉnh sửa thông tin mô tả của lịch hẹn với salon của bạn.`,
         types: "appointment",
         data: id,
-        avartar: salonId? salonDb?.image: userDb?.avatar
+        avatar: salonId? salonDb?.image: userDb?.avatar
       })
+
+      // console.log("AVATAR: ", userDb, salonDb, salonId? salonDb?.image: userDb?.avatar)
 
       return res.status(200).json({
         status: "success",
