@@ -23,7 +23,7 @@ export class Notification {
     @Column({default: false})
     read!: boolean
 
-    @Column()
+    @Column({nullable: true})
     avatar!: string
 
     init(id: string, to: string, description: string, create_at: Date, data: string, types: string, read: boolean, avatar: string) {
