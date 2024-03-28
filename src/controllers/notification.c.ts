@@ -26,6 +26,28 @@ const notificationController = {
     }
   },
 
+  update: async (req: Request, res: Response) => {
+    const userId: any = req.headers['userId'] || req.body.salonId;
+    const { id }: any = req.body;
+    const notificationRepository = getRepository(Notification);
+
+    try {
+      let notificationDb: any = await notificationRepository.findOneOrFail({
+        where: { to: userId, id: id }
+      })
+
+      await notificationRepository.save({notificationDb, read: true})
+
+      return res.status(200).json({
+        status: "success"
+      })
+    } catch (error) {
+      return res.status(400).json({
+        status: "failed"
+      })
+    }
+  },
+
   delete: async (req: Request, res: Response) => {
     const userId: any = req.headers['userId'] || req.body.salonId;
     const {id} = req.body;

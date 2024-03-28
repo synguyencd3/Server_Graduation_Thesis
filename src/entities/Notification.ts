@@ -20,12 +20,16 @@ export class Notification {
     @Column()
     types!: string;
 
-    init(id: string, to: string, description: string, create_at: Date, data: string, types: string) {
+    @Column({default: false})
+    read!: boolean
+
+    init(id: string, to: string, description: string, create_at: Date, data: string, types: string, read: boolean) {
         this.id = id;
         this.to = to;
         this.description = description;
         this.create_at = create_at;
         this.data = data;
         this.types = types;
+        this.read = read;
     }
 }

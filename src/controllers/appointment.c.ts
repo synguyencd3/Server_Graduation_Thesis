@@ -1,14 +1,19 @@
 import { Request, Response } from 'express';
 import { getRepository } from 'typeorm';
-import { Appointment, User } from '../entities';
+import { Appointment, Salon, User } from '../entities';
 import createNotification from '../helper/createNotification';
 
 const appointmentController = {
   createAppointment: async (req: Request, res: Response) => {
     const userId: any = req.headers['userId'];
-    const { salonId, date, description}: any = req.body;
+    const { salonId, date, description }: any = req.body;
 
     try {
+      // get fullname of user
+      const userRepository = getRepository(User);
+      const userDb = await userRepository.findOneOrFail({
+        where: { user_id: userId }
+      })
       const appointmentRepository = getRepository(Appointment);
       let appoint = new Appointment();
       appoint.salon_id = salonId;
@@ -18,7 +23,7 @@ const appointmentController = {
       const saveAppoint = await appointmentRepository.save(appoint);
       createNotification({
         to: salonId,
-        description: "Have a new appointment.",
+        description: `${userDb?.fullname} vừa đặt lịch hẹn với salon của bạn.`,
         types: "appointment",
         data: saveAppoint.id
       })
@@ -50,10 +55,10 @@ const appointmentController = {
       })
 
       for (let app in appointDb) {
-        appointDb[app].user = {fullname: appointDb[app].user.fullname, phone: appointDb[app].user.phone};
+        appointDb[app].user = { fullname: appointDb[app].user.fullname, phone: appointDb[app].user.phone };
         appointDb[app].salon = appointDb[app].salon.name;
       }
-  
+
       return res.status(200).json({
         status: "success",
         appointments: appointDb
@@ -73,20 +78,39 @@ const appointmentController = {
     const userId: any = req.headers['userId'];
     // console.log(userId)
     const { salonId, id }: any = req.body;
-    let description: any = !userId? undefined: req.body.description;
-    let status: any = !userId? req.body.status:undefined;
-    const updateObject: Object = { id: id, user_id: userId, salon_id: salonId}
+    let description: any = !userId ? undefined : req.body.description;
+    let status: any = !userId ? req.body.status : undefined;
+    const updateObject: Object = { id: id, user_id: userId, salon_id: salonId }
     const filteredObject: any = Object.fromEntries(Object.entries(updateObject).filter(([key, value]) => value !== undefined));
     const appointmentRepository = getRepository(Appointment)
 
     try {
+      // get fullname of user
+      const userRepository = getRepository(User);
+      const salonRepository = getRepository(Salon);
+      let userDb:User|undefined;
+      let salonDb:Salon|undefined;
+
+      if(userId) {
+        userDb = await userRepository.findOneOrFail({
+          where: { user_id: userId }
+        });
+      }
+
+      if(salonId) {
+        salonDb = await salonRepository.findOneOrFail({
+          where: { salon_id: salonId }
+        });
+      }
+
+      // get name of salon
       const appointDb = await appointmentRepository.findOneOrFail({
         where: filteredObject
       });
-      await appointmentRepository.save({...appointDb, status, description});
+      await appointmentRepository.save({ ...appointDb, status, description });
       createNotification({
-        to: salonId?appointDb.user_id:appointDb.salon_id,
-        description: "Have a new update for appointment.",
+        to: salonId ? appointDb.user_id : appointDb.salon_id,
+        description: salonId? `${salonDb?.name} đã chấp thuận lịch hẹn của bạn.`: `${userDb?.fullname} đã chỉnh sửa thông tin mô tả của lịch hẹn với salon của bạn.`,
         types: "appointment",
         data: id
       })
@@ -108,12 +132,12 @@ const appointmentController = {
   delete: async (req: Request, res: Response) => {
     const userId: any = req.headers['userId'] || req.body.userId;
     const { salonId, status, id }: any = req.body;
-    const deleteObject: Object = { id: id, user_id: userId, salon_id: salonId, status: status}
+    const deleteObject: Object = { id: id, user_id: userId, salon_id: salonId, status: status }
     const filteredObject = Object.fromEntries(Object.entries(deleteObject).filter(([key, value]) => value !== undefined));
     const notifiRepository = getRepository(Appointment)
     try {
       const recordToDelete: any = await notifiRepository.findOne({
-        where: {id: id},
+        where: { id: id },
         relations: ['salon', 'user']
       });
       await notifiRepository.delete(filteredObject);
@@ -121,10 +145,10 @@ const appointmentController = {
       // check date to send notification
       const currentDate = new Date();
 
-      if (recordToDelete?.date <= currentDate ) {
+      if (recordToDelete?.date <= currentDate) {
         createNotification({
-          to: salonId?recordToDelete?.user_id:recordToDelete?.salon_id,
-          description: salonId?`Salon ${recordToDelete?.salon.name} canceled your appointment.`: `User ${recordToDelete?.user.fullname} canceled appointment with salon.`,
+          to: salonId ? recordToDelete?.user_id : recordToDelete?.salon_id,
+          description: salonId ? `Salon ${recordToDelete?.salon.name} đã hủy lịch hẹn với bạn.` : `User ${recordToDelete?.user.fullname} đã hủy lịch hẹn với salon của bạn.`,
           types: "appointment"
         })
       }
