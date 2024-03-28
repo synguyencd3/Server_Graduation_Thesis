@@ -25,7 +25,8 @@ const appointmentController = {
         to: salonId,
         description: `${userDb?.fullname} vừa đặt lịch hẹn với salon của bạn.`,
         types: "appointment",
-        data: saveAppoint.id
+        data: saveAppoint.id,
+        avatar: userDb.avatar
       })
 
       return res.status(201).json({
@@ -113,7 +114,8 @@ const appointmentController = {
         to: salonId ? appointDb.user_id : appointDb.salon_id,
         description: salonId? responeSalon: `${userDb?.fullname} đã chỉnh sửa thông tin mô tả của lịch hẹn với salon của bạn.`,
         types: "appointment",
-        data: id
+        data: id,
+        avartar: salonId? salonDb?.image: userDb?.avatar
       })
 
       return res.status(200).json({
@@ -150,7 +152,8 @@ const appointmentController = {
         createNotification({
           to: salonId ? recordToDelete?.user_id : recordToDelete?.salon_id,
           description: salonId ? `Salon ${recordToDelete?.salon.name} đã hủy lịch hẹn với bạn.` : `User ${recordToDelete?.user.fullname} đã hủy lịch hẹn với salon của bạn.`,
-          types: "appointment"
+          types: "appointment",
+          avatar: salonId ? recordToDelete.salon.image: recordToDelete.user.avartar
         })
       }
 

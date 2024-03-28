@@ -23,7 +23,10 @@ export class Notification {
     @Column({default: false})
     read!: boolean
 
-    init(id: string, to: string, description: string, create_at: Date, data: string, types: string, read: boolean) {
+    @Column()
+    avatar!: string
+
+    init(id: string, to: string, description: string, create_at: Date, data: string, types: string, read: boolean, avatar: string) {
         this.id = id;
         this.to = to;
         this.description = description;
@@ -31,5 +34,6 @@ export class Notification {
         this.data = data;
         this.types = types;
         this.read = read;
+        this.avatar = avatar;
     }
 }

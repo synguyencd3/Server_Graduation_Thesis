@@ -10,6 +10,7 @@ const createNotification = async (data: Object|any): Promise<boolean> => {
     saveData.description = data.description;
     saveData.data = data.data;
     saveData.types = data.types;
+    saveData.avatar = data.avatar;
 
     try {
         await notifiRepository.save(saveData);
