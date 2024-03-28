@@ -22,22 +22,13 @@ const appointmentController = {
       appoint.description = description;
       const saveAppoint = await appointmentRepository.save(appoint);
 
-      // find id admin salon
-      const salonRepository = getRepository(Salon);
-      const salonDb = await salonRepository.findOneOrFail({
-        where: {salon_id: salonId},
-        relations: ['user']
-      })
-
-      // console.log("Admin salon: ", salonDb, salonDb.user.user_id)
-      
       createNotification({
         to: salonId,
         description: `${userDb?.fullname} vừa đặt lịch hẹn với salon của bạn.`,
         types: "appointment",
         data: saveAppoint.id,
         avatar: userDb.avatar,
-        reciverId: salonDb.user.user_id
+        isUser: !salonId
       })
 
       return res.status(201).json({
@@ -111,7 +102,8 @@ const appointmentController = {
 
       if(salonId) {
         salonDb = await salonRepository.findOneOrFail({
-          where: { salon_id: salonId }
+          where: { salon_id: salonId },
+          relations: ['user']
         });
       }
 
@@ -126,7 +118,7 @@ const appointmentController = {
         description: salonId? responeSalon: `${userDb?.fullname} đã chỉnh sửa thông tin mô tả của lịch hẹn với salon của bạn.`,
         types: "appointment",
         data: id,
-        avatar: salonId? salonDb?.image: userDb?.avatar
+        isUser: !salonId
       })
 
       // console.log("AVATAR: ", userDb, salonDb, salonId? salonDb?.image: userDb?.avatar)
@@ -166,7 +158,8 @@ const appointmentController = {
           to: salonId ? recordToDelete?.user_id : recordToDelete?.salon_id,
           description: salonId ? `Salon ${recordToDelete?.salon.name} đã hủy lịch hẹn với bạn.` : `User ${recordToDelete?.user.fullname} đã hủy lịch hẹn với salon của bạn.`,
           types: "appointment",
-          avatar: salonId ? recordToDelete.salon.image: recordToDelete.user.avatar
+          avatar: salonId ? recordToDelete.salon.image: recordToDelete.user.avatar,
+          isUser: !salonId
         })
 
         // console.log("Delete: ", salonId ? recordToDelete.salon.image: recordToDelete.user.avatar)
