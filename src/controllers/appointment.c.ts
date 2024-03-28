@@ -108,9 +108,10 @@ const appointmentController = {
         where: filteredObject
       });
       await appointmentRepository.save({ ...appointDb, status, description });
+      const responeSalon: string = (status == 1)? `${salonDb?.name} đã chấp thuận lịch hẹn của bạn.`: `${salonDb?.name} đã từ chối lịch hẹn của bạn.`
       createNotification({
         to: salonId ? appointDb.user_id : appointDb.salon_id,
-        description: salonId? `${salonDb?.name} đã chấp thuận lịch hẹn của bạn.`: `${userDb?.fullname} đã chỉnh sửa thông tin mô tả của lịch hẹn với salon của bạn.`,
+        description: salonId? responeSalon: `${userDb?.fullname} đã chỉnh sửa thông tin mô tả của lịch hẹn với salon của bạn.`,
         types: "appointment",
         data: id
       })
