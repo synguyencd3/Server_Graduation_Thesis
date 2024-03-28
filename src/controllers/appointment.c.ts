@@ -21,12 +21,23 @@ const appointmentController = {
       appoint.date = date;
       appoint.description = description;
       const saveAppoint = await appointmentRepository.save(appoint);
+
+      // find id admin salon
+      const salonRepository = getRepository(Salon);
+      const salonDb = await salonRepository.findOneOrFail({
+        where: {salon_id: salonId},
+        relations: ['user']
+      })
+
+      // console.log("Admin salon: ", salonDb, salonDb.user.user_id)
+      
       createNotification({
         to: salonId,
         description: `${userDb?.fullname} vừa đặt lịch hẹn với salon của bạn.`,
         types: "appointment",
         data: saveAppoint.id,
-        avatar: userDb.avatar
+        avatar: userDb.avatar,
+        reciverId: salonDb.user.user_id
       })
 
       return res.status(201).json({

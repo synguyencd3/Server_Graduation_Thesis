@@ -15,7 +15,8 @@ const createNotification = async (data: Object|any): Promise<boolean> => {
     try {
         await notifiRepository.save(saveData);
         // emit socket messgage here.
-        const receiverSocketId = getReceiverSocketId(data.to);
+        // const receiverSocketId = getReceiverSocketId(data.to);
+        const receiverSocketId = getReceiverSocketId(data.reciverId);
         if (receiverSocketId) {
             io.to(receiverSocketId).emit("notification", "Have new notification.");
         }
