@@ -28,7 +28,7 @@ const appointmentController = {
         types: "appointment",
         data: saveAppoint.id,
         avatar: userDb.avatar,
-        isUser: !salonId
+        isUser: true
       })
 
       return res.status(201).json({

@@ -29,7 +29,7 @@ const createNotification = async (data: Object|any): Promise<boolean> => {
         // emit socket messgage here.
         const receiverSocketId = getReceiverSocketId(reciverId);
         if (receiverSocketId) {
-            io.to(receiverSocketId).emit("notification", "Have new notification.");
+            io.to(receiverSocketId).emit("notification", "Bạn có thông báo mới.");
         }
         
         return true;
