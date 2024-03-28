@@ -6,26 +6,34 @@ export class Notification {
     id!: string;
 
     @Column()
-    from!: string;
-
-    @Column()
     to!: string;
 
     @Column()
     description!: string;
 
     @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
-    date!: Date;
+    create_at!: Date;
 
     @Column({nullable: true})
-    url!: string;
+    data!: string;
 
-    init(id: string, from: string, to: string, description: string, date: Date, url: string) {
+    @Column()
+    types!: string;
+
+    @Column({default: false})
+    read!: boolean
+
+    @Column()
+    avatar!: string
+
+    init(id: string, to: string, description: string, create_at: Date, data: string, types: string, read: boolean, avatar: string) {
         this.id = id;
-        this.from = from;
         this.to = to;
         this.description = description;
-        this.date = date;
-        this.url = url;
+        this.create_at = create_at;
+        this.data = data;
+        this.types = types;
+        this.read = read;
+        this.avatar = avatar;
     }
 }

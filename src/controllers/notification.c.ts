@@ -3,25 +3,60 @@ import { Not, getRepository } from 'typeorm';
 import { Notification } from '../entities';
 
 const notificationController = {
-  getAllById: async (req: Request, res: Response) => {
-    const userId: any = req.headers['userId'] || "";
-    const notifiRepository = getRepository(Notification)
-    const notifiDb = await notifiRepository.find({
-        where: {to: userId}
-    })
+  get: async (req: Request, res: Response) => {
+    const userId: any = req.headers['userId'] || req.body.salonId;
+    const { id }: any = req.body;
+    const notificationRepository = getRepository(Notification);
 
-    return res.status(200).json({
+    try {
+      let notificationDb: any = await notificationRepository.find({
+        where: { to: userId, id: id },
+        order: { create_at: 'DESC' }
+      })
+
+      return res.status(200).json({
         status: "success",
-        notifiDb
-    })
+        notifications: notificationDb
+      })
+    } catch (error) {
+      return res.status(400).json({
+        status: "failed",
+        msg: "invaid information."
+      })
+    }
   },
 
-  deleteOneOrAll: async (req: Request, res: Response) => {
-    const userId: any = req.headers['userId'] || "";
-    const {id} = req.body;
-    const notifiRepository = getRepository(Notification)
+  update: async (req: Request, res: Response) => {
+    const userId: any = req.headers['userId'] || req.body.salonId;
+    const { id }: any = req.body;
+    const notificationRepository = getRepository(Notification);
+
     try {
-        await notifiRepository.delete({to: userId, id: id});
+      let notificationDb: any = await notificationRepository.findOneOrFail({
+        where: { to: userId, id: id }
+      })
+
+      await notificationRepository.save({notificationDb, read: true})
+
+      return res.status(200).json({
+        status: "success"
+      })
+    } catch (error) {
+      return res.status(400).json({
+        status: "failed"
+      })
+    }
+  },
+
+  delete: async (req: Request, res: Response) => {
+    const userId: any = req.headers['userId'] || req.body.salonId;
+    const {id} = req.body;
+    const deleteObject: Object = { id: id, to: userId}
+    const filteredObject = Object.fromEntries(Object.entries(deleteObject).filter(([key, value]) => value !== undefined));
+    const notifiRepository = getRepository(Notification);
+   
+    try {
+        await notifiRepository.delete(filteredObject);
 
         return res.status(200).json({
             status: "success",
