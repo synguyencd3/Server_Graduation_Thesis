@@ -37,6 +37,25 @@ const salonController = {
             return res.status(500).json({ status: "failed", msg: "Internal server error" });
         }
     },
+    getSalonIdForUser: async (req: Request, res: Response) => {
+        try {
+            const user_id:any = req.headers['userId'] || "";
+            
+            const salon = await getRepository(Salon).findOne({
+                 where: {
+                     user_id: user_id 
+                }
+            });
+    
+            if (!salon) {
+                return res.status(200).json({ status: "success", salonId: null, msg: 'Salon not found for the given userId' });
+            }
+    
+            return res.status(200).json({ status: "success", salonId: salon.salon_id });
+        } catch (error) {
+            return res.status(500).json({ status: "failed", msg: 'Internal Server Error' });
+        }
+    },
     getSalonByUserId: async (req: Request, res: Response) => {
         const salonRepository = getRepository(Salon);
         const user_id: any = req.headers['userId'] || "";

@@ -197,9 +197,24 @@
     không truyền gì thêm: xóa hết.
 	truyền thêm id: xóa cuộc hẹn đó.
 
-    <h2>Nhắn tin</h2>
-    <li>[GET] /messages/:id (id là userId người nhận)</li>
-    Sẽ lấy ra được một các object message mà user đang đăng nhập đã gửi cho userId phía trên, sẽ trả về như sau.
+    <h2>CHAT</h2>
+    Có 2 event: getOnlineUsers, newMessage.
+    Khi bên Frontend kết nối với socket. VD như sau:
+    <pre>
+        if(authUser) {
+            const socket = io("http://localhost:5000", {
+                query: {
+                    userId: authUser._id,
+                }
+            });
+    </pre> 
+    thì trước đó tụi ông cần gọi API này http://localhost:5000/salons/salonId để biết xem thằng user đang đăng nhập đó có phải là chủ salon không. Nếu
+    trả về salonId !== null thì chỗ authUser._id thay bằng salonId này, còn nếu là null thì vẫn truyền qua salonId. Mục đích của việc này là để biết được
+    thằng nào đang online mà hiển thị trạng thái
+    <li>[GET] /chatting-users </li>
+    Nó sẽ lấy được những user mà mình đã chat có thể là hoa tiêu hoặc là salon
+    <li>[GET] /messages/:id </li>
+    Sẽ lấy ra được các object message mà giữa user đang đăng nhập và id truyền vào đó đã chat với nhau, sẽ trả về như sau:
     Trong code tui cũng đã có comment lại chỗ chỉ lấy message thôi
     <pre>
         {
@@ -214,7 +229,7 @@
             ...
         }
     </pre>
-    <li>[POST] /messages/send/:id (id là userId người nhận)</li>
+    <li>[POST] /messages/send/:id (id là người nhận)</li>
     Cần truyền vào nội dung của tui nhắn. VD như sau:
     <pre>
         {
