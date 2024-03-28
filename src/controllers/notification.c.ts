@@ -36,7 +36,7 @@ const notificationController = {
         where: { to: userId, id: id }
       })
 
-      await notificationRepository.save({notificationDb, read: true})
+      await notificationRepository.save({...notificationDb, read: true})
 
       return res.status(200).json({
         status: "success"
