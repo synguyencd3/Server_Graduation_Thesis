@@ -107,7 +107,6 @@ const appointmentController = {
         });
       }
 
-      // get name of salon
       const appointDb = await appointmentRepository.findOneOrFail({
         where: filteredObject
       });
@@ -118,6 +117,7 @@ const appointmentController = {
         description: salonId? responeSalon: `${userDb?.fullname} đã chỉnh sửa thông tin mô tả của lịch hẹn với salon của bạn.`,
         types: "appointment",
         data: id,
+        avatar: salonId? salonDb?.image: userDb?.avatar,
         isUser: !salonId
       })
 

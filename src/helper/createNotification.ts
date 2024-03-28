@@ -14,7 +14,7 @@ const createNotification = async (data: Object|any): Promise<boolean> => {
     let reciverId: string = data.to;
 
     try {
-        if(!data.isUser) {
+        if(data.isUser) {
             const salonRepository = getRepository(Salon);
             const salonDb = await salonRepository.findOneOrFail({
                 where: {salon_id: data.to},
@@ -22,6 +22,8 @@ const createNotification = async (data: Object|any): Promise<boolean> => {
             }) 
             reciverId = salonDb.user.user_id
         }
+
+        // console.log("reciverId: ", reciverId)
 
         await notifiRepository.save(saveData);
         // emit socket messgage here.
@@ -32,6 +34,7 @@ const createNotification = async (data: Object|any): Promise<boolean> => {
         
         return true;
     } catch (error) {
+        // console.log(error)
         return false;
     }
 }
