@@ -198,24 +198,35 @@
 	truyền thêm id: xóa cuộc hẹn đó.
 
     <h2>CHAT</h2>
-    Có 2 event: getOnlineUsers, newMessage.
-    Khi bên Frontend kết nối với socket. VD như sau:
+    <b>Có 2 event: getOnlineUsers, newMessage</b>
+    <h4 style="font-weight: 500;">Khi bên Frontend kết nối với socket thì trước đó tụi ông cần gọi API này 
+    <b>http://localhost:5000/salons/salonId</b> để biết xem thằng user đang đăng nhập đó có phải là chủ salon không. Nếu
+    trả về salonId !== null nghĩa là nó là chủ salon thì chỗ query tụi ông truyền vào cho tui thêm cái salonId đó nữa, còn nếu là null thì chỉ truyền qua user_id thôi. Mục đích của việc này là để biết được
+    thằng nào đang online mà hiển thị trạng thái và xử lý cho phần thông báo.
+    <h4 style="font-weight: 500;">Đây là code bên web:</h4>
     <pre>
-        if(authUser) {
-            const socket = io("http://localhost:5000", {
-                query: {
-                    userId: authUser._id,
-                }
-            });
-    </pre> 
-    thì trước đó tụi ông cần gọi API này http://localhost:5000/salons/salonId để biết xem thằng user đang đăng nhập đó có phải là chủ salon không. Nếu
-    trả về salonId !== null thì chỗ authUser._id thay bằng salonId này, còn nếu là null thì vẫn truyền qua salonId. Mục đích của việc này là để biết được
-    thằng nào đang online mà hiển thị trạng thái
-    <li>[GET] /chatting-users </li>
-    Nó sẽ lấy được những user mà mình đã chat có thể là hoa tiêu hoặc là salon
+        if(res.data.salonId === null){
+            socket = io("http://localhost:5000", {
+            query: {
+              userId:profile.user_id
+            }
+          });
+        }else{
+          socket = io("http://localhost:5000", {
+            query: {
+              userId: profile.user_id,
+              salonId : res.data.salonId
+            }
+          });
+        }
+    </pre>
+    <li>[GET] /messages/chatting-users </li>
+    Nó sẽ lấy được những thông tin user mà mình đã chat có thể là hoa tiêu hoặc salon
+    (Cái hoa tiêu giờ tạm thời nó vẫn là user)
+    <h4>CHÚ Ý: Tụi ông cứ test là chat giữa 2 user với nhau nhưng lưu ý là đừng chat với thằng làm chủ salon, chỉ chat với salon của nó thôi</h4>
+    <h4>Các thông tin lấy bao gồm: id (user_id hoặc salon_id), tên (name), ảnh (image)</h4>
     <li>[GET] /messages/:id </li>
-    Sẽ lấy ra được các object message mà giữa user đang đăng nhập và id truyền vào đó đã chat với nhau, sẽ trả về như sau:
-    Trong code tui cũng đã có comment lại chỗ chỉ lấy message thôi
+    Sẽ lấy ra được các object message mà giữa user đang đăng nhập và user_id hoặc salon_id truyền vào đó đã chat với nhau, sẽ trả về như sau:
     <pre>
         {
             "message_id": "667eaac1-65f0-4a85-b3ba-725bb8c3cacd",
@@ -229,6 +240,7 @@
             ...
         }
     </pre>
+    <h4 style="font-weight: 500;">Trong code tui cũng đã có comment lại chỗ chỉ lấy message thôi</h4>
     <li>[POST] /messages/send/:id (id là người nhận)</li>
     Cần truyền vào nội dung của tui nhắn. VD như sau:
     <pre>

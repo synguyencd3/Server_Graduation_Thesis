@@ -22,15 +22,20 @@ io.on("connection", (socket:Socket) => {
   console.log("a user connected", socket.id);
 
   const userId: string | undefined = typeof socket.handshake.query.userId === 'string' ? socket.handshake.query.userId : undefined;
+  const salonId: string | undefined = typeof socket.handshake.query.salonId === 'string' ? socket.handshake.query.salonId : undefined;
+  
   if (userId !== undefined) userSocketMap[userId] = socket.id;
+  if (salonId !== undefined) userSocketMap[salonId] = socket.id;
 
   io.emit("getOnlineUsers", Object.keys(userSocketMap));
 
   // socket.on() is used to listen to the events. Can be used both on client and server side
   socket.on("disconnect", () => {
     console.log("user disconnected", socket.id);
-    if (userId !== undefined)
-    delete userSocketMap[userId];
+
+    if (userId !== undefined) delete userSocketMap[userId];
+    if (salonId !== undefined) delete userSocketMap[salonId];
+    
     io.emit("getOnlineUsers", Object.keys(userSocketMap));
   });
 });
