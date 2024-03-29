@@ -23,7 +23,7 @@ const createNotification = async (data: Object|any): Promise<boolean> => {
             reciverId = salonDb.user.user_id
         }
 
-        // console.log("reciverId: ", reciverId)
+        console.log("reciverId: ", reciverId)
 
         await notifiRepository.save(saveData);
         // emit socket messgage here.

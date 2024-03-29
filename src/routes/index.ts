@@ -11,6 +11,7 @@ import purchaseRouter from './purchase';
 import messageRouter from './message.r';
 import appointmentRouter from './appointment.r';
 import notificationRouter from './notification.r';
+import videocallRouter from './videocall.r';
 
 function router(app: Express) {
   app.use("/auth", authRouter);
@@ -25,6 +26,7 @@ function router(app: Express) {
   app.use("/messages", messageRouter);
   app.use("/appointment", appointmentRouter);
   app.use("/notification", notificationRouter);
+  app.use("/videocall", videocallRouter);
 }
 
 export default router;
