@@ -266,7 +266,15 @@
 	truyền thêm id: xóa cuộc hẹn đó.
     <b>Socket: </b> 
     Bên client cần lắng nghe (.io) sự kiện "notification" được gửi từ server.
-    <h2></h2>
+    <h2>VIDEO CALL</h2>
+    <li>[GET] /videocall/get-token</li>
+    Nhận về token meeting.
+    <li>[POST] /videocall/create-meeting</li>
+    Tạo meeting, cần truyền vô token và region
+    <li>[POST] /videocall/validate-meeting/:meetingId</li>
+    cần truyền vô token bằng body và meetingId ở params.
+    <b>Url client cần thiết lập là: http://localhost:5000/videocall/</b>
+    
     <h2></h2>
 </body>
 

@@ -6,6 +6,7 @@ require("dotenv").config({ path: "./server/.env" });
 
 const videocallController = {
     getToken: (req: Request, res: Response) => {
+        console.log("GET TOKEN.")
         const API_KEY = process.env.VIDEOSDK_API_KEY;
         const SECRET_KEY: any = process.env.VIDEOSDK_SECRET_KEY;
 
@@ -21,6 +22,7 @@ const videocallController = {
     },
 
     createMeeting: (req: Request, res: Response) => {
+        console.log("create meeting.")
         const { token, region } = req.body;
         const url = `${process.env.VIDEOSDK_API_ENDPOINT}/api/meetings`;
         const options = {
@@ -42,6 +44,7 @@ const videocallController = {
     },
 
     validateMeeting: (req: Request, res: Response) => {
+        console.log("validate meeting.")
         const token = req.body.token;
         const meetingId = req.params.meetingId;
 
