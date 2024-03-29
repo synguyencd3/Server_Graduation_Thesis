@@ -34,13 +34,13 @@ const messageController = {
 
       const userDetailsPromise = await getRepository(User)
             .createQueryBuilder("user")
-            .select(["user_id", "fullname", "avatar"])
+            .select(["user_id AS id ", "fullname AS name", "avatar AS image"])
             .where("user_id IN (:...userIds)", { userIds: chattingUsers })
             .getRawMany();
 
       const salonDetailsPromise = await getRepository(Salon)
             .createQueryBuilder("salon")
-            .select(["salon_id", "name", "image"])
+            .select(["salon_id AS id", "name", "image"])
             .where("salon_id IN (:...salonIds)", { salonIds: chattingUsers })
             .getRawMany();
 
@@ -154,6 +154,7 @@ const messageController = {
       // SOCKET IO FUNCTIONALITY WILL GO HERE
       const receiverSocketId = getReceiverSocketId(receiverId);
       if (receiverSocketId) {
+        // io.to(<socket_id>).emit() used to send events to specific client
         io.to(receiverSocketId).emit("newMessage", savedMessage);
       }
         
