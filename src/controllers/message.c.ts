@@ -12,13 +12,11 @@ const messageController = {
     try {
       let userId: any = req.headers['userId'] || "";
       const salon = await getRepository(Salon).findOne({ where: { user_id: userId } });
-      if (salon?.salon_id !== undefined) {
-        userId = salon.salon_id
-      }
-      
+
       const conversations = await getRepository(Conversation)
           .createQueryBuilder("conversation")
           .where("conversation.participants LIKE :userId", { userId: `%${userId}%` })
+          .orWhere("conversation.participants LIKE :salonId", { salonId: `%${salon?.salon_id}%` })
           .getMany();
 
       if (conversations.length === 0) return res.status(200).json([]);
@@ -26,7 +24,7 @@ const messageController = {
       const chattingUsers: string[] = [];
       conversations.forEach(conversation => {
           conversation.participants.forEach(participant => {
-              if (participant !== userId && !chattingUsers.includes(participant)) {
+              if (participant !== userId && participant !== salon?.salon_id && !chattingUsers.includes(participant)) {
                   chattingUsers.push(participant);
               }
           });
@@ -62,11 +60,16 @@ const messageController = {
       const userToChatId: string = req.params.id;
       const userId: any = req.headers['userId'] || "";
       const salon = await getRepository(Salon).findOne({ where: { user_id: userId } });
+      const salonReceive = await getRepository(Salon).findOne({ where: { salon_id: userToChatId } });
       
       let participants: string[];
 
       if (salon?.salon_id !== undefined) {
-        participants = [salon.salon_id, userToChatId];
+        if(salonReceive === null){
+          participants = [salon.salon_id, userToChatId];
+        } else {
+          participants = [userId, userToChatId];
+        }
       } else {
         participants = [userId, userToChatId];
       }
@@ -110,13 +113,19 @@ const messageController = {
       const receiverId: string = req.params.id;
       const { message } = req.body;
       const salon = await getRepository(Salon).findOne({ where: { user_id: senderId } });
+      const salonReceive = await getRepository(Salon).findOne({ where: { salon_id: receiverId } });
 
       let participants: string[];
 
       if (salon?.salon_id !== undefined) {
-        senderId = salon?.salon_id
-        participants = [salon.salon_id, receiverId];
-      } else {
+        if(salonReceive === null){
+          senderId = salon?.salon_id
+          participants = [salon.salon_id, receiverId];
+        } else {
+          participants = [senderId, receiverId];
+        }
+      }
+      else {
         participants = [senderId, receiverId];
       }
             
