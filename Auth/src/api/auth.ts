@@ -10,10 +10,10 @@ module.exports = (app: any) => {
     app.post("/auth/register", async (req: Request, res: Response, next: NextFunction) => {
         try {
             const { username, password, fullname } = req.body;
-            const { data } = await service.registerUser({ username, password, fullname });
-            
+            const data  = await service.registerUser({ username, password, fullname });
+
             return res.json(data);
-        } catch (err) {
+        } catch (err: any) {
             next(err);
         }
     });
@@ -21,10 +21,17 @@ module.exports = (app: any) => {
     app.post("/auth/login", async (req: Request, res: Response, next: NextFunction) => {
         try {
             const { username, password } = req.body;
-            const data  = await service.loginUser({ username, password });
+            const data = await service.loginUser({ username, password });
+
+            res.cookie("refreshToken", data?.refreshToken, {
+                httpOnly: true,
+                secure: true,
+                path: "/",
+                sameSite: "none",
+            });
 
             return res.json(data);
-        } catch (err) {
+        } catch (err: any) {
             next(err);
         }
     });

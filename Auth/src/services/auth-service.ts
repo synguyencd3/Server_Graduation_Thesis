@@ -60,12 +60,15 @@ class AuthService {
 
                 const {password, ...other} = user
 
-                return other;
+                return {
+                    status: "success",
+                    msg: "Register successfully!"
+                  };
             } catch (error) {
                 throw new Error("Register failure.");
             }
-        } catch (error) {
-            throw new Error("Server error, please try later.");
+        } catch (error: any) {
+            throw new Error(error.message);
         }
     }
 
@@ -100,13 +103,6 @@ class AuthService {
 
             refreshTokens.push(refreshToken);
 
-            // res.cookie("refreshToken", refreshToken, {
-            //     httpOnly: true,
-            //     secure: true,
-            //     path: "/",
-            //     sameSite: "none",
-            // });
-
             const { password, ...others } = userDb;
 
             return {
@@ -116,8 +112,8 @@ class AuthService {
                 status: "success",
                 msg: "login successfully!",
             }
-        } catch (error) {
-            throw new Error("login failure.");
+        } catch (error: any) {
+            throw new Error(error.message);
         }
     }
 }

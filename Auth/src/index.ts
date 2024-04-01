@@ -1,14 +1,14 @@
 import express from "express";
 import path from "path";
 import cookieParser from "cookie-parser";
-// import router from "./routes";
 import cors, { CorsOptions } from "cors";
 import session from "express-session";
 import { createConnection } from "typeorm";
-// import passport from "./config/passport";
+import passport from "./config/passport";
 import dotenv from "dotenv";
-import {connectionString} from "./config/connect_db"
-import { app, server} from "./socket/socket"
+import { connectionString } from "./config/connect_db"
+import { app, server } from "./socket/socket"
+import HandleErrors from './utils/error-handler';
 const { auth } = require('./api');
 
 dotenv.config();
@@ -32,7 +32,7 @@ createConnection(connectionString)
     //const app = express();
     const corsOptions = {
       origin: ["http://localhost:3000"],
-      methods:["GET", "POST", "PUT", "DELETE", "PATCH"],
+      methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
       credentials: true,
     };
     app.use(cors(corsOptions));
@@ -51,11 +51,14 @@ createConnection(connectionString)
     );
 
     // config Passport amd middleware
-    // app.use(passport.initialize());
-    // app.use(passport.session());
+    app.use(passport.initialize());
+    app.use(passport.session());
 
     //api
     auth(app);
+
+    // error handling
+    app.use(HandleErrors);
 
     server.listen(port, () => {
       console.log(`Server is running on port ${port}`);
