@@ -2,7 +2,7 @@ import dotenv from 'dotenv';
 import { User, Package, Feature, Purchase } from "../database/models";
 import { DataSourceOptions } from 'typeorm';
 
-dotenv.config();
+dotenv.config({ path: './Auth/.env' });
 
 export const connectionString: DataSourceOptions = {
     type: "postgres",

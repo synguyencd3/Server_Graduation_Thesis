@@ -1,0 +1,27 @@
+{
+  "name": "microservices",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "concurrently \"cd ./Auth && npm start\" \"cd ./gateway && npm start\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/caoqui/Server_Graduation_Thesis.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/caoqui/Server_Graduation_Thesis/issues"
+  },
+  "homepage": "https://github.com/caoqui/Server_Graduation_Thesis#readme",
+  "dependencies": {
+    "nodemon": "^3.1.0",
+    "ts-node": "^10.9.2"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
