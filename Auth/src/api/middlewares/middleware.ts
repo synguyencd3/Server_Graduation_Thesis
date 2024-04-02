@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { getRepository } from 'typeorm';
-import { Salon } from '../entities';
+import { Salon } from '../../database/models';
 
 const middlewareController = {
   // verify token
@@ -39,66 +39,6 @@ const middlewareController = {
     }
   },
 
-  getUserId: (req: Request, res: Response, next: NextFunction) => {
-    // get token from header
-    const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1];
-    // check token is null
-    if (token) {
-      // token is not null, we verify and get userId
-      jwt.verify(token, process.env.JWT_ACCESS_KEY as string, (err, decoded: any) => {
-
-        if (err) {
-          return res.status(403).json({ msg: 'Forbidden' });
-        }
-        // get userid
-        (req as Request).headers.userId = decoded.userId;
-      });
-    }
-
-    next();
-
-  },
-
-  isAdminOfSalon: async (req: Request, res: Response, next: NextFunction) => {
-    const token = req.headers.authorization || req.headers['authorization'];
-    const { salonId } = req.body; 
-    let userId: any = "";
-
-    if (!salonId) {
-      return res.status(400).json({
-        status: "failed",
-        msg: "Invalid information."
-      })
-    }
-
-    if (token) {
-      const accessToken = token.split(" ")[1];
-      jwt.verify(accessToken, process.env.JWT_ACCESS_KEY as string, (err: any, decoded: any) => {
-        if (err) {
-          return res.status(401).json({ status: "failed", msg: "Token isn't valid!" });
-        }
-        userId = decoded.userId;
-        delete (req as Request).headers.userId;
-      });
-    } else {
-      return res.json({ status: "failed", msg: "You're not authenticated!" });
-    }
-    try {
-      const salonRepository = getRepository(Salon);
-      await salonRepository.findOneOrFail({
-        where: { user_id: userId, salon_id: salonId }
-      })
-
-      next();
-    } catch (error) {
-      return res.status(403).json({
-        status: "failed",
-        msg: "Unauthorized"
-      })
-    }
-
-  }
 };
 
 export default middlewareController;

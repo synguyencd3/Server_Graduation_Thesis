@@ -1,16 +1,13 @@
-import dotenv from 'dotenv';
-import { User, Package, Feature, Car, Salon, Notification, Purchase, Message, Conversation, Appointment } from "./models";
-import { DataSourceOptions } from 'typeorm';
+import { createConnection } from "typeorm";
+import { connectionString } from "../config/connect_db";
 
-dotenv.config({ path: './server/.env' });
+export = async () => {
 
-export const connectionString: DataSourceOptions = {
-    type: "postgres",
-    host: process.env.DB_HOST,
-    port: Number(process.env.DB_PORT),
-    username: process.env.DB_USERNAME,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
-    entities: [User, Package, Feature, Car, Salon, Notification, Purchase, Message, Conversation, Appointment],
-    synchronize: true
+  try {
+    createConnection(connectionString);
+    console.log("Connected Db successfully!");
+  } catch (error) {
+    console.log("Error with connecting Db.");
   }
+}
+

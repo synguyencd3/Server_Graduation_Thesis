@@ -1,6 +1,5 @@
 import bcrypt from "bcrypt";
-import { getRepository} from "typeorm";
-import  AuthRepository from "../database/repository/auth-repository"
+import AuthRepository from "../database/repository/auth-repository"
 // import { AuthRepository } from "../database";
 const { v4: uuidv4 } = require("uuid");
 import jwt, { decode } from "jsonwebtoken";
@@ -12,7 +11,7 @@ let refreshTokens: string[] = [];
 class AuthService {
 
     // generate JWT_ACCESS_TOKEN
-    async generateAccessToken (user: { user_id: string }) {
+    async generateAccessToken(user: { user_id: string }) {
         return jwt.sign(
             {
                 userId: user.user_id,
@@ -23,7 +22,7 @@ class AuthService {
     }
 
     // generate JWT_REFRESH_TOKEN
-    async generateRefreshToken (user: { user_id: string }) {
+    async generateRefreshToken(user: { user_id: string }) {
         return jwt.sign(
             {
                 userId: user.user_id,
@@ -40,7 +39,7 @@ class AuthService {
         }
 
         try {
-            const userDb = await AuthRepository.findOne({username: user.username});
+            const userDb = await AuthRepository.findOne({ username: user.username });
 
             if (userDb != null) {
                 throw new Error("This username is existed.");
@@ -58,12 +57,12 @@ class AuthService {
                 user.password = await bcrypt.hash(user.password, salt);
                 await AuthRepository.addUser(user)
 
-                const {password, ...other} = user
+                const { password, ...other } = user
 
                 return {
                     status: "success",
                     msg: "Register successfully!"
-                  };
+                };
             } catch (error) {
                 throw new Error("Register failure.");
             }
@@ -83,7 +82,7 @@ class AuthService {
 
         try {
             // get user from database
-            const userDb = await AuthRepository.findOne({username: data.username});
+            const userDb = await AuthRepository.findOne({ username: data.username });
 
             if (userDb == null) {
                 throw new Error("Username or password is incorect.");
@@ -115,6 +114,23 @@ class AuthService {
         } catch (error: any) {
             throw new Error(error.message);
         }
+    }
+
+    async SubscribeEvents(payload: any) {
+
+        const { event, data } = payload;
+
+        switch (event) {
+            case 'REGISTER_USER':
+                this.registerUser(data)
+                break;
+            case 'LOGIN_USERNAME':
+                this.loginUser(data)
+                break;
+            default:
+                break;
+        }
+
     }
 }
 

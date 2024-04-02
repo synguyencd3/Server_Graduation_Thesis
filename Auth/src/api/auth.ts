@@ -7,7 +7,7 @@ dotenv.config();
 module.exports = (app: any) => {
     const service = new AuthService();
 
-    app.post("/auth/register", async (req: Request, res: Response, next: NextFunction) => {
+    app.post("/register", async (req: Request, res: Response, next: NextFunction) => {
         try {
             const { username, password, fullname } = req.body;
             const data  = await service.registerUser({ username, password, fullname });
@@ -18,7 +18,7 @@ module.exports = (app: any) => {
         }
     });
 
-    app.post("/auth/login", async (req: Request, res: Response, next: NextFunction) => {
+    app.post("/login", async (req: Request, res: Response, next: NextFunction) => {
         try {
             const { username, password } = req.body;
             const data = await service.loginUser({ username, password });
