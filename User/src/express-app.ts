@@ -1,11 +1,10 @@
 import express from 'express';
 import cors from 'cors';
-const { auth, appEvents } = require('./api');
+import { user, appEvents } from './api' ;
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 import session from "express-session";
-import passport from "./config/passport";
-import HandleErrors from './utils/error-handler'
+import HandleErrors from './utils/error-handler';
 
 dotenv.config();
 
@@ -14,7 +13,7 @@ module.exports = async (app: any) => {
         origin: ["http://localhost:3000"],
         methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
         credentials: true,
-      };
+    };
 
     app.use(express.json());
     app.use(cors());
@@ -32,17 +31,14 @@ module.exports = async (app: any) => {
         })
     );
 
-    // config Passport amd middleware
-    app.use(passport.initialize());
-    app.use(passport.session());
-
     //Listener
     appEvents(app);
 
     //api
-    auth(app);
+    user(app);
 
     // error handle
     app.use(HandleErrors);
+
 
 }

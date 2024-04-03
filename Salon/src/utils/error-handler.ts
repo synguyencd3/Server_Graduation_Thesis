@@ -4,7 +4,7 @@ const ErrorHandler = async(err: Error,req: Request,res: Response,next: NextFunct
     if(err as any){
         return res.json({
             'status': "failed",
-            'msg': err.message
+            'message': err.message
         })
     }
     next();

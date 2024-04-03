@@ -37,28 +37,6 @@ const middlewareController = {
     }
   },
 
-
-  getUserId: (req: Request, res: Response, next: NextFunction) => {
-    // get token from header
-    const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1];
-    // check token is null
-    if (token) {
-      // token is not null, we verify and get userId
-      jwt.verify(token, process.env.JWT_ACCESS_KEY as string, (err, decoded: any) => {
-
-        if (err) {
-          return res.status(403).json({ msg: 'Forbidden' });
-        }
-        // get userid
-        (req as Request).headers.userId = decoded.userId;
-      });
-    }
-
-    next();
-
-  },
-
 };
 
 export default middlewareController;

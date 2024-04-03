@@ -5,7 +5,6 @@ import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 import session from "express-session";
 import passport from "./config/passport";
-import HandleErrors from './utils/error-handler'
 
 dotenv.config();
 
@@ -41,8 +40,5 @@ module.exports = async (app: any) => {
 
     //api
     auth(app);
-
-    // error handle
-    app.use(HandleErrors);
 
 }

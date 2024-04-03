@@ -3,7 +3,6 @@ import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import { Strategy as FacebookStrategy } from 'passport-facebook';
 import dotenv from 'dotenv';
 import { User } from '../database/models/User';
-import AuthService from "../services/auth-service";
 import { getRepository } from "typeorm";
 
 dotenv.config({ path: "./server" });
@@ -32,7 +31,6 @@ passport.use(new GoogleStrategy({
     callbackURL: process.env.GOOGLE_CALLBACK_URL || "http://localhost:3000/auth/google/callback"
 },
     async (accessToken, refreshToken, profile: any, done) => {
-        const service = new AuthService();
         let user = new User();
         user.user_id = profile.id;
         // user.email = profile.emails[0].value;
@@ -40,7 +38,10 @@ passport.use(new GoogleStrategy({
 
         try {
             // Check if the user exists in the database, if not, add them
-            let userDb: any = await service.getProfile({google: profile.emails[0].value});
+            const userRepository = getRepository(User);
+            let userDb: User | null = await userRepository.findOne({
+                where: { google: profile.emails[0].value }
+            });
 
             if (!userDb) {
                 // user does not exist yet => add account to user db
@@ -72,8 +73,6 @@ passport.use(new FacebookStrategy({
         user.user_id = profile.id;
         // user.email = profile.emails[0].value;
         user.fullname = profile.displayName;
-
-        console.log("User gg: ", user)
 
         try {
             // Check if the user exists in the database, if not, add them

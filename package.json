@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "concurrently \"cd ./Auth && npm start\" \"cd ./gateway && npm start\""
+    "start": "concurrently \"cd ./Auth && npm start\" \"cd ./gateway && npm start\" \"cd ./User && npm start\""
   },
   "repository": {
     "type": "git",

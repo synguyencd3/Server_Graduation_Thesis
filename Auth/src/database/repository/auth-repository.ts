@@ -1,4 +1,4 @@
-import { getRepository} from "typeorm";
+import { getRepository, getManager} from "typeorm";
 import { User } from "../models";
 
 require("dotenv").config({ path: "./server/.env" });
@@ -32,6 +32,67 @@ export const AuthRepository =  {
         } catch (error) {
             throw new Error("Error data.");
         }
+    },
+
+    async handleGoogle (userFe: any, userDb: any) {
+        const entityManager = getManager();
+
+        try {
+            await entityManager.transaction(async transactionalEntityManager => {
+                // find and delete old google account.
+                const oldUser = await transactionalEntityManager.findOne(User, { where: { google: userFe.google } });
+                // console.log("OLD_USER: ", oldUser);
+                if (oldUser) {
+                    await transactionalEntityManager.remove(oldUser);
+                    console.log("FLAG4");
+                }
+                console.log("FLAG3");
+                // save new information for this user with new google.
+                //set value for aso
+                userDb.username ? userDb.aso = 1 : userDb.aso = 3;
+                (userDb.username && userDb.facebook) ? userDb.aso = 4 : 1;
+                //save to db
+                await transactionalEntityManager.save(userDb);
+    
+                console.log("FLAG5");
+            });
+
+            return true;
+        } catch (error: any) {
+            console.log(error)
+            throw new Error (error)
+        }
+        
+    },
+
+    async handleFacebook (userFe: any, userDb: any) {
+        const entityManager = getManager();
+
+        try {
+            await entityManager.transaction(async transactionalEntityManager => {
+                // find and delete old google account.
+                const oldUser = await transactionalEntityManager.findOne(User, { where: { facebook: userFe.facebook } });
+                if (oldUser) {
+                    await transactionalEntityManager.remove(oldUser);
+                    console.log("FLAG4");
+                }
+                console.log("FLAG3");
+                // save new information for this user with new google.
+                //set value for aso
+                userDb.username ? userDb.aso = 2 : userDb.aso = 3;
+                (userDb.username && userDb.google) ? userDb.aso = 4 : 1;
+                //save to db
+                await transactionalEntityManager.save(userDb);
+    
+                console.log("FLAG5");
+            });
+
+            return true;
+        } catch (error: any) {
+            console.log(error)
+            throw new Error (error)
+        }
+        
     }
     
 }

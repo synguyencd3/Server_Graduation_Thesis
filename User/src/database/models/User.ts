@@ -1,0 +1,89 @@
+import {
+    Entity,
+    Column,
+    Unique,
+    PrimaryColumn,
+    OneToMany
+} from "typeorm";
+import { Length, IsNotEmpty } from "class-validator";
+import { Purchase } from "./Purchase";
+
+@Entity()
+@Unique(["username"])
+export class User {
+
+    @PrimaryColumn()
+    @Length(1, 20)
+    user_id!: string;
+
+    @Column({nullable: true})
+    @Length(1,20)
+    username!: string;
+
+    @Column({nullable: true})
+    @Length(1, 100)
+    password!: string;
+
+    @Column({nullable: true})
+    @Length(0, 50)
+    fullname!: string;
+
+    @Column({nullable: true})
+    @Length(0, 10)
+    gender!: string;
+
+    @Column({nullable: true})
+    @Length(0, 10)
+    phone!: string;
+
+    @Column({nullable: true})
+    @Length(6, 50)
+    email!: string;
+
+    @Column({nullable: true})
+    @Length(0, 200)
+    address!: string;
+
+    @Column({ type: 'timestamptz', nullable: true})
+    date_of_birth!: Date;
+
+    @Column({nullable: true})
+    @Length(0, 200)
+    avatar!: string;
+
+    @Column({nullable: true})
+    @Length(0, 10)
+    role!: string;
+
+    @Column({nullable: true})
+    @Length(0, 200)
+    facebook!: string;
+
+    @Column({nullable: true})
+    @Length(0, 200)
+    google!: string;
+
+    @Column({nullable: true})
+    aso!: number;
+
+    @OneToMany(() => Purchase, purchase => purchase.user)
+    packages!: Purchase[];
+
+    init(user_id: string, username: string, password: string, fullname: string, gender: string, phone: string, email: string, address: string, 
+        date_of_birth: Date, avatar: string, role: string, facebook: string, google: string, aso: number) {
+        this.user_id = user_id;
+        this.username = username;
+        this.password = password;
+        this.fullname = fullname;
+        this.gender = gender;
+        this.phone = phone;
+        this.email = email;
+        this.address = address;
+        this.date_of_birth = date_of_birth;
+        this.avatar = avatar;
+        this.role = role;
+        this.facebook = facebook;
+        this.google = google;
+        this.aso = aso;
+    }
+}
