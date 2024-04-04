@@ -221,8 +221,37 @@
         }
     </pre>
     <li>[GET] /messages/chatting-users </li>
-    Nó sẽ lấy được những thông tin user mà mình đã chat có thể là hoa tiêu hoặc salon
-    (Cái hoa tiêu giờ tạm thời nó vẫn là user)
+    Nó sẽ lấy được những thông tin user mà mình đã chat có thể là hoa tiêu hoặc salon (Cái hoa tiêu giờ tạm thời nó vẫn là user), tui có thêm một cái nữa là lấy được tin nhắn cuối cùng mà nó đã nhắn cho thằng đó kèm theo thời gian (còn ngày tháng năm thì tui sẽ xử lý sau). Tụi ông dựa vào đây để nó cập nhật lại cái user bên thanh sidebar.
+    Nếu tin nhắn cuối cùng mà thằng user đang đăng nhập gửi thì nó sẽ ghi là bạn như messenger, còn không thì nó là rỗng
+    <h4 style="font-weight: 500;">Trả về như sau:</h4>
+    <pre>
+    {
+        "status": "success",
+        "chattingUsers": [
+            {
+                "id": "d44bedce-4033-4831-b172-ac8fccfa627b",
+                "name": "nguyentest2",
+                "image": "https://avatar.iran.liara.run/username?username=nguyentest1",
+                "message": {
+                    "sender": "",
+                    "message": "Xin chao Salon 5:43",
+                    "time": "17:43"
+                }
+            },
+            {
+                "id": "142ffd35-e0f9-457e-a7e2-725ad5710ec2",
+                "name": "nguyen dep trai test",
+                "image": "https://res.cloudinary.com/dok6ou3xz/image/upload/v1710493365/salon-car/fqptwtyxpniglnsmhyby.jpg",
+                "message": {
+                    "sender": "Bạn",
+                    "message": "Toi hoi xe lamborghini",
+                    "time": "17:18"
+                }
+            }
+        ]
+    }
+    </pre>
+    <h4>Giờ nó có thêm 1 cái nữa là cái status của conversation cho biết là thằng đó đã đọc tin hay chưa. Thì lúc gửi mặc định là nó chưa đọc. Nào nó gọi API [GET] /messages/:id nghĩa là nó ấn vào user rồi thì nó mới đọc. Tui để biến đó có kiểu là boolean. Khi chưa đọc thì nó là false, đọc rồi thì nó là true. Thì tụi ông kiểm tra nếu chưa đọc thì cho chữ nó in đậm lên như messenger chẳng hạn. Bên mess nó cũng có thêm cái nữa là giả sử mình đang nhắn tin trực tiếp mà lúc mình nhận được tin nhắn thì nó vẫn hiểu mình chưa đọc, nào mình gõ trên bàn phìm thì nó cập nhật lại mình đọc rồi thì cái này tui chưa làm được (nếu làm theo kiểu cho nó gọi API liên tục thì thấy không ổn)</h4>
     <h4>CHÚ Ý: Tụi ông cứ test là chat giữa 2 user với nhau nhưng lưu ý là đừng chat với thằng làm chủ salon, chỉ chat với salon của nó thôi</h4>
     <h4>Các thông tin lấy bao gồm: id (user_id hoặc salon_id), tên (name), ảnh (image)</h4>
     <li>[GET] /messages/:id </li>
