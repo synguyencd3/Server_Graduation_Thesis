@@ -323,8 +323,9 @@ const salonController = {
 
         try {
             const salonDb: any = await salonRepository.findOne({
+                select: ['salon_id', 'name'],
                 where: { salon_id: salonId },
-                relations: ['user', 'cars', 'employees'],
+                relations: ['employees'],
             })
 
             return res.json({
@@ -332,6 +333,7 @@ const salonController = {
                 salonDb
             })
         } catch (error) {
+            console.log(error)
             return res.json({
                 status: "failed",
                 msg: "error find salon."

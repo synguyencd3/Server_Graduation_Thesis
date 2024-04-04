@@ -316,7 +316,28 @@
     cần truyền vô token bằng body và meetingId ở params.
     <b>Url client cần thiết lập là: http://localhost:5000/videocall/</b>
     
-    <h2></h2>
+    <h2> Phân quyền</h2>
+    <li>[POST] /salons/user</li>
+    Yêu cầu: là chủ salon. Cần truyền vô salonId. Dùng để lấy ra danh sách tất cả các nhân viên và quyền của họ.
+    <li>[POST] /salons/permission</li>
+    Yêu cầu: là chủ salon. Dùng để cấp quyền or thu hồi quyền của nhân viên. Cần truyền vô
+    <div>
+        {"salonId": "id salon", "permission": "quyền cần thực hiện", "userId": "id user cần cấp quyền."}
+        Truyền như vậy là thêm quyền cho nhân viên. Nếu muốn thu hồi quyền thì truyền thêm: "isDelete": true
+    </div>
+    <h3>Quy ước kí hiệu quyền:</h3>
+    <i>OWNER: chủ salon</i>
+    <i>C_X: Cho phép thêm X</i>
+    <i>R_X: Cho phép đọc X</i>
+    <i>U_X: Cho phép cập nhật X</i>
+    <i>D_X: Cho phép xóa X </i>
+    <b>Với X là:</b>
+    <i>EMP: nhân viên.</i>
+    <i>SL: salon</i>
+    <i>CAR: xe </i>
+    <i>APM: lịch hẹn</i>
+    <i>WRT: bảo hành</i>
+    <i>MT: bảo dưỡng</i>
 </body>
 
 </html>
