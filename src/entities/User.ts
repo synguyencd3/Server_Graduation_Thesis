@@ -68,6 +68,9 @@ export class User {
     @Column({nullable: true})
     aso!: number;
 
+    @Column("simple-array", {nullable: true})
+    permissions!: string[];
+
     @ManyToOne(() => Salon, salon => salon.employees)
     salonId!: Salon;
 
@@ -75,7 +78,7 @@ export class User {
     packages!: Purchase[];
 
     init(user_id: string, username: string, password: string, fullname: string, gender: string, phone: string, email: string, address: string, 
-        date_of_birth: Date, avatar: string, role: string, facebook: string, google: string, aso: number) {
+        date_of_birth: Date, avatar: string, role: string, facebook: string, google: string, aso: number, permissions: string[]) {
         this.user_id = user_id;
         this.username = username;
         this.password = password;
@@ -90,5 +93,6 @@ export class User {
         this.facebook = facebook;
         this.google = google;
         this.aso = aso;
+        this.permissions = permissions;
     }
 }
