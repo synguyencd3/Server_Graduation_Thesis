@@ -342,25 +342,25 @@ const salonController = {
     },
 
     handlePermission: async (req: Request, res: Response) => {
-        const { permission, userId, isDelete } = req.body;
+        const { permission, userId, isDel } = req.body;
         const userRepository = getRepository(User);
         try {
             let userDb: User = await userRepository.findOneOrFail({
-                where: {user_id: userId}
+                where: { user_id: userId }
             })
 
-            if(!isDelete) {
-                userDb.permissions = !userDb.permissions?[permission]: [...userDb.permissions, permission];
+            if (!isDel) {
+                userDb.permissions = !userDb.permissions ? [permission] : [...userDb.permissions, ...permission];
             } else {
-                userDb.permissions = userDb.permissions.filter(per => per !== permission)
+                for (let p of permission) {
+                    userDb.permissions = userDb.permissions.filter(per => per != p);
+                }
             }
 
             await userRepository.save(userDb);
 
-            console.log(userDb);
-
             return res.json({
-                status: "success", 
+                status: "success",
                 msg: "add permission successfully!",
                 permissions: userDb.permissions
             })

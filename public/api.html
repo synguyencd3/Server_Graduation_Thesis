@@ -322,8 +322,8 @@
     <li>[POST] /salons/permission</li>
     Yêu cầu: là chủ salon. Dùng để cấp quyền or thu hồi quyền của nhân viên. Cần truyền vô
     <div>
-        {"salonId": "id salon", "permission": "quyền cần thực hiện", "userId": "id user cần cấp quyền."}
-        Truyền như vậy là thêm quyền cho nhân viên. Nếu muốn thu hồi quyền thì truyền thêm: "isDelete": true
+        {"salonId": "id salon", "permission": ["quyền 1", "quyền 2"], "userId": "id user cần cấp quyền."}
+        Truyền như vậy là thêm quyền cho nhân viên. Nếu muốn thu hồi quyền thì truyền thêm: "isDel": true
     </div>
     <h3>Quy ước kí hiệu quyền:</h3>
     <i>OWNER: chủ salon</i>
