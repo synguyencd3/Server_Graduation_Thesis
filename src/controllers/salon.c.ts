@@ -3,7 +3,9 @@ import { Salon } from "../entities/Salon";
 import { Car } from "../entities/Car";
 import { getRepository } from "typeorm";
 const cloudinary = require("cloudinary").v2;
+import jwt, { decode } from "jsonwebtoken";
 import { getFileName } from "../utils/index"
+import { User } from '../entities';
 
 interface MulterFileRequest extends Request {
     files: {
@@ -258,6 +260,86 @@ const salonController = {
             return res.status(500).json({status: "failed", msg: "Internal server error" });
         }
     },
+
+    verifyInviteFromNotification: async (req: Request, res: Response) => {
+        const { token } = req.body;
+        const userId: any = req.headers['userId'];
+        let salonId = "";
+
+        if (!token) {
+            return res.json({
+                status: "failed",
+                "msg": "Token is invalid."
+            })
+        }
+
+        jwt.verify(token, process.env.JWT_SECRETKEY_MAIL || "jwt_key_mail", async (err: any, decoded: any) => {
+            if (err) {
+                return res.json({
+                    status: "failed",
+                    msg: "error token."
+                })
+            }
+
+            salonId = decoded.salonId;
+        })
+
+        try {
+            // join salon.
+            const salonRepository = getRepository(Salon);
+            let salonDb: Salon | undefined = await salonRepository.findOneOrFail({
+                where: { salon_id: salonId },
+                relations: ['employees']
+            });
+
+            const userRepository = getRepository(User);
+            let userDb: any = await userRepository.findOneOrFail({
+                where: {user_id: userId}
+            })
+            userDb.password = ""; // error is delete here - CDQ.
+
+            salonDb?.employees.push(userDb);
+            await salonRepository.save(salonDb);
+
+            return res.json({
+                status: "success",
+                msg: "join salon successfully!"
+            })
+
+        } catch (error) {
+            console.log(error)
+            return res.json({
+                status: "failed",
+                msg: "error with join salon."
+            })
+        }
+
+
+    },
+
+    getEmployees: async (req: Request, res: Response) => {
+        const { salonId, userId } = req.body;
+        const salonRepository = getRepository(Salon);
+
+        try {
+            const salonDb: any = await salonRepository.findOne({
+                where: { salon_id: salonId },
+                relations: ['user', 'cars', 'employees'],
+            })
+
+            return res.json({
+                status: "success",
+                salonDb
+            })
+        } catch (error) {
+            return res.json({
+                status: "failed",
+                msg: "error find salon."
+            })
+        }
+    }
+
+
 }
 
 export default salonController;

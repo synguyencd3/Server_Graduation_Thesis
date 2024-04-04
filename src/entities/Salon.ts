@@ -38,6 +38,9 @@ export class Salon {
     @JoinColumn({ name: 'user_id' })
     user!: User;
 
+    @OneToMany(() => User, (users) => users.salonId)
+    employees!: User[];
+
     @OneToMany(() => Car, (car) => car.salon)
     cars!: Car[];
 

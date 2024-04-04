@@ -3,10 +3,12 @@ import {
     Column,
     Unique,
     PrimaryColumn,
-    OneToMany
+    OneToMany,
+    ManyToOne
 } from "typeorm";
 import { Length, IsNotEmpty } from "class-validator";
 import { Purchase } from "./Purchase";
+import { Salon } from "./Salon";
 
 @Entity()
 @Unique(["username"])
@@ -65,6 +67,9 @@ export class User {
 
     @Column({nullable: true})
     aso!: number;
+
+    @ManyToOne(() => Salon, salon => salon.employees)
+    salonId!: Salon;
 
     @OneToMany(() => Purchase, purchase => purchase.user)
     packages!: Purchase[];
