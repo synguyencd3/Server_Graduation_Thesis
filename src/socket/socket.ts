@@ -28,6 +28,14 @@ io.on("connection", (socket:Socket) => {
   if (salonId !== undefined) userSocketMap[salonId] = socket.id;
 
   io.emit("getOnlineUsers", Object.keys(userSocketMap));
+  
+  socket.on("callVideo", (data:any) => {
+    const receiverId = data.receiverId;
+    const receiverSocketId = getReceiverSocketId(receiverId);
+    if (receiverSocketId) {
+      socket.to(receiverSocketId).emit("receiveCallVideo", data);
+    }
+  });
 
   // socket.on() is used to listen to the events. Can be used both on client and server side
   socket.on("disconnect", () => {
