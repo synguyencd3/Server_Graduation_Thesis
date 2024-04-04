@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { getRepository } from 'typeorm';
-import { Salon } from '../entities';
+import { Salon, User } from '../entities';
 
 const middlewareController = {
   // verify token
@@ -98,7 +98,35 @@ const middlewareController = {
       })
     }
 
+  },
+
+  isEmployeeOfSalon: async (req: Request, res: Response, next: NextFunction) => {
+    const {userId, salonId} = req.body;
+    const userRepository = getRepository(User);
+
+    try {
+      const userDb = await userRepository.findOneOrFail({
+        where: {user_id: userId},
+        relations: ['salonId']
+      })
+
+      if (userDb.salonId.salon_id === salonId) {
+        next();
+      } else {
+        return res.json({
+          status: "failed",
+          msg: "This user is not in the salon."
+        })
+      }
+    } catch (error) {
+      return res.json({
+        status: "failed", 
+        msg: "Permission error. "
+      })
+    }
   }
+
+  
 };
 
 export default middlewareController;

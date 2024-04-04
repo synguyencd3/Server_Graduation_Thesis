@@ -20,7 +20,10 @@ router.patch("/:id", middlewareController.verifyToken, uploadCloud.fields([
 router.delete("/:id", middlewareController.verifyToken, salonController.deleteSalon); 
 
 router.post("/verifyInviteUser", middlewareController.verifyToken, salonController.verifyInviteFromNotification); 
-router.post("/user", middlewareController.verifyToken, salonController.getEmployees); 
+router.post("/user", middlewareController.verifyToken, salonController.getEmployees);
+
+// need to check user in salon.
+router.post("/permission", middlewareController.isAdminOfSalon, middlewareController.isEmployeeOfSalon, salonController.handlePermission); 
 
 
 export default router;

@@ -41,18 +41,18 @@ const salonController = {
     },
     getSalonIdForUser: async (req: Request, res: Response) => {
         try {
-            const user_id:any = req.headers['userId'] || "";
-            
+            const user_id: any = req.headers['userId'] || "";
+
             const salon = await getRepository(Salon).findOne({
-                 where: {
-                     user_id: user_id 
+                where: {
+                    user_id: user_id
                 }
             });
-    
+
             if (!salon) {
                 return res.status(200).json({ status: "success", salonId: null, msg: 'Salon not found for the given userId' });
             }
-    
+
             return res.status(200).json({ status: "success", salonId: salon.salon_id });
         } catch (error) {
             return res.status(500).json({ status: "failed", msg: 'Internal Server Error' });
@@ -66,7 +66,7 @@ const salonController = {
             const salon = await salonRepository.findOne({
                 where: {
                     user_id: user_id,
-                }, 
+                },
                 relations: ["cars"],
             })
 
@@ -89,7 +89,7 @@ const salonController = {
             const salon = await salonRepository.findOne({
                 where: {
                     salon_id: id,
-                }, 
+                },
                 relations: ["cars"],
             })
 
@@ -106,26 +106,26 @@ const salonController = {
     },
     createSalon: async (req: Request | MulterFileRequest, res: Response) => {
         const salonRepository = getRepository(Salon);
-        const { name, address, email, phoneNumber, introductionHtml, introductionMarkdown} = req.body;
+        const { name, address, email, phoneNumber, introductionHtml, introductionMarkdown } = req.body;
         const user_id: any = req.headers['userId'] || "";
 
         let image = "", filenameImage = ""
         let banner = [""], filenameBanner = [""]
 
         if ('files' in req && req.files) {
-            if(req.files["image"] && req.files["image"][0]){
+            if (req.files["image"] && req.files["image"][0]) {
                 const imageData = req.files["image"][0];
                 image = imageData.path
                 filenameImage = imageData.filename
             }
 
-            if(req.files["banner"]){
+            if (req.files["banner"]) {
                 const arrayImagesBanner = req.files["banner"];
                 banner = arrayImagesBanner.map((obj) => obj.path);
                 filenameBanner = arrayImagesBanner.map((obj) => obj.filename);
             }
         }
-        
+
         try {
             const newSalon = { name, address, image, email, phoneNumber, banner, introductionHtml, introductionMarkdown, user_id };
             console.log(newSalon);
@@ -137,10 +137,10 @@ const salonController = {
                 salon: savedSalon
             });
         } catch (error) {
-            if(filenameImage !== ""){
+            if (filenameImage !== "") {
                 cloudinary.uploader.destroy(filenameImage)
             }
-            if(filenameBanner.length !== 0){
+            if (filenameBanner.length !== 0) {
                 filenameBanner.forEach(async (url) => {
                     cloudinary.uploader.destroy(url)
                 })
@@ -150,29 +150,29 @@ const salonController = {
     },
     updateSalon: async (req: Request | MulterFileRequest, res: Response) => {
         const { id } = req.params;
-        const { name, address, email, phoneNumber, introductionHtml, introductionMarkdown} = req.body;
+        const { name, address, email, phoneNumber, introductionHtml, introductionMarkdown } = req.body;
         const salonRepository = getRepository(Salon);
 
         let image = "", filenameImage = ""
         let banner = null, filenameBanner = null
         if ('files' in req && req.files) {
-            if(req.files["image"] && req.files["image"][0]){
+            if (req.files["image"] && req.files["image"][0]) {
                 const imageData = req.files["image"][0];
                 image = imageData.path
                 filenameImage = imageData.filename
             }
 
-            if(req.files["banner"]){
+            if (req.files["banner"]) {
                 const arrayImagesBanner = req.files["banner"];
                 banner = arrayImagesBanner.map((obj) => obj.path);
                 filenameBanner = arrayImagesBanner.map((obj) => obj.filename);
             }
         }
 
-        let newSalon: any = {name, address, email, phoneNumber, introductionHtml, introductionMarkdown,}
-        if(image !== "") newSalon.image = image;
-        if(Array.isArray(banner) && banner.length > 0) newSalon.banner = banner;
-        const {salon_id, user_id, ...other} = newSalon;
+        let newSalon: any = { name, address, email, phoneNumber, introductionHtml, introductionMarkdown, }
+        if (image !== "") newSalon.image = image;
+        if (Array.isArray(banner) && banner.length > 0) newSalon.banner = banner;
+        const { salon_id, user_id, ...other } = newSalon;
 
         const oldSalon = await salonRepository.findOne({
             where: {
@@ -180,11 +180,11 @@ const salonController = {
             },
         })
 
-        if(!oldSalon){
-            if(filenameImage !== ""){
+        if (!oldSalon) {
+            if (filenameImage !== "") {
                 cloudinary.uploader.destroy(filenameImage)
             }
-            if(filenameBanner && filenameBanner.length !== 0){
+            if (filenameBanner && filenameBanner.length !== 0) {
                 filenameBanner.forEach(async (url) => {
                     cloudinary.uploader.destroy(url)
                 })
@@ -192,7 +192,7 @@ const salonController = {
             return res.status(404).json({ status: "failed", msg: `No salon with id: ${id}` });
         }
 
-        if(image !== "" && oldSalon.image){
+        if (image !== "" && oldSalon.image) {
             cloudinary.uploader.destroy(getFileName(oldSalon.image));
         }
 
@@ -201,9 +201,9 @@ const salonController = {
                 cloudinary.uploader.destroy(getFileName(banner));
             });
         }
-        
+
         try {
-            const saveSalon = {...oldSalon, ...other};
+            const saveSalon = { ...oldSalon, ...other };
             const salon = await salonRepository.save(saveSalon);
 
             res.status(200).json({
@@ -212,10 +212,10 @@ const salonController = {
                 salon: salon
             });
         } catch (error) {
-            if(filenameImage !== ""){
+            if (filenameImage !== "") {
                 cloudinary.uploader.destroy(filenameImage)
             }
-            if(filenameBanner && filenameBanner.length !== 0){
+            if (filenameBanner && filenameBanner.length !== 0) {
                 filenameBanner.forEach(async (url) => {
                     cloudinary.uploader.destroy(url)
                 })
@@ -236,13 +236,13 @@ const salonController = {
             })
 
             if (!salon) {
-                return res.status(404).json({status: "failed", msg: `No salon with id: ${id}` });
+                return res.status(404).json({ status: "failed", msg: `No salon with id: ${id}` });
             }
 
-            if(salon.image){
+            if (salon.image) {
                 cloudinary.uploader.destroy(getFileName(salon.image));
             }
-    
+
             if (Array.isArray(salon.banner) && salon.banner.length > 0) {
                 salon.banner.forEach(banner => {
                     cloudinary.uploader.destroy(getFileName(banner));
@@ -257,7 +257,7 @@ const salonController = {
                 msg: "Delete successfully!"
             });
         } catch (error) {
-            return res.status(500).json({status: "failed", msg: "Internal server error" });
+            return res.status(500).json({ status: "failed", msg: "Internal server error" });
         }
     },
 
@@ -294,7 +294,7 @@ const salonController = {
 
             const userRepository = getRepository(User);
             let userDb: any = await userRepository.findOneOrFail({
-                where: {user_id: userId}
+                where: { user_id: userId }
             })
             userDb.password = ""; // error is delete here - CDQ.
 
@@ -337,8 +337,41 @@ const salonController = {
                 msg: "error find salon."
             })
         }
-    }
+    },
 
+    handlePermission: async (req: Request, res: Response) => {
+        const { permission, userId, isDelete } = req.body;
+        const userRepository = getRepository(User);
+        try {
+            let userDb: User = await userRepository.findOneOrFail({
+                where: {user_id: userId}
+            })
+
+            if(!isDelete) {
+                userDb.permissions = !userDb.permissions?[permission]: [...userDb.permissions, permission];
+            } else {
+                userDb.permissions = userDb.permissions.filter(per => per !== permission)
+            }
+
+            await userRepository.save(userDb);
+
+            console.log(userDb);
+
+            return res.json({
+                status: "success", 
+                msg: "add permission successfully!",
+                permissions: userDb.permissions
+            })
+
+        } catch (error) {
+            console.log(error)
+            return res.json({
+                status: "failed",
+                msg: "error with add permission."
+            })
+        }
+
+    }
 
 }
 
