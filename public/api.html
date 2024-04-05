@@ -154,6 +154,9 @@
     Sửa một salon khi biết id. Các fields (giống post), muốn update cái nào thì truyền cái đó
     <li>[DELETE] /salons/:id</li>
     Xóa salon khi biết id
+    <li>[POST] /salons/verifyInviteUser</li>
+    Người dùng vô xác nhận lời mời vô salon. Cần truyền vô token (lưu tại data) được lưu trữ trong notification có types là auth. Muốn huỷ thì gọi
+    đến api xóa thông báo đó là được.
 
     <h2>PURCHASE</h2>
     <li>[GET] /purchase</li>
