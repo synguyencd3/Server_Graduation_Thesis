@@ -131,6 +131,16 @@ const salonController = {
             console.log(newSalon);
             const savedSalon = await salonRepository.save(newSalon);
 
+            // Fix by CDQ - 050424 - Add perrmission admin salon.
+            // set owner permission for the user.
+            const userRepository = getRepository(User);
+            let userDb = await userRepository.findOneOrFail({
+                where: {user_id: user_id}
+            })
+            userDb.permissions = ["owner"];
+            await userRepository.save(userDb);
+            // end fix by CDQ.
+
             res.status(201).json({
                 tatus: "success",
                 msg: "Create successfully!",

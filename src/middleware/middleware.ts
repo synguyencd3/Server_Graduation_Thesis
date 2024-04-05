@@ -110,7 +110,9 @@ const middlewareController = {
         relations: ['salonId']
       })
 
-      if (userDb.salonId.salon_id === salonId) {
+      console.log("USER DB: ", userDb)
+
+      if (userDb?.salonId?.salon_id === salonId) {
         next();
       } else {
         return res.json({
@@ -119,13 +121,37 @@ const middlewareController = {
         })
       }
     } catch (error) {
+      console.log(error)
       return res.json({
         status: "failed", 
         msg: "Permission error. "
       })
     }
-  }
+  },
 
+  havePermission: (permission: any) => {
+    return async (req: Request, res: Response, next: NextFunction) => {
+      const roleAdmin: string[] = ["owner"];
+      const userId: any = req.headers['userId'];
+
+      const userRepository = getRepository(User);
+      try {
+        const userDb = await userRepository.findOneOrFail({
+          where: {user_id: userId},
+          select: ['permissions']
+        })
+
+        if (userDb?.permissions.includes(permission) || userDb?.permissions == roleAdmin) 
+          next()
+      } catch (error) {
+        return res.json({
+          status: "failed",
+          msg: "You dont have this permission."
+        })
+      }
+
+    }
+  }
   
 };
 
