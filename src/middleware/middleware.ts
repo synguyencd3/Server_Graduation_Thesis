@@ -14,7 +14,7 @@ const middlewareController = {
         if (err) {
           return res.status(401).json({ status: "failed", msg: "Token isn't valid!" });
         }
-        //req.user = user;
+        req.user = decoded.userId; // add by cdq 050424 - simple for set permission later.
         (req as Request).headers.userId = decoded.userId;
         next();
       });
@@ -62,7 +62,7 @@ const middlewareController = {
 
   isAdminOfSalon: async (req: Request, res: Response, next: NextFunction) => {
     const token = req.headers.authorization || req.headers['authorization'];
-    const { salonId } = req.body; 
+    const { salonId } = req.body;
     let userId: any = "";
 
     if (!salonId) {
@@ -101,12 +101,12 @@ const middlewareController = {
   },
 
   isEmployeeOfSalon: async (req: Request, res: Response, next: NextFunction) => {
-    const {userId, salonId} = req.body;
+    const { userId, salonId } = req.body;
     const userRepository = getRepository(User);
 
     try {
       const userDb = await userRepository.findOneOrFail({
-        where: {user_id: userId},
+        where: { user_id: userId },
         relations: ['salonId']
       })
 
@@ -123,7 +123,7 @@ const middlewareController = {
     } catch (error) {
       console.log(error)
       return res.json({
-        status: "failed", 
+        status: "failed",
         msg: "Permission error. "
       })
     }
@@ -131,19 +131,36 @@ const middlewareController = {
 
   havePermission: (permission: any) => {
     return async (req: Request, res: Response, next: NextFunction) => {
-      const roleAdmin: string[] = ["owner"];
-      const userId: any = req.headers['userId'];
+      const roleAdmin: string[] = ['OWNER'];
+      const { salonId } = req.body;
+      const userId: any = req.user;
 
       const userRepository = getRepository(User);
       try {
         const userDb = await userRepository.findOneOrFail({
-          where: {user_id: userId},
-          select: ['permissions']
+          where: { user_id: userId },
+          relations: ['salonId']
         })
 
-        if (userDb?.permissions.includes(permission) || userDb?.permissions == roleAdmin) 
+        // check user in salon.
+        if (userDb?.salonId.salon_id != salonId) 
+          throw new Error;
+
+        // check the user is admin the salon.
+        const salonRepository = getRepository(Salon);
+        await salonRepository.findOneOrFail({
+          where: {user_id: userId, salon_id: salonId}
+        })
+
+        if (userDb?.permissions.includes(permission) || userDb?.permissions[0] == roleAdmin[0])
           next()
+        else
+          return res.json({
+            status: "failed",
+            msg: "You dont have this permission."
+          })
       } catch (error) {
+        console.log(error)
         return res.json({
           status: "failed",
           msg: "You dont have this permission."
@@ -152,7 +169,7 @@ const middlewareController = {
 
     }
   }
-  
+
 };
 
 export default middlewareController;

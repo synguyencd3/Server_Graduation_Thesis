@@ -4,7 +4,8 @@ import {
     Unique,
     PrimaryColumn,
     OneToMany,
-    ManyToOne
+    ManyToOne,
+    OneToOne
 } from "typeorm";
 import { Length, IsNotEmpty } from "class-validator";
 import { Purchase } from "./Purchase";

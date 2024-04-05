@@ -137,7 +137,8 @@ const salonController = {
             let userDb = await userRepository.findOneOrFail({
                 where: {user_id: user_id}
             })
-            userDb.permissions = ["owner"];
+            userDb.permissions = ["OWNER"];
+            userDb.salonId = savedSalon;
             await userRepository.save(userDb);
             // end fix by CDQ.
 
