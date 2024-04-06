@@ -50,7 +50,12 @@ const messageController = {
 
       const userDetailsPromise = await getRepository(User)
         .createQueryBuilder("user")
-        .select(["user_id AS id ", "fullname AS name", "avatar AS image"])
+        .select([
+          "user_id AS id ",
+          "fullname AS name",
+          "username AS username",
+          "avatar AS image",
+        ])
         .where("user_id IN (:...userIds)", { userIds: chattingUsers })
         .getRawMany();
 
