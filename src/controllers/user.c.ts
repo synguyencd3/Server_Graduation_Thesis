@@ -3,6 +3,7 @@ import { User } from "../entities/User";
 import { getRepository } from "typeorm";
 const cloudinary = require("cloudinary").v2;
 import { getFileName } from "../utils/index"
+import { newLogs } from '../helper/createLogs';
 
 interface MulterFileRequest extends Request {
     file: any; // Adjust this to match the type of your uploaded file

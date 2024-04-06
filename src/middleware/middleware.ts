@@ -135,6 +135,9 @@ const middlewareController = {
       const { salonId } = req.body;
       const userId: any = req.user;
 
+      // delete userId from verify login. Because this action is for employees, not user.
+      delete (req as Request).headers.userId;
+
       const userRepository = getRepository(User);
       try {
         const userDb = await userRepository.findOneOrFail({

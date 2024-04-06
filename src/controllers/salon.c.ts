@@ -6,6 +6,7 @@ const cloudinary = require("cloudinary").v2;
 import jwt, { decode } from "jsonwebtoken";
 import { getFileName } from "../utils/index"
 import { User } from '../entities';
+import {newLogs} from '../helper/createLogs';
 
 interface MulterFileRequest extends Request {
     files: {
@@ -128,7 +129,7 @@ const salonController = {
 
         try {
             const newSalon = { name, address, image, email, phoneNumber, banner, introductionHtml, introductionMarkdown, user_id };
-            console.log(newSalon);
+            // console.log(newSalon);
             const savedSalon = await salonRepository.save(newSalon);
 
             // Fix by CDQ - 050424 - Add perrmission admin salon.
@@ -141,6 +142,8 @@ const salonController = {
             userDb.salonId = savedSalon;
             await userRepository.save(userDb);
             // end fix by CDQ.
+            // Init new logs for this salon.
+            newLogs(savedSalon.salon_id);
 
             res.status(201).json({
                 tatus: "success",
@@ -148,6 +151,7 @@ const salonController = {
                 salon: savedSalon
             });
         } catch (error) {
+            console.log(error)
             if (filenameImage !== "") {
                 cloudinary.uploader.destroy(filenameImage)
             }
