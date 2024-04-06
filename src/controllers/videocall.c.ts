@@ -1,6 +1,8 @@
 import { Request, Response } from 'express';
 import axios from 'axios';
 import jwt from "jsonwebtoken";
+import { generateToken04 } from "../config/zegoServerAssistant";
+const { v4: uuidv4 } = require("uuid");
 
 require("dotenv").config({ path: "./server/.env" });
 
@@ -32,15 +34,15 @@ const videocallController = {
         };
 
         axios(url, options)
-        .then(response => {
-            // Kiểm tra nếu response không thành công
-            if (!response.data) {
-              throw new Error('No data returned from the server');
-            }
-            return response.data;
-          })
-          .then(result => res.json(result)) // result will contain meetingId
-          .catch(error => console.error("error", error));
+            .then(response => {
+                // Kiểm tra nếu response không thành công
+                if (!response.data) {
+                    throw new Error('No data returned from the server');
+                }
+                return response.data;
+            })
+            .then(result => res.json(result)) // result will contain meetingId
+            .catch(error => console.error("error", error));
     },
 
     validateMeeting: (req: Request, res: Response) => {
@@ -56,16 +58,48 @@ const videocallController = {
         };
 
         axios(url, options)
-        .then(response => {
-            // Kiểm tra nếu response không thành công
-            if (!response.data) {
-              throw new Error('No data returned from the server');
-            }
-            return response.data;
-          })
-          .then(result => res.json(result)) // result will contain meetingId
-          .catch(error => console.error("error", error));
-    }
+            .then(response => {
+                // Kiểm tra nếu response không thành công
+                if (!response.data) {
+                    throw new Error('No data returned from the server');
+                }
+                return response.data;
+            })
+            .then(result => res.json(result)) // result will contain meetingId
+            .catch(error => console.error("error", error));
+    },
+
+    getTokenZegoCloud: (req: Request, res: Response) => {
+        const APP_ID = process.env.ZEGOCLOUD_APP_ID || "";
+        const SERVER_SECRET = process.env.ZEGOCLOUD_SERVER_SECRET || "";
+        // const userName = req.body.userName||req.body.userId;
+        const expiredTs: any = req.body.expired_ts || 3600;
+        const userId: any = req.user;
+
+        // create payload:
+        const payloadObject = {
+            room_id: uuidv4(),
+            privilege: {
+                1: 1,   // loginRoom: 1 pass , 0 not pass
+                2: 0    // publishStream: 1 pass , 0 not pass
+            },
+        }
+        const payload = JSON.stringify(payloadObject);
+        // const payload = "";
+
+        const token = generateToken04(
+            parseInt(APP_ID),
+            userId,
+            SERVER_SECRET,
+            parseInt(expiredTs),
+            payload
+        );
+
+        res.json({
+            sattus: "success",
+            token
+        });
+    },
 };
 
 export default videocallController;

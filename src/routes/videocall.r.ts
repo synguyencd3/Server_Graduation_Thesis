@@ -11,5 +11,6 @@ const router = Router();
 router.get("/get-token", videocallController.getToken);
 router.post("/create-meeting/", videocallController.createMeeting);
 router.post("/validate-meeting/:meetingId", videocallController.validateMeeting);
+router.post("/get-token-zegocloud", middlewareController.verifyToken, videocallController.getTokenZegoCloud);
 
 export default router;
