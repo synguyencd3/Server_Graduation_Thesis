@@ -30,25 +30,29 @@ const messageController = {
 
       const chattingUsers: string[] = [];
       const messageList: Message[] = [];
-      conversations.forEach((conversation) => {
-        conversation.participants.forEach(async (participant) => {
-          if (
-            participant !== userId &&
-            participant !== salon?.salon_id &&
-            !chattingUsers.includes(participant)
-          ) {
-            chattingUsers.push(participant);
-            const lastIdMessage =
-              conversation.messages[conversation.messages.length - 1];
-            const message = await getRepository(Message).findOne({
-              where: { message_id: lastIdMessage },
-            });
-            if (message !== null) messageList.push(message);
-          }
-        });
-      });
 
-      const userDetailsPromise = await getRepository(User)
+      async function processConversations(conversations: any) {
+        for (const conversation of conversations) {
+          for (const participant of conversation.participants) {
+            if (
+              participant !== userId &&
+              participant !== salon?.salon_id &&
+              !chattingUsers.includes(participant)
+            ) {
+              chattingUsers.push(participant);
+              const lastIdMessage =
+                conversation.messages[conversation.messages.length - 1];
+              const message = await getRepository(Message).findOne({
+                where: { message_id: lastIdMessage },
+              });
+              if (message !== null) messageList.push(message);
+            }
+          }
+        }
+      }
+      await processConversations(conversations);
+
+      const userDetails = await getRepository(User)
         .createQueryBuilder("user")
         .select([
           "user_id AS id ",
@@ -59,45 +63,39 @@ const messageController = {
         .where("user_id IN (:...userIds)", { userIds: chattingUsers })
         .getRawMany();
 
-      const salonDetailsPromise = await getRepository(Salon)
+      const salonDetails = await getRepository(Salon)
         .createQueryBuilder("salon")
         .select(["salon_id AS id", "name", "image"])
         .where("salon_id IN (:...salonIds)", { salonIds: chattingUsers })
         .getRawMany();
 
-      const [userDetails, salonDetails] = await Promise.all([
-        userDetailsPromise,
-        salonDetailsPromise,
-      ]);
-
-      userDetails.forEach((user) => {
-        messageList.forEach((message) => {
-          if (user.id === message.senderId || user.id === message.receiverId) {
-            user.message = {
-              sender: user.id === message.receiverId ? "Bạn" : "",
-              message: message.message,
-              time: extractTime(message.createdAt),
-            };
-            return;
+      async function processMessages(details: any) {
+        for (const detail of details) {
+          for (const message of messageList) {
+            if (
+              detail.id === message.senderId ||
+              detail.id === message.receiverId
+            ) {
+              const conversation = await getRepository(Conversation)
+                .createQueryBuilder("conversation")
+                .where("conversation.messages LIKE :messageId", {
+                  messageId: `%${message.message_id}%`,
+                })
+                .getOne();
+              detail.message = {
+                sender: detail.id === message.receiverId ? "Bạn" : "",
+                message: message.message,
+                time: extractTime(message.createdAt),
+                conversation_status: conversation?.status,
+              };
+              return;
+            }
           }
-        });
-      });
+        }
+      }
 
-      salonDetails.forEach((salon) => {
-        messageList.forEach((message) => {
-          if (
-            salon.id === message.senderId ||
-            salon.id === message.receiverId
-          ) {
-            salon.message = {
-              sender: salon.id === message.receiverId ? "Bạn" : "",
-              message: message.message,
-              time: extractTime(message.createdAt),
-            };
-            return;
-          }
-        });
-      });
+      await processMessages(userDetails);
+      await processMessages(salonDetails);
 
       const chattingUsersAndSalons = userDetails.concat(salonDetails);
 
