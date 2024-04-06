@@ -3,9 +3,10 @@ import fs from "fs";
 export const newLogs = async (id: string, data = "") => {
     let content = !data ? `----------------THE SALON WITH ID IS ${id}----------------\n` : data;
     const filePath = `src/logs/${id}.txt`;
+    const time = new Date();
 
     // write data continue.
-    fs.appendFile(filePath, content, (err) => {
+    fs.appendFile(filePath, time + content, (err) => {
         if (err) {
             console.error('Đã xảy ra lỗi khi viết tiếp nội dung vào file:', err);
             return;
