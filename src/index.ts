@@ -7,8 +7,9 @@ import session from "express-session";
 import { createConnection } from "typeorm";
 import passport from "./config/passport";
 import dotenv from "dotenv";
-import {connectionString} from "./config/connect_db"
-import { app, server} from "./socket/socket"
+import { connectionString } from "./config/connect_db";
+import {initAdminTeam, initPermission} from "./helper/initData"
+import { app, server } from "./socket/socket"
 
 dotenv.config();
 //const app = express();
@@ -28,10 +29,18 @@ app.use(
 const port: number = parseInt(process.env.PORT as string, 10) || 5000;
 createConnection(connectionString)
   .then(async (connection) => {
+    initAdminTeam();
+    initPermission("EMP", "nhân viên");
+    initPermission("SL", "salon");
+    initPermission("CAR", "xe hơi");
+    initPermission("APM", "lịch hẹn");
+    initPermission("WRT", "bảo hành");
+    initPermission("MT", "bảo dưỡng");
+    initPermission("NTF", "thông báo");
     //const app = express();
     const corsOptions = {
       origin: ["http://localhost:3000"],
-      methods:["GET", "POST", "PUT", "DELETE", "PATCH"],
+      methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
       credentials: true,
     };
     app.use(cors(corsOptions));

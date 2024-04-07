@@ -1,12 +1,9 @@
 import bcrypt from "bcrypt";
-import nodemailer from "nodemailer";
-import jwt, { decode } from "jsonwebtoken";
-import passport, { use } from "passport";
+import jwt from "jsonwebtoken";
 import { Request, Response } from "express";
-import { getRepository, getManager, Any } from "typeorm";
+import { getRepository, getManager } from "typeorm";
 import axios from "axios";
-import { User, Notification, Salon } from "../entities";
-import { sendMail } from "../config/nodemailer";
+import { User} from "../entities";
 const { v4: uuidv4 } = require("uuid");
 
 require("dotenv").config({ path: "./server/.env" });

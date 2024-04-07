@@ -54,7 +54,7 @@ export class User {
     @Length(0, 200)
     avatar!: string;
 
-    @Column({nullable: true})
+    @Column({default: "user", nullable: true})
     @Length(0, 10)
     role!: string;
 

@@ -8,3 +8,4 @@ export * from './Purchase';
 export * from './Message';
 export * from './Conversation';
 export * from './Appointment';
+export * from './Permission';
