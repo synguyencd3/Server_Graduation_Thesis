@@ -29,14 +29,14 @@ app.use(
 const port: number = parseInt(process.env.PORT as string, 10) || 5000;
 createConnection(connectionString)
   .then(async (connection) => {
-    initAdminTeam();
-    initPermission("EMP", "nhân viên");
-    initPermission("SL", "salon");
-    initPermission("CAR", "xe hơi");
-    initPermission("APM", "lịch hẹn");
-    initPermission("WRT", "bảo hành");
-    initPermission("MT", "bảo dưỡng");
-    initPermission("NTF", "thông báo");
+    await initPermission("EMP", "nhân viên");
+    await initPermission("SL", "salon");
+    await initPermission("CAR", "xe hơi");
+    await initPermission("APM", "lịch hẹn");
+    await initPermission("WRT", "bảo hành");
+    await initPermission("MT", "bảo dưỡng");
+    await initPermission("NTF", "thông báo");
+    await initAdminTeam();
     //const app = express();
     const corsOptions = {
       origin: ["http://localhost:3000"],
