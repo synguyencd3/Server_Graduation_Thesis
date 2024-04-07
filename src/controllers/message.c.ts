@@ -88,7 +88,7 @@ const messageController = {
                 time: extractTime(message.createdAt),
                 conversation_status: conversation?.status,
               };
-              return;
+              break;
             }
           }
         }
