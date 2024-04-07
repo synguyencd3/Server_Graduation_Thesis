@@ -110,8 +110,6 @@ const middlewareController = {
         relations: ['salonId']
       })
 
-      console.log("USER DB: ", userDb)
-
       if (userDb?.salonId?.salon_id === salonId) {
         next();
       } else {

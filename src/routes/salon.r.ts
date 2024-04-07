@@ -17,7 +17,7 @@ router.patch("/:id", middlewareController.verifyToken, uploadCloud.fields([
   { name: "image", maxCount: 1 },
   { name: "banner", maxCount: 5 },
 ]), salonController.updateSalon);
-router.delete("/:id", middlewareController.verifyToken, salonController.deleteSalon); 
+router.delete("/:id", middlewareController.verifyToken, middlewareController.havePermission("D_SL"), salonController.deleteSalon); 
 
 // router.post("/user", middlewareController.isAdminOfSalon, salonController.getEmployees);
 router.post("/user", middlewareController.verifyToken, middlewareController.havePermission("R_EMP"), salonController.getEmployees);

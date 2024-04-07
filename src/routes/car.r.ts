@@ -8,8 +8,8 @@ const router = Router();
 router.get("/", carController.getAllCars);
 router.get("/:id", carController.getCarById);
 router.get("/brand/:brand/salon/:salon_id", carController.getAllCarsByBrandOfSalon);
-router.post("/", uploadCloud.array("image", 5), middlewareController.isAdminOfSalon, carController.createCar);
-router.patch("/:id", uploadCloud.array("image", 5), middlewareController.isAdminOfSalon, carController.updateCar);
-router.delete("/:id", carController.deleteCar); 
+router.post("/", uploadCloud.array("image", 5), middlewareController.verifyToken, middlewareController.havePermission("C_CAR"), carController.createCar);
+router.patch("/:id", uploadCloud.array("image", 5),  middlewareController.verifyToken, middlewareController.havePermission("U_CAR"), carController.updateCar);
+router.delete("/:id", middlewareController.verifyToken, middlewareController.havePermission("D_CAR"), carController.deleteCar); 
 
 export default router;
