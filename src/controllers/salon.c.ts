@@ -599,7 +599,7 @@ const salonController = {
     
           // send new password for user.
           const content = "Your password is 123abc@. Please change it, thank you.";
-          const rs: any = sendMail(email, content);
+          const rs: any = await sendMail(content, email);
     
           if (!rs) {
             return res.json({
