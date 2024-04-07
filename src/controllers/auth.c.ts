@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 import { Request, Response } from "express";
 import { getRepository, getManager } from "typeorm";
 import axios from "axios";
-import { User} from "../entities";
+import { User } from "../entities";
 const { v4: uuidv4 } = require("uuid");
 
 require("dotenv").config({ path: "./server/.env" });
@@ -39,8 +39,7 @@ const authController: any = {
     user.username = req.body.username;
     user.password = req.body.password;
     user.fullname = req.body.fullname;
-    user.avatar =
-      `https://avatar.iran.liara.run/username?username=${user.username}`;
+    user.avatar = `https://avatar.iran.liara.run/username?username=${user.username}`;
     user.role = "User";
     user.aso = 0;
 
@@ -98,7 +97,7 @@ const authController: any = {
 
   googleAuth: async (req: Request, res: Response) => {
     let userFe: any = req.user;
-    const userIdAccount: any = req.headers['userId'];
+    const userIdAccount: any = req.headers["userId"];
 
     // console.log("USer id: ", userIdAccount);
 
@@ -107,77 +106,84 @@ const authController: any = {
       // check aso of this account in db
       const userRepository = getRepository(User);
       const userDb: User | null = await userRepository.findOne({
-        where: { user_id: userIdAccount }
-      })
+        where: { user_id: userIdAccount },
+      });
 
       // console.log("USER_DB: ", userDb);
 
       const userGGDb: User | null = await userRepository.findOne({
         select: ["aso"],
-        where: { google: userFe.google }
-      })
+        where: { google: userFe.google },
+      });
       // console.log("USER_GGDB: ", userGGDb);
 
       if (!userDb) {
         return res.json({
           status: "failed",
-          msg: "invalid information account."
-        })
+          msg: "invalid information account.",
+        });
       }
 
       if (userDb.google) {
         return res.json({
           status: "failed",
-          msg: "This account is linked."
-        })
+          msg: "This account is linked.",
+        });
       }
 
       console.log("FLAG1");
 
       try {
         // link successfully
-        if ((!userGGDb) || (userGGDb.aso == 0) || (userDb.username && userFe.aso == 3) || (userDb.facebook && userFe.aso == 1)) {
+        if (
+          !userGGDb ||
+          userGGDb.aso == 0 ||
+          (userDb.username && userFe.aso == 3) ||
+          (userDb.facebook && userFe.aso == 1)
+        ) {
           console.log("FLAG2");
           userDb.google = userFe.google;
           const entityManager = getManager();
 
-          await entityManager.transaction(async transactionalEntityManager => {
-            // find and delete old google account.
-            const oldUser = await transactionalEntityManager.findOne(User, { where: { google: userFe.google } });
-            // console.log("OLD_USER: ", oldUser);
-            if (oldUser) {
-              await transactionalEntityManager.remove(oldUser);
-              console.log("FLAG4");
-            }
-            console.log("FLAG3");
-            // save new information for this user with new google.
-            //set value for aso
-            userDb.username ? userDb.aso = 1 : userDb.aso = 3;
-            (userDb.username && userDb.facebook) ? userDb.aso = 4 : 1;
-            //save to db
-            await transactionalEntityManager.save(userDb);
+          await entityManager.transaction(
+            async (transactionalEntityManager) => {
+              // find and delete old google account.
+              const oldUser = await transactionalEntityManager.findOne(User, {
+                where: { google: userFe.google },
+              });
+              // console.log("OLD_USER: ", oldUser);
+              if (oldUser) {
+                await transactionalEntityManager.remove(oldUser);
+                console.log("FLAG4");
+              }
+              console.log("FLAG3");
+              // save new information for this user with new google.
+              //set value for aso
+              userDb.username ? (userDb.aso = 1) : (userDb.aso = 3);
+              userDb.username && userDb.facebook ? (userDb.aso = 4) : 1;
+              //save to db
+              await transactionalEntityManager.save(userDb);
 
-            console.log("FLAG5");
-          });
+              console.log("FLAG5");
+            }
+          );
 
           return res.json({
             status: "success",
-            msg: "linked with google successfully!"
-          })
+            msg: "linked with google successfully!",
+          });
         } else {
           return res.json({
             status: "failed",
-            msg: "Not eligible for linking."
-          })
+            msg: "Not eligible for linking.",
+          });
         }
-
       } catch (error) {
         return res.json({
           status: "failed",
-          msg: "error with db."
-        })
+          msg: "error with db.",
+        });
       }
-
     }
 
     // action for login
@@ -189,6 +195,7 @@ const authController: any = {
 
       // save user to db
       const userRepository = getRepository(User);
+      userFe.user_id = uuidv4();
       try {
         await userRepository.save(userFe);
 
@@ -212,16 +219,15 @@ const authController: any = {
       } catch (error) {
         return res.json({
           status: "failed",
-          msg: "error information to save db."
-        })
+          msg: "error information to save db.",
+        });
       }
-
     }
 
     return res.json({
       status: "failed",
-      msg: "error google account."
-    })
+      msg: "error google account.",
+    });
   },
 
   /*
@@ -233,10 +239,9 @@ const authController: any = {
   4: with username + google + facebook
   */
 
-
   facebookAuth: async (req: Request, res: Response) => {
     let userFe: any = req.user;
-    const userIdAccount: any = req.headers['userId'];
+    const userIdAccount: any = req.headers["userId"];
 
     // console.log("USer id: ", userIdAccount);
 
@@ -245,77 +250,84 @@ const authController: any = {
       // check aso of this account in db
       const userRepository = getRepository(User);
       const userDb: User | null = await userRepository.findOne({
-        where: { user_id: userIdAccount }
-      })
+        where: { user_id: userIdAccount },
+      });
 
       // console.log("USER_DB: ", userDb);
 
       const userGGDb: User | null = await userRepository.findOne({
         select: ["aso"],
-        where: { facebook: userFe.facebook }
-      })
+        where: { facebook: userFe.facebook },
+      });
       // console.log("USER_GGDB: ", userGGDb);
 
       if (!userDb) {
         return res.json({
           status: "failed",
-          msg: "invalid information account."
-        })
+          msg: "invalid information account.",
+        });
       }
 
       if (userDb.facebook) {
         return res.json({
           status: "failed",
-          msg: "This account is linked."
-        })
+          msg: "This account is linked.",
+        });
       }
 
       console.log("FLAG1");
 
       try {
         // link successfully
-        if ((!userGGDb) || (userGGDb.aso == 0) || (userDb.username && userFe.aso == 3) || (userDb.google && userFe.aso == 2)) {
+        if (
+          !userGGDb ||
+          userGGDb.aso == 0 ||
+          (userDb.username && userFe.aso == 3) ||
+          (userDb.google && userFe.aso == 2)
+        ) {
           console.log("FLAG2");
           userDb.facebook = userFe.facebook;
           const entityManager = getManager();
 
-          await entityManager.transaction(async transactionalEntityManager => {
-            // find and delete old facebook account.
-            const oldUser = await transactionalEntityManager.findOne(User, { where: { facebook: userFe.facebook } });
-            // console.log("OLD_USER: ", oldUser);
-            if (oldUser) {
-              await transactionalEntityManager.remove(oldUser);
-              console.log("FLAG4");
-            }
-            console.log("FLAG3");
-            // save new information for this user with new facebook.
-            //set value for aso
-            userDb.username ? userDb.aso = 2 : userDb.aso = 3;
-            (userDb.username && userDb.google) ? userDb.aso = 4 : 1;
-            //save to db
-            await transactionalEntityManager.save(userDb);
+          await entityManager.transaction(
+            async (transactionalEntityManager) => {
+              // find and delete old facebook account.
+              const oldUser = await transactionalEntityManager.findOne(User, {
+                where: { facebook: userFe.facebook },
+              });
+              // console.log("OLD_USER: ", oldUser);
+              if (oldUser) {
+                await transactionalEntityManager.remove(oldUser);
+                console.log("FLAG4");
+              }
+              console.log("FLAG3");
+              // save new information for this user with new facebook.
+              //set value for aso
+              userDb.username ? (userDb.aso = 2) : (userDb.aso = 3);
+              userDb.username && userDb.google ? (userDb.aso = 4) : 1;
+              //save to db
+              await transactionalEntityManager.save(userDb);
 
-            console.log("FLAG5");
-          });
+              console.log("FLAG5");
+            }
+          );
 
           return res.json({
             status: "success",
-            msg: "linked with facebook successfully!"
-          })
+            msg: "linked with facebook successfully!",
+          });
         } else {
           return res.json({
             status: "failed",
-            msg: "Not eligible for linking."
-          })
+            msg: "Not eligible for linking.",
+          });
         }
-
       } catch (error) {
         return res.json({
           status: "failed",
-          msg: "error with db."
-        })
+          msg: "error with db.",
+        });
       }
-
     }
 
     // action for login
@@ -327,6 +339,7 @@ const authController: any = {
 
       // save user to db
       const userRepository = getRepository(User);
+      userFe.user_id = uuidv4();
       try {
         await userRepository.save(userFe);
 
@@ -350,39 +363,40 @@ const authController: any = {
       } catch (error) {
         return res.json({
           status: "failed",
-          msg: "error information to save db."
-        })
+          msg: "error information to save db.",
+        });
       }
-
     }
 
     return res.json({
       status: "failed",
-      msg: "error facebook account."
-    })
+      msg: "error facebook account.",
+    });
   },
 
   facebookAuthMobile: async (req: Request, res: Response) => {
     const accessToken = req.body.accessToken;
-    const FACEBOOK_GRAPH_API_VERSION = 'v15.0';
-    const userIdAccount: any = req.headers['userId'];
+    const FACEBOOK_GRAPH_API_VERSION = "v15.0";
+    const userIdAccount: any = req.headers["userId"];
 
     // console.log("accessToken: ", accessToken);
 
     if (!accessToken) {
       return res.json({
         status: "failed",
-        msg: "invalid acesstoken facebook."
-      })
+        msg: "invalid acesstoken facebook.",
+      });
     }
 
     try {
-      const response = await axios.get(`https://graph.facebook.com/${FACEBOOK_GRAPH_API_VERSION}/me?access_token=${accessToken}&fields=id,name,email`);
+      const response = await axios.get(
+        `https://graph.facebook.com/${FACEBOOK_GRAPH_API_VERSION}/me?access_token=${accessToken}&fields=id,name,email`
+      );
       const { id, name, email } = response.data;
       const userRepository = getRepository(User);
       let userFe: any = await userRepository.findOne({
-        where: { facebook: email }
-      })
+        where: { facebook: email },
+      });
 
       // console.log("respone: ", response);
 
@@ -398,77 +412,84 @@ const authController: any = {
         // check aso of this account in db
         const userRepository = getRepository(User);
         const userDb: User | null = await userRepository.findOne({
-          where: { user_id: userIdAccount }
-        })
+          where: { user_id: userIdAccount },
+        });
 
         console.log("USER_DB: ", userDb);
 
         const userGGDb: User | null = await userRepository.findOne({
           select: ["aso"],
-          where: { facebook: userFe.facebook }
-        })
+          where: { facebook: userFe.facebook },
+        });
         console.log("USER_GGDB: ", userGGDb);
 
         if (!userDb) {
           return res.json({
             status: "failed",
-            msg: "invalid information account."
-          })
+            msg: "invalid information account.",
+          });
         }
 
         if (userDb.facebook) {
           return res.json({
             status: "failed",
-            msg: "This account is linked."
-          })
+            msg: "This account is linked.",
+          });
         }
 
         console.log("FLAG1");
 
         try {
           // link successfully
-          if ((!userGGDb) || (userGGDb.aso == 0) || (userDb.username && userFe.aso == 3) || (userDb.google && userFe.aso == 2)) {
+          if (
+            !userGGDb ||
+            userGGDb.aso == 0 ||
+            (userDb.username && userFe.aso == 3) ||
+            (userDb.google && userFe.aso == 2)
+          ) {
             console.log("FLAG2");
             userDb.facebook = userFe.facebook;
             const entityManager = getManager();
 
-            await entityManager.transaction(async transactionalEntityManager => {
-              // find and delete old facebook account.
-              const oldUser = await transactionalEntityManager.findOne(User, { where: { facebook: userFe.facebook } });
-              console.log("OLD_USER: ", oldUser);
-              if (oldUser) {
-                await transactionalEntityManager.remove(oldUser);
-                console.log("FLAG4");
-              }
-              console.log("FLAG3");
-              // save new information for this user with new facebook.
-              //set value for aso
-              userDb.username ? userDb.aso = 2 : userDb.aso = 3;
-              (userDb.username && userDb.google) ? userDb.aso = 4 : 1;
-              //save to db
-              await transactionalEntityManager.save(userDb);
+            await entityManager.transaction(
+              async (transactionalEntityManager) => {
+                // find and delete old facebook account.
+                const oldUser = await transactionalEntityManager.findOne(User, {
+                  where: { facebook: userFe.facebook },
+                });
+                console.log("OLD_USER: ", oldUser);
+                if (oldUser) {
+                  await transactionalEntityManager.remove(oldUser);
+                  console.log("FLAG4");
+                }
+                console.log("FLAG3");
+                // save new information for this user with new facebook.
+                //set value for aso
+                userDb.username ? (userDb.aso = 2) : (userDb.aso = 3);
+                userDb.username && userDb.google ? (userDb.aso = 4) : 1;
+                //save to db
+                await transactionalEntityManager.save(userDb);
 
-              console.log("FLAG5");
-            });
+                console.log("FLAG5");
+              }
+            );
 
             return res.json({
               status: "success",
-              msg: "linked with facebook successfully!"
-            })
+              msg: "linked with facebook successfully!",
+            });
           } else {
             return res.json({
               status: "failed",
-              msg: "Not eligible for linking."
-            })
+              msg: "Not eligible for linking.",
+            });
           }
-
         } catch (error) {
           return res.json({
             status: "failed",
-            msg: "error with db."
-          })
+            msg: "error with db.",
+          });
         }
-
       }
 
       // action for login
@@ -480,6 +501,7 @@ const authController: any = {
 
         // save user to db
         const userRepository = getRepository(User);
+        userFe.user_id = uuidv4();
         try {
           await userRepository.save(userFe);
 
@@ -496,22 +518,20 @@ const authController: any = {
         } catch (error) {
           return res.json({
             status: "failed",
-            msg: "error information to save db."
-          })
+            msg: "error information to save db.",
+          });
         }
-
       }
 
       return res.json({
         status: "failed",
-        msg: "error facebook account."
-      })
-
+        msg: "error facebook account.",
+      });
     } catch (error) {
       return res.json({
         error,
         status: "failed",
-        msg: "The access token is invalid or has expired."
+        msg: "The access token is invalid or has expired.",
       });
     }
   },
@@ -620,7 +640,10 @@ const authController: any = {
           sameSite: "none",
         });
 
-        return res.json({ accessToken: newAccessToken, refreshToken: newRefreshToken });
+        return res.json({
+          accessToken: newAccessToken,
+          refreshToken: newRefreshToken,
+        });
       }
     );
   },
@@ -648,9 +671,6 @@ const authController: any = {
     res.clearCookie("refreshToken");
     res.json("Logged out successfully!");
   },
-
-  
-
 };
 
 export default authController;
