@@ -66,7 +66,7 @@ export class User {
     @Length(0, 200)
     google!: string;
 
-    @Column({nullable: true})
+    @Column({nullable: true, default: 0})
     aso!: number;
 
     @Column("simple-array", {nullable: true})

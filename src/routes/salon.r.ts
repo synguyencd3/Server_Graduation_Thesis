@@ -19,12 +19,15 @@ router.patch("/:id", middlewareController.verifyToken, uploadCloud.fields([
 ]), salonController.updateSalon);
 router.delete("/:id", middlewareController.verifyToken, salonController.deleteSalon); 
 
-router.post("/verifyInviteUser", middlewareController.verifyToken, salonController.verifyInviteFromNotification); 
 // router.post("/user", middlewareController.isAdminOfSalon, salonController.getEmployees);
-router.post("/user", middlewareController.verifyToken, middlewareController.havePermission("V_EMP"), salonController.getEmployees);
+router.post("/user", middlewareController.verifyToken, middlewareController.havePermission("R_EMP"), salonController.getEmployees);
 
 // need to check user in salon.
 router.post("/permission", middlewareController.isAdminOfSalon, middlewareController.isEmployeeOfSalon, salonController.handlePermission); 
 
+// invite user to salon
+router.post("/invite", middlewareController.verifyToken, middlewareController.havePermission("C_EMP"), salonController.inviteByEmail)
+router.post("/verifyInviteUser", middlewareController.verifyToken, salonController.verifyInviteFromNotification); 
+router.get("/verify-invite/:token", salonController.verifyInviteFromMail);
 
 export default router;

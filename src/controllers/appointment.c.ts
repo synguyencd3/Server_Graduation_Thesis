@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { getRepository } from 'typeorm';
 import { Appointment, Salon, User } from '../entities';
 import createNotification from '../helper/createNotification';
+import { newLogs } from '../helper/createLogs';
 
 const appointmentController = {
   createAppointment: async (req: Request, res: Response) => {
@@ -30,6 +31,9 @@ const appointmentController = {
         avatar: userDb.avatar,
         isUser: true
       })
+
+      // add logs
+      newLogs(salonId, `${userId} created appointment with your salon.`)
 
       return res.status(201).json({
         status: "success",
@@ -123,6 +127,10 @@ const appointmentController = {
 
       // console.log("AVATAR: ", userDb, salonDb, salonId? salonDb?.image: userDb?.avatar)
 
+      // add logs
+      if (salonId)
+        newLogs(salonId, `Employee ${req.user} updated appointment with id ${id} `)
+
       return res.status(200).json({
         status: "success",
         msg: "Updated successfully!"
@@ -164,6 +172,9 @@ const appointmentController = {
 
         // console.log("Delete: ", salonId ? recordToDelete.salon.image: recordToDelete.user.avatar)
       }
+
+      if(salonId)
+      newLogs(salonId, `Employee deleted appointment with custormer ${recordToDelete.user?.fullname} - ${recordToDelete.user?.user_id}`)
 
       return res.status(200).json({
         status: "success",

@@ -3,6 +3,7 @@ import { Car } from "../entities/Car";
 import { getRepository } from "typeorm";
 const cloudinary = require("cloudinary").v2;
 import { getFileName } from "../utils/index"
+import { newLogs } from '../helper/createLogs';
 
 interface MulterFile {
     path: string;
@@ -161,6 +162,8 @@ const carController = {
             gear, mfg, inColor, outColor, salon: { salon_id: salonSalonId }, image };
             const savedCar = await carRepository.save(newCar);
 
+            newLogs(salonSalonId, `${req.user} created car ${savedCar.car_id}.`)
+
             res.status(201).json({
                 status: "success",
                 msg: "Create successfully!",
@@ -229,6 +232,8 @@ const carController = {
             const saveCar = {...oldCar, ...other};
             const car = await carRepository.save(saveCar);
 
+            newLogs(salonSalonId, `${req.user} updated car ${car?.car_id}.`)
+
             res.status(200).json({
                 status: "success",
                 msg: "Update successfully!",
@@ -262,6 +267,7 @@ const carController = {
             }
 
             await carRepository.delete(id);
+            newLogs(req.body.salonId, `${req.user} deleted car ${car.name}- ${car.price}.`)
             res.status(200).json({
                 status: "success",
                 msg: "Delete successfully!"

@@ -1,12 +1,15 @@
 import { Request, Response } from 'express';
-import { Salon } from "../entities/Salon";
-import { Car } from "../entities/Car";
+import { Car, User, Salon } from "../entities";
 import { getRepository } from "typeorm";
 const cloudinary = require("cloudinary").v2;
-import jwt, { decode } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 import { getFileName } from "../utils/index"
-import { User } from '../entities';
 import {newLogs} from '../helper/createLogs';
+import { sendMail } from "../config/nodemailer";
+import bcrypt from "bcrypt";
+import createNotification from '../helper/createNotification';
+
+const { v4: uuidv4 } = require("uuid");
 
 interface MulterFileRequest extends Request {
     files: {
@@ -388,7 +391,167 @@ const salonController = {
             })
         }
 
-    }
+    },
+    
+    inviteByEmail: async (req: Request, res: Response) => {
+        // check if email exists
+        const { email, salonId } = req.body;
+        const userId: any = req.user;
+    
+        if (email === undefined || typeof email !== "string") {
+          return res.status(400).json({
+            status: "failed",
+            msg: "Error with input email.",
+          });
+        }
+    
+        try {
+          const token = jwt.sign(
+            { email, salonId: salonId },
+            process.env.JWT_SECRETKEY_MAIL || "jwt_key_mail",
+            {
+              expiresIn: "7d",
+            }
+          );
+    
+          // check email is existed yet.
+          const userRepository = getRepository(User);
+          const userDb: any = await userRepository.findOne({
+            where: { email: email }
+          });
+
+    
+          if (userDb) {
+            // get info of from user
+            const fromUser = await userRepository.findOneOrFail({
+              where: { user_id: userId }
+            })
+            // user is existed already => send notification to this user
+            createNotification({
+                to: userDb.user_id,
+                description: `${fromUser.fullname} invited you to join their salon.`,
+                types: "invite",
+                data: token,
+                avatar: fromUser.avatar,
+                isUser: false
+              })
+    
+            return res.status(200).json({
+              status: "success",
+              msg: "Invited successfully!"
+            });
+          }
+    
+          // user is existed yet => send mail.
+          const content = `Hi! There, you have recently visited 
+          our website and entered your email.
+          Please follow the given link to join in salonId:
+          ${process.env.URL_CLIENT}/auth/verify-token-email/${token}
+          Thanks`;
+          let rs: any = await sendMail(content, email);
+    
+          if (!rs) {
+            return res.json({
+              status: "failed",
+              msg: "Server is error now",
+            });
+          }
+    
+          return res.json({
+            status: "success",
+            msg: "Sent mail successfully!",
+          });
+    
+        } catch (error) {
+          return res.json({
+            status: "failed",
+            msg: "Error invite, please check information again.",
+          });
+        }
+      },
+    
+      // [GET] /verify-invite/token
+      verifyInviteFromMail: async (req: Request, res: Response) => {
+        const token: string | undefined = req.params.token;
+        let email: any, salonId;
+        const userRepository = getRepository(User);
+    
+        if (!token) {
+          return res.json({
+            status: "failed",
+            "msg": "Token is invalid."
+          })
+        }
+    
+        jwt.verify(token, process.env.JWT_SECRETKEY_MAIL || "jwt_key_mail", async (err, decoded: any) => {
+          if (!err) {
+            email = decoded.email;
+            salonId = decoded.salonId;
+          } else {
+            return res.json({
+              status: "failed",
+              msg: "Token is not valid or expired",
+            })
+          }
+        })
+
+        try {
+            await userRepository.findOneOrFail({
+              where: {email: email}
+            })
+  
+            // user joined the salon before.
+            return res.json({
+              status: "failed",
+              msg: "You are in the salon here aldready."
+            })
+          } catch (error){};
+    
+        try {
+          // create new account.
+          const defaultPassword = "123abc@";
+          const salt = await bcrypt.genSalt(11);
+          const password = await bcrypt.hash(defaultPassword, salt);
+          let userDb: User = new User();
+          userDb.user_id = uuidv4();
+          userDb.username = email;
+          userDb.password = password;
+          userDb.email = email;
+          await userRepository.save(userDb);
+    
+          // join salon.
+          const salonRepository = getRepository(Salon);
+          let salonDb: Salon | undefined = await salonRepository.findOneOrFail({
+              where: { salon_id: salonId },
+              relations: ['employees']
+          });
+          userDb.password = ""; // error is delete here - CDQ.
+          salonDb?.employees.push(userDb);
+          await salonRepository.save(salonDb);
+    
+          // send new password for user.
+          const content = "Your password is 123abc@. Please change it, thank you.";
+          const rs: any = sendMail(email, content);
+    
+          if (!rs) {
+            return res.json({
+              status: "failed",
+              msg: "Server is error now",
+            });
+          }
+
+          return res.json({
+            status: "success",
+            msg: "Join salon successfully!"
+          })
+        } catch (error) {
+          res.json({
+            status: "failed",
+            msg: "Join salon failed."
+          })
+        }
+    
+      },
 
 }
 

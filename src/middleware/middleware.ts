@@ -134,7 +134,7 @@ const middlewareController = {
       const roleAdmin: string[] = ['OWNER'];
       const { salonId } = req.body;
       const userId: any = req.user;
-
+      
       // delete userId from verify login. Because this action is for employees, not user.
       delete (req as Request).headers.userId;
 

@@ -28,14 +28,7 @@
     Tương tự với google. Nhưng cần add tài khoản để thử nghiệm.
     <li>[GET] /auth/facebook/callback</li>
     Tương tự như trên.
-    <li>[POST] /auth/invite</li>
-    Cần đăng nhập để mời người dùng join vào group của mình (tương lai). Cần truyền vô email của người cần mời vào body.
-    Người được mời cần vô mail kích vào đường dẫn để đi đến xác thực. Hệ thống sẽ tự động thêm tài khoản mới cho người
-    đó nếu chưa có tài khoản.
-    Username là email và password sẽ tự động được gửi vào email sau khi người dùng ấn liên kết.
-    <li>[GET] /auth/verify-invite/:token</li>
-    Bên web sẽ cần lấy ra token khi người dùng ấn liên kết trong email khi được mời. Web cần xử lý và gửi token về cho
-    server để xác nhận.
+    
     <h3>FACEBOOK MOBILE</h3>
     <li>[POST] /auth/facebook-mobile</li>
     Cần truyền vô accesstoken. Về liên kết tài khoản thì cũng gọi đến router này luôn. Và không cần truyền gì thêm chỉ truyền accesstoken
@@ -154,8 +147,16 @@
     Sửa một salon khi biết id. Các fields (giống post), muốn update cái nào thì truyền cái đó
     <li>[DELETE] /salons/:id</li>
     Xóa salon khi biết id
+    <li>[POST] /salons/invite</li>
+    Cần đăng nhập để mời người dùng join vào group của mình (tương lai). Cần truyền vô email của người cần mời vào body.
+    Người được mời cần vô mail kích vào đường dẫn để đi đến xác thực. Hệ thống sẽ tự động thêm tài khoản mới cho người
+    đó nếu chưa có tài khoản.
+    Username là email và password sẽ tự động được gửi vào email sau khi người dùng ấn liên kết.
+    <li>[GET] /salons/verify-invite/:token</li>
+    Bên web sẽ cần lấy ra token khi người dùng ấn liên kết trong email khi được mời. Web cần xử lý và gửi token về cho
+    server để xác nhận.
     <li>[POST] /salons/verifyInviteUser</li>
-    Người dùng vô xác nhận lời mời vô salon. Cần truyền vô token (lưu tại data) được lưu trữ trong notification có types là auth. Muốn huỷ thì gọi
+    Người dùng vô xác nhận lời mời vô salon. Cần truyền vô token (lưu tại data) được lưu trữ trong notification có types là invite. Muốn huỷ thì gọi
     đến api xóa thông báo đó là được.
 
     <h2>PURCHASE</h2>
@@ -335,18 +336,18 @@
         Truyền như vậy là thêm quyền cho nhân viên. Nếu muốn thu hồi quyền thì truyền thêm: "isDel": true
     </div>
     <h3>Quy ước kí hiệu quyền:</h3>
-    <i>OWNER: chủ salon</i>
-    <i>C_X: Cho phép thêm X</i>
-    <i>R_X: Cho phép đọc X</i>
-    <i>U_X: Cho phép cập nhật X</i>
-    <i>D_X: Cho phép xóa X </i>
-    <b>Với X là:</b>
-    <i>EMP: nhân viên.</i>
-    <i>SL: salon</i>
-    <i>CAR: xe </i>
-    <i>APM: lịch hẹn</i>
-    <i>WRT: bảo hành</i>
-    <i>MT: bảo dưỡng</i>
+    <div>OWNER: chủ salon</div>
+    <div>C_X: Cho phép thêm X</div>
+    <div>R_X: Cho phép đọc X</div>
+    <div>U_X: Cho phép cập nhật X</div>
+    <div>D_X: Cho phép xóa X </div>
+    <div>Với X là:</div>
+    <div>EMP: nhân viên.</div>
+    <div>SL: salon</div>
+    <div>CAR: xe </div>
+    <div>APM: lịch hẹn</div>
+    <div>WRT: bảo hành</div>
+    <div>MT: bảo dưỡng</div>
 </body>
 
 </html>

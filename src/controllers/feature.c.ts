@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { Feature } from "../entities/Feature";
 import { getRepository } from "typeorm";
+import { newLogs } from '../helper/createLogs';
 
 
 const featureController = {
@@ -43,7 +44,7 @@ const featureController = {
     },
     createFeature: async (req: Request, res: Response) => {
         const featureRepository = getRepository(Feature);
-        const { name, description, keyMap } = req.body;
+        const { name, description, keyMap, salonId } = req.body;
         
         try {
             const newFeature = { name, description, keyMap };
@@ -53,13 +54,15 @@ const featureController = {
                 msg: "Create successfully!", 
                 feature: savedFeature
             });
+
+            newLogs(salonId, `${req.user} created new feature - ${name}.`)
         } catch (error) {
             return res.status(500).json({ status: "failed", msg: "Internal server error" });
         }
     },
     updateFeature: async (req: Request, res: Response) => {
         const { id } = req.params;
-        const { name, description, keyMap } = req.body;
+        const { name, description, keyMap, salonId } = req.body;
         const featureRepository = getRepository(Feature);
         
         try {
@@ -71,6 +74,8 @@ const featureController = {
                 where: {
                     feature_id: id,
                 }})
+            newLogs(salonId, `${req.user} updated feature - ${result?.name}`)
+
             res.status(200).json({
                 status: "success",
                 msg: "Update successfully!",
@@ -88,6 +93,9 @@ const featureController = {
             if (feature.affected === 0) {
                 return res.status(404).json({ status: "failed", msg: `No feature with id: ${id}` });
             }
+
+            newLogs(req.body.salonId, `${req.user} deleted feature - ${feature.raw}`) // maybe erro feature.raw
+
             res.status(200).json({
                 status: "success",
                 msg: "Delete successfully!"
