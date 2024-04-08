@@ -40,7 +40,7 @@ const authController: any = {
     user.password = req.body.password;
     user.fullname = req.body.fullname;
     user.avatar = `https://avatar.iran.liara.run/username?username=${user.username}`;
-    user.role = "User";
+    user.role = "user";
     user.aso = 0;
 
     if (user.username === undefined || user.password === undefined) {
@@ -188,14 +188,21 @@ const authController: any = {
 
     // action for login
     if (userFe) {
+      const userRepository = getRepository(User);
+      const userExist: User | null = await userRepository.findOne({
+        where: { google: userFe.google },
+      });
+      if (!userExist) {
+        userFe.user_id = uuidv4();
+        userFe.email = userFe.google;
+      }
+
       const accessToken = authController.generateAccessToken(req.user);
       const refreshToken = authController.generateRefreshToken(req.user);
 
       refreshTokens.push(refreshToken);
 
       // save user to db
-      const userRepository = getRepository(User);
-      userFe.user_id = uuidv4();
       try {
         await userRepository.save(userFe);
 
@@ -332,14 +339,21 @@ const authController: any = {
 
     // action for login
     if (userFe) {
+      const userRepository = getRepository(User);
+      const userExist: User | null = await userRepository.findOne({
+        where: { facebook: userFe.facebook },
+      });
+      if (!userExist) {
+        userFe.user_id = uuidv4();
+        userFe.email = userFe.facebook;
+      }
+
       const accessToken = authController.generateAccessToken(req.user);
       const refreshToken = authController.generateRefreshToken(req.user);
 
       refreshTokens.push(refreshToken);
 
       // save user to db
-      const userRepository = getRepository(User);
-      userFe.user_id = uuidv4();
       try {
         await userRepository.save(userFe);
 
@@ -494,14 +508,21 @@ const authController: any = {
 
       // action for login
       if (userFe) {
+        const userRepository = getRepository(User);
+        const userExist: User | null = await userRepository.findOne({
+          where: { facebook: userFe.facebook },
+        });
+        if (!userExist) {
+          userFe.user_id = uuidv4();
+          userFe.email = userFe.facebook;
+        }
+
         const accessToken = authController.generateAccessToken(userFe);
         const refreshToken = authController.generateRefreshToken(userFe);
 
         refreshTokens.push(refreshToken);
 
         // save user to db
-        const userRepository = getRepository(User);
-        userFe.user_id = uuidv4();
         try {
           await userRepository.save(userFe);
 
