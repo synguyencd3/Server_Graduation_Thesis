@@ -143,6 +143,9 @@ const middlewareController = {
           relations: ['salonId']
         })
 
+        if (userDb?.role === 'admin')
+          return next();
+
         // check user in salon.
         if (userDb?.salonId.salon_id != salonId) 
           throw new Error;
@@ -169,7 +172,18 @@ const middlewareController = {
       }
 
     }
-  }
+  },
+
+  isAdminTeam: (req: Request, res: Response, next: NextFunction) => {
+    const userId: any = req.user;
+
+    if (userId === process.env.USER_ID_ADMIN_TEAM) return next();
+
+    return res.json({
+      status: "failed",
+      msg: "You dont have the permission."
+    })
+  } 
 
 };
 

@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { getRepository } from "typeorm";
-import { User, Permission } from '../entities';
+import { User } from '../entities';
 import parsePermission from '../helper/parsePermission';
 
 
@@ -24,6 +24,22 @@ const adminController = {
                 status: "failed",
                 msg: "error with find permissions array."
             })
+        }
+    }, 
+
+    updatePermission: async (req: Request, res: Response) => {
+        const {key, name, method} = req.body;
+        const adminRepository = getRepository(User);
+        
+
+        try {
+            const adminDb: User = await adminRepository.findOneOrFail({
+                where: { user_id: process.env.USER_ID_ADMIN_TEAM, role: "admin" }
+            })
+
+            
+        } catch (error) {
+            
         }
     }
 
