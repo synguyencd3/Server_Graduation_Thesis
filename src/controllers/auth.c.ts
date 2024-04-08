@@ -40,7 +40,7 @@ const authController: any = {
     user.password = req.body.password;
     user.fullname = req.body.fullname;
     user.avatar = `https://avatar.iran.liara.run/username?username=${user.username}`;
-    user.role = "User";
+    user.role = "user";
     user.aso = 0;
 
     if (user.username === undefined || user.password === undefined) {
@@ -196,6 +196,7 @@ const authController: any = {
       // save user to db
       const userRepository = getRepository(User);
       userFe.user_id = uuidv4();
+      userFe.email = userFe.google;
       try {
         await userRepository.save(userFe);
 
@@ -340,6 +341,7 @@ const authController: any = {
       // save user to db
       const userRepository = getRepository(User);
       userFe.user_id = uuidv4();
+      userFe.email = userFe.facebook;
       try {
         await userRepository.save(userFe);
 
@@ -502,6 +504,7 @@ const authController: any = {
         // save user to db
         const userRepository = getRepository(User);
         userFe.user_id = uuidv4();
+        userFe.email = userFe.facebook;
         try {
           await userRepository.save(userFe);
 

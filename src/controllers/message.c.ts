@@ -57,7 +57,7 @@ const messageController = {
         .select([
           "user_id AS id ",
           "fullname AS name",
-          "username AS username",
+          "CASE WHEN username IS NOT NULL THEN username ELSE '' END AS username",
           "avatar AS image",
         ])
         .where("user_id IN (:...userIds)", { userIds: chattingUsers })
