@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { getRepository } from "typeorm";
 import { Permission, User } from '../entities';
 import parsePermission from '../helper/parsePermission';
-
+import path from 'path';
 
 const adminController = {
     getPermission: async (req: Request, res: Response) => {
@@ -64,6 +64,13 @@ const adminController = {
                 msg: "error with update permisison."
             })
         }
+    },
+
+    getLogs: async (req: Request, res: Response) => {
+        const salonId = req.body.salonId;
+        const filePath = path.join(__dirname, `../logs/${salonId}.txt`);
+
+        return res.sendFile(filePath);
     }
 
 }

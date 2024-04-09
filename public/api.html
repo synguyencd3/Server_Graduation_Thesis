@@ -357,7 +357,22 @@
     <div>password: admin123abcDEF@@</div>
 
     <li>[POST] /amin/</li>
-    Lấy ra danh sách tất cả các quyền. Hiện tại chưa cần điều kiện gì. Sau sẽ thêm vô vài điều kiện để kiểm tra mới cho lấy.
+    Lấy ra danh sách tất cả các quyền. Yêu cầu phải là admin team - đăng nhập bằng tài khoản admin được cung cấp.
+    <li>[POST] /admin/update-permission</li>
+    Cập nhật quyền cho toàn bộ hệ thống. Yêu cầu phải là admin team - đăng nhập bằng tài khoản admin được cung cấp. có thể truyền vô như sau:
+    <div>
+        {
+            "method": ["C", "R"],
+            "key": "NTTF",
+            "name": "Test thoi do"
+        }
+        muốn thay đổi name or method thì có thể hiệu chỉnh. Nếu muốn bỏ bớt 1 method R_key thì không truyền method đó mà chỉ truyền cái khác. Lưu ý không
+        được thay đổi key. Key mới sẽ thành 1 tính năng mới.
+    </div>
+
+    <li>[POST]: /admin/logs</li>
+    Lấy ra lịch sử hoạt động của salon. Yêu cầu truyền vô salonId, và cần đăng nhập với vai trò là chủ salon.
+
 </body>
 
 </html>
