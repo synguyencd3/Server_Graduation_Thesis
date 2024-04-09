@@ -31,6 +31,12 @@ const adminController = {
         const {key, name, method} = req.body;
         const adminRepository = getRepository(User);
 
+        if (!key || !name || !method)
+            return res.json({
+                status: "failed",
+                msg: "Input invalid."
+            })
+
         try {
             // save key - name for permission.
             let newPermission = new Permission()
