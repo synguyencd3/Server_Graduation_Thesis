@@ -8,6 +8,7 @@ import { newLogs } from "../helper/createLogs";
 import { sendMail } from "../config/nodemailer";
 import bcrypt from "bcrypt";
 import createNotification from "../helper/createNotification";
+import parsePermission from "../helper/parsePermission";
 
 const { v4: uuidv4 } = require("uuid");
 
@@ -408,15 +409,20 @@ const salonController = {
     const salonRepository = getRepository(Salon);
 
     try {
-      const salonDb: any = await salonRepository.findOne({
+      let salonDb: any = await salonRepository.findOne({
         select: ["salon_id", "name"],
         where: { salon_id: salonId },
         relations: ["employees"],
       });
 
+      for (let i in salonDb.employees) {
+        let per = salonDb.employees[i].permissions
+        salonDb.employees[i].permissions = per && await parsePermission(per);
+      }
+
       return res.json({
         status: "success",
-        salonDb,
+        salonDb: salonDb,
       });
     } catch (error) {
       console.log(error);
