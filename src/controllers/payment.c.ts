@@ -179,7 +179,7 @@ const apidocController = {
             vnp_Params['vnp_OrderInfo'] = JSON.stringify(orderInfor) || "Demo thanh toan VN Pay";
             vnp_Params['vnp_OrderType'] = "other";
             vnp_Params['vnp_Amount'] = packageDb.price * Number(months) * 100;
-            vnp_Params['vnp_ReturnUrl'] = "http://localhost:5000/payment/vnpay_return";
+            vnp_Params['vnp_ReturnUrl'] = `${process.env.URLSEVER}/payment/vnpay_return`; 
             vnp_Params['vnp_IpAddr'] = "127.0.0.1";
             vnp_Params['vnp_CreateDate'] = `${year}${month}${day}${hours}${minutes}${seconds}`;
             vnp_Params['vnp_BankCode'] = "NCB";
@@ -271,6 +271,10 @@ const apidocController = {
                 saveInfo.expirationDate = expirationDate;
                 saveInfo.total = Number(vnp_Params.vnp_Amount)/100;
                 await userPackageRepository.save(saveInfo)
+
+                // should be find permission of package id. And update permission for customer
+                // find permission of each feature.
+                // here
 
                 return res.redirect((process.env.URL_CLIENT || "url_client") + `/payment/vnpay?rs=success&amount=${Number(vnp_Params.vnp_Amount)/100}&item=${packageDb.name}`);
             }
