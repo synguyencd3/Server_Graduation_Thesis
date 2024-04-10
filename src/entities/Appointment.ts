@@ -33,11 +33,15 @@ export class Appointment {
     @JoinColumn({ name: 'salon_id' })
     salon!: Salon;
 
-    init(salon_id: string, user_id: string, date: Date, description: string, status: number) {
+    @Column()
+    car_id!: string;
+
+    init(salon_id: string, user_id: string, date: Date, description: string, status: number, car_id: string) {
         this.salon_id = salon_id;
         this.user_id = user_id;
         this.date = date;
         this.description = description;
         this.status = status;
+        this.car_id = car_id;
     }
 }

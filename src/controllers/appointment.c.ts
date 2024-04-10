@@ -1,13 +1,28 @@
 import { Request, Response } from 'express';
 import { getRepository } from 'typeorm';
-import { Appointment, Salon, User } from '../entities';
+import { Appointment, Car, Salon, User } from '../entities';
 import createNotification from '../helper/createNotification';
 import { newLogs } from '../helper/createLogs';
 
 const appointmentController = {
   createAppointment: async (req: Request, res: Response) => {
     const userId: any = req.headers['userId'];
-    const { salonId, date, description }: any = req.body;
+    const { salonId, date, description, carId }: any = req.body;
+
+    try {
+      //Check the car and no one has made an appointment at that time frame
+      const appointRepository = getRepository(Appointment);
+      await appointRepository.findOneOrFail({
+        where: { car_id: carId, date: date }
+      })
+
+      return res.json({
+        status: "failed",
+        msg: "Unfortunately, the car was scheduled for that time frame."
+      })
+
+    } catch (error) { }
+
 
     try {
       // get fullname of user
@@ -21,6 +36,7 @@ const appointmentController = {
       appoint.user_id = userId;
       appoint.date = date;
       appoint.description = description;
+      appoint.car_id = carId;
       const saveAppoint = await appointmentRepository.save(appoint);
 
       createNotification({
@@ -41,6 +57,7 @@ const appointmentController = {
         appoint
       });
     } catch (error) {
+      console.log(error)
       return res.status(400).json({
         status: "failed",
         msg: "Invalid informations."
@@ -50,20 +67,32 @@ const appointmentController = {
 
   get: async (req: Request, res: Response) => {
     const userId: any = req.headers['userId'] || req.body.userId;
-    const { salonId, status, id }: any = req.body;
+    const { salonId, status, id, carId }: any = req.body;
     const appointmentRepository = getRepository(Appointment)
 
     try {
       let appointDb: any = await appointmentRepository.find({
-        where: { salon_id: salonId, status: status, id: id, user_id: userId },
+        where: { salon_id: salonId, status: status, id: id, user_id: userId, car_id: carId },
         relations: ['user', 'salon'],
-        select: ['id', 'date', 'description', 'status', 'user', 'salon'],
+        select: ['id', 'date', 'description', 'status', 'user', 'salon', 'car_id'],
         order: { create_at: 'DESC' }
       })
 
       for (let app in appointDb) {
         appointDb[app].user = { fullname: appointDb[app].user.fullname, phone: appointDb[app].user.phone };
         appointDb[app].salon = appointDb[app].salon.name;
+        try {
+          const carRepository = getRepository(Car);
+          appointDb[app].car = await carRepository.findOneOrFail({
+            where: { car_id: carId }
+          })
+        } catch (error) {
+          return res.json({
+            status: "failed",
+            msg: "error information car."
+          })
+        }
+
       }
 
       return res.status(200).json({
@@ -95,16 +124,16 @@ const appointmentController = {
       // get fullname of user
       const userRepository = getRepository(User);
       const salonRepository = getRepository(Salon);
-      let userDb:User|undefined;
-      let salonDb:Salon|undefined;
+      let userDb: User | undefined;
+      let salonDb: Salon | undefined;
 
-      if(userId) {
+      if (userId) {
         userDb = await userRepository.findOneOrFail({
           where: { user_id: userId }
         });
       }
 
-      if(salonId) {
+      if (salonId) {
         salonDb = await salonRepository.findOneOrFail({
           where: { salon_id: salonId },
           relations: ['user']
@@ -115,13 +144,13 @@ const appointmentController = {
         where: filteredObject
       });
       await appointmentRepository.save({ ...appointDb, status, description });
-      const responeSalon: string = (status == 1)? `${salonDb?.name} đã chấp thuận lịch hẹn của bạn.`: `${salonDb?.name} đã từ chối lịch hẹn của bạn.`
+      const responeSalon: string = (status == 1) ? `${salonDb?.name} đã chấp thuận lịch hẹn của bạn.` : `${salonDb?.name} đã từ chối lịch hẹn của bạn.`
       createNotification({
         to: salonId ? appointDb.user_id : appointDb.salon_id,
-        description: salonId? responeSalon: `${userDb?.fullname} đã chỉnh sửa thông tin mô tả của lịch hẹn với salon của bạn.`,
+        description: salonId ? responeSalon : `${userDb?.fullname} đã chỉnh sửa thông tin mô tả của lịch hẹn với salon của bạn.`,
         types: "appointment",
         data: id,
-        avatar: salonId? salonDb?.image: userDb?.avatar,
+        avatar: salonId ? salonDb?.image : userDb?.avatar,
         isUser: !salonId
       })
 
@@ -166,15 +195,15 @@ const appointmentController = {
           to: salonId ? recordToDelete?.user_id : recordToDelete?.salon_id,
           description: salonId ? `Salon ${recordToDelete?.salon.name} đã hủy lịch hẹn với bạn.` : `User ${recordToDelete?.user.fullname} đã hủy lịch hẹn với salon của bạn.`,
           types: "appointment",
-          avatar: salonId ? recordToDelete.salon.image: recordToDelete.user.avatar,
+          avatar: salonId ? recordToDelete.salon.image : recordToDelete.user.avatar,
           isUser: !salonId
         })
 
         // console.log("Delete: ", salonId ? recordToDelete.salon.image: recordToDelete.user.avatar)
       }
 
-      if(salonId)
-      newLogs(salonId, `Employee deleted appointment with custormer ${recordToDelete.user?.fullname} - ${recordToDelete.user?.user_id}`)
+      if (salonId)
+        newLogs(salonId, `Employee deleted appointment with custormer ${recordToDelete.user?.fullname} - ${recordToDelete.user?.user_id}`)
 
       return res.status(200).json({
         status: "success",

@@ -1,4 +1,5 @@
-import { Entity, Column, PrimaryColumn } from "typeorm"
+import { Entity, Column, PrimaryColumn, OneToOne, JoinColumn } from "typeorm"
+import { Feature } from "./Feature";
 
 @Entity()
 export class Permission {
@@ -7,6 +8,10 @@ export class Permission {
 
     @Column({nullable: true})
     name!: string;
+
+    @OneToOne(() => Feature)
+    @JoinColumn({ name: 'feature_id' })
+    feature_id!: Feature
 
     init(key: string, name: string) {
         this.key = key;
