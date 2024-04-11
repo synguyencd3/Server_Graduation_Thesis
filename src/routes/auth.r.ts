@@ -73,5 +73,8 @@ router.post(
 router.post("/logout", authController.logoutUser);
 
 router.post("/change-pw", middlewareController.verifyToken, authController.changePassword);
+router.post("/forgot-pw", authController.forgotPassword);
+router.post("/verify-forgot-pw", authController.verifyForgotPassword);
+router.post("/renew-forgot-pw", authController.renewPasswordForgot);
 
 export default router;

@@ -1,10 +1,13 @@
 import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
+import jwt, { verify } from "jsonwebtoken";
 import { Request, Response } from "express";
 import { getRepository, getManager } from "typeorm";
 import axios from "axios";
 import { User } from "../entities";
 const { v4: uuidv4 } = require("uuid");
+import redisConnection from "../config/redis";
+import { generateRandomCode } from "../utils/index"
+import { sendMail } from "../config/nodemailer";
 
 require("dotenv").config({ path: "./server/.env" });
 
@@ -723,9 +726,99 @@ const authController: any = {
   },
 
   forgotPassword: async (req: Request, res: Response) => {
-    const email = req.body;
+    const {email} = req.body;
 
+    try {
+      const randomeCode = await generateRandomCode(6);
+      await redisConnection.set(email, randomeCode);
+      const content = `Your password reset confirmation code is ${randomeCode}. Please do not disclose it to anyone. Thanks.`
+      const rs = await sendMail(content, email);
 
+      if (!rs) {
+        return res.json({
+          status: "failed",
+          msg: "Server is error now",
+        });
+      }
+
+      return res.json({
+        status: "success",
+        msg: "Please check mail to get code.!",
+      });
+
+    } catch (error) {
+      console.log(error)
+      return res.json({
+        status: "failed",
+        msg: "Error renew password, please check information again.",
+      });
+    }
+
+  },
+
+  verifyForgotPassword: async (req:Request, res: Response) => {
+    const {code, email} = req.body;
+
+    try {
+      const codeRedis = await redisConnection.get(email);
+      if (code === codeRedis) {
+        // delete old password.
+        const userRepository = getRepository(User);
+        await userRepository.update({email: email}, {password: ""});
+
+        // set new code and send it to client.
+        const randomeCode = await generateRandomCode(6);
+        await redisConnection.set(email, randomeCode);
+
+        return res.json({
+          status: "success",
+          code: randomeCode
+        })
+      }
+
+      return res.json({
+        status: "failed",
+        msg: "Code is invalid."
+      })
+    } catch (error) {
+      return res.json({
+        status: "failed",
+        msg: "erorr update, please try later."
+      })
+    }
+  },
+
+  renewPasswordForgot : async (req: Request, res: Response) => {
+    const {code, email, newPassword} = req.body;
+
+    try {
+      const codeRedis = await redisConnection.get(email);
+      if (code === codeRedis) {
+        // delete old password.
+        const userRepository = getRepository(User);
+        const salt = await bcrypt.genSalt(11);
+        const savePassword = await bcrypt.hash(newPassword, salt);
+        await userRepository.update({email: email}, {password: savePassword});
+
+        // delete code.
+        await redisConnection.del(email);
+
+        return res.json({
+          status: "success",
+          msg: "Renew password successfylly."
+        })
+      }
+
+      return res.json({
+        status: "failed",
+        msg: "Code is invalid."
+      })
+    } catch (error) {
+      return res.json({
+        status: "failed",
+        msg: "erorr update, please try later."
+      })
+    }
   },
 
   genToken: async (data: any) => {

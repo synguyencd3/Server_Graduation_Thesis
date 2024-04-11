@@ -36,6 +36,17 @@
     <li>[POST] /auth/change-pw</li>
     Thay đổi password or là cập nhật password lúc đầu khi người dùng lần đầu tiên được mời vô hệ thống bằng mail. Nếu là mời vào bằng mail thì cần set:
     {newPassword}. Còn nếu là cập nhật password thì cần truyền vô {oldPassword, newPassword};
+    <li>[POST] /auth/forgot-pw</li>
+    Quên mật khẩu và muốn lấy mật khẩu mới. Cần nhập vô email. Server sẽ gửi 1 mã gồm 6 chữ số đến mail đó. Client cần chuyển sang màn hình nhập 6 kí tự.
+    <li>[POST] /auth/verify-forgot-pw</li>
+    Đây là bước xác thực thứ 2. Yêu cầu gửi mã code trong mail của người dùng. cụ thể gửi các thông tin :
+    {email, code}. Nếu server xác nhận là đúng code rồi thì server sẽ trả về một mã code mới nhằm phục vụ đổi password mới. 
+    Và client cần chuyển sang màn hình
+    nhập password mới cho user.
+    <li>[POST] /auth/renew-forgot-pw</li>
+    Đây là bước xác thực cuối cùng. Yêu cầu gửi:
+    {code: mã code server gửi về cho client lúc trước, email: email của user, newPassword: mật khẩu mới}. Nếu thành công thì client cần chuyển sang trang đăng 
+    nhập cho user.
 
     <h2>PROFILE</h2>
     <li>[GET] /users/profile</li>

@@ -10,6 +10,7 @@ import dotenv from "dotenv";
 import { connectionString } from "./config/connect_db";
 import {initAdminTeam, initPermission} from "./helper/initData"
 import { app, server } from "./socket/socket"
+import redisConnection from "./config/redis";
 
 dotenv.config();
 //const app = express();
@@ -61,6 +62,9 @@ createConnection(connectionString)
     // config Passport amd middleware
     app.use(passport.initialize());
     app.use(passport.session());
+
+    // redis
+    await redisConnection.connect();
 
     router(app);
     server.listen(port, () => {
