@@ -8,7 +8,7 @@ export const sendMail = async (content: string, to: string) => {
         from: process.env.EMAIL_ADDRESS || "webnangcao.final@gmail.com",
         to: to,
         subject: "Email Verification - Cars Salon App",
-        text: content
+        html: content
     };
 
     const transporter = nodemailer.createTransport({

@@ -517,11 +517,8 @@ const salonController = {
           }
     
           // user is existed yet => send mail.
-          const content = `Hi! There, you have recently visited 
-          our website and entered your email.
-          Please follow the given link to join in salonId:
-          ${process.env.URL_CLIENT}/auth/verify-token-email/${token}
-          Thanks`;
+          const content = `<div dir="ltr"> Hi! There, you have recently visited our website and entered your email. Please follow the given link to join in the salon:<a target="_blank" href="${process.env.URL_CLIENT}/auth/verify-token-email/${token}">Click here</a> </div>`
+
           let rs: any = await sendMail(content, email);
     
           if (!rs) {
