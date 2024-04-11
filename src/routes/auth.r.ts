@@ -72,4 +72,6 @@ router.post(
 // router.post("/logout", middlewareController.verifyToken, authController.logoutUser);
 router.post("/logout", authController.logoutUser);
 
+router.post("/change-pw", middlewareController.verifyToken, authController.changePassword);
+
 export default router;

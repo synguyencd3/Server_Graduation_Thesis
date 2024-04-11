@@ -33,6 +33,9 @@
     <li>[POST] /auth/facebook-mobile</li>
     Cần truyền vô accesstoken. Về liên kết tài khoản thì cũng gọi đến router này luôn. Và không cần truyền gì thêm chỉ truyền accesstoken
     của account mới cần liên kết với nó (account cần liên kết không phải account đang login).
+    <li>[POST] /auth/change-pw</li>
+    Thay đổi password or là cập nhật password lúc đầu khi người dùng lần đầu tiên được mời vô hệ thống bằng mail. Nếu là mời vào bằng mail thì cần set:
+    {newPassword}. Còn nếu là cập nhật password thì cần truyền vô {oldPassword, newPassword};
 
     <h2>PROFILE</h2>
     <li>[GET] /users/profile</li>
@@ -154,7 +157,8 @@
     Username là email và password sẽ tự động được gửi vào email sau khi người dùng ấn liên kết.
     <li>[GET] /salons/verify-invite/:token</li>
     Bên web sẽ cần lấy ra token khi người dùng ấn liên kết trong email khi được mời. Web cần xử lý và gửi token về cho
-    server để xác nhận.
+    server để xác nhận. Phía server sẽ trả về token đăng nhập thành công. Frontend cần chuyển vô trang bắt user đổi password mới rồi mới cho truy cập tiếp. Và tiếp theo hãy 
+    hướng đến api change password ở auth.
     <li>[POST] /salons/verifyInviteUser</li>
     Người dùng vô xác nhận lời mời vô salon. Cần truyền vô token (lưu tại data) được lưu trữ trong notification có types là invite. Muốn huỷ thì gọi
     đến api xóa thông báo đó là được.

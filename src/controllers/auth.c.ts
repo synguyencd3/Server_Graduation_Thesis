@@ -692,6 +692,49 @@ const authController: any = {
     res.clearCookie("refreshToken");
     res.json("Logged out successfully!");
   },
+
+  changePassword: async (req: Request, res: Response) => {
+    const { oldPassword, newPassword } = req.body;
+    const userId: any = req.user;
+
+    // find user
+    try {
+      const userRepository = getRepository(User);
+      let userDb: User = await userRepository.findOneOrFail({
+        where: { user_id: userId, password: oldPassword }
+      })
+
+      const salt = await bcrypt.genSalt(11);
+      const savePassword = await bcrypt.hash(newPassword, salt);
+
+      await userRepository.save({ ...userDb, password: savePassword });
+
+      return res.json({
+        status: "success",
+        msg: "change password successfully!"
+      })
+
+    } catch (error) {
+      return res.json({
+        status: "failed",
+        msg: "Error input data."
+      })
+    }
+  },
+
+  forgotPassword: async (req: Request, res: Response) => {
+    const email = req.body;
+
+
+  },
+
+  genToken: async (data: any) => {
+    const accessToken = await authController.generateAccessToken(data);
+    const refreshToken = await authController.generateRefreshToken(data);
+    refreshTokens.push(refreshToken);
+
+    return { accessToken, refreshToken };
+  }
 };
 
 export default authController;
