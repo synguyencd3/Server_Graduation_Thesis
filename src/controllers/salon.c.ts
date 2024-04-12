@@ -392,6 +392,15 @@ const salonController = {
       salonDb?.employees.push(userDb);
       await salonRepository.save(salonDb);
 
+      // notification to salon
+      createNotification({
+        to: salonId,
+        description: `${userDb.fullname} has accepted your invitation to your salon.`,
+        types: "invite",
+        avatar: userDb.avatar,
+        isUser: true
+      })
+
       return res.json({
         status: "success",
         msg: "join salon successfully!",
