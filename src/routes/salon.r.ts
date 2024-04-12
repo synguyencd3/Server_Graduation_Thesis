@@ -22,7 +22,6 @@ router.delete("/:id", middlewareController.verifyToken, middlewareController.hav
 // router.post("/user", middlewareController.isAdminOfSalon, salonController.getEmployees);
 router.post("/user", middlewareController.verifyToken, middlewareController.havePermission("R_EMP"), salonController.getEmployees);
 
-// need to check user in salon.
 router.post("/permission", middlewareController.isAdminOfSalon, middlewareController.isEmployeeOfSalon, salonController.handlePermission); 
 
 // invite user to salon

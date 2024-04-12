@@ -444,10 +444,24 @@ const salonController = {
       
       await userRepository.save({...userDb, permissions: permission});
 
+      // notification to user
+      const fromUser = await userRepository.findOneOrFail({
+        where: { user_id: req.user as string }
+      })
+
+      createNotification({
+        to: userDb.user_id,
+        description: `Chủ salon đã thay đổi quyền của bạn.`,
+        types: "permission",
+        avatar: fromUser.avatar,
+        isUser: false
+      })
+
       return res.json({
         status: "success",
         msg: "add permission successfully!",
-        permissions: userDb.permissions
+        permissions: await parsePermission(userDb.permissions)
+         
       })
 
     } catch (error) {
