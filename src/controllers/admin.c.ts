@@ -4,9 +4,20 @@ import { getRepository } from "typeorm";
 import { User, Package, Feature, Car, Salon, Notification, Purchase, Message, Conversation, Appointment, Permission } from '../entities';
 import parsePermission from '../helper/parsePermission';
 import path from 'path';
+import Cache from '../config/node-cache';
 
 const adminController = {
     getPermission: async (req: Request, res: Response) => {
+
+        // find in cache
+        const valueCache = await Cache.get(process.env.USER_ID_ADMIN_TEAM as string + "admin");
+        if (valueCache) {
+            return res.json({
+                status: "success",
+                rs: valueCache
+            })
+        }
+
         const adminRepository = getRepository(User);
         try {
             const adminDb = await adminRepository.findOneOrFail({
@@ -14,6 +25,9 @@ const adminController = {
                 select: ['permissions']
             })
             const rs: any = await parsePermission(adminDb?.permissions);
+
+            // set new value for cache
+            Cache.set(process.env.USER_ID_ADMIN_TEAM as string+"admin", rs);
 
             return res.json({
                 status: "success",
@@ -58,6 +72,9 @@ const adminController = {
                 adminDb.permissions.push(`${m}_${key}`);
                         
             await adminRepository.save(adminDb);
+
+            // del old value cache
+            Cache.del(process.env.USER_ID_ADMIN_TEAM as string+"admin");
 
             return res.json({
                 status: "success",

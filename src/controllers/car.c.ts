@@ -4,6 +4,7 @@ import { getRepository } from "typeorm";
 const cloudinary = require("cloudinary").v2;
 import { getFileName } from "../utils/index"
 import { newLogs } from '../helper/createLogs';
+import Cache from '../config/node-cache';
 
 interface MulterFile {
     path: string;
@@ -16,6 +17,15 @@ interface MulterFileRequest extends Request {
 
 const carController = {
     getAllCars: async (req: Request, res: Response) => {
+        // get value from cache
+        const valueCache = await Cache.get("cars");
+        if (valueCache) {
+            return res.status(200).json({
+                status: "success",
+                cars: valueCache
+            });
+        }
+
         const carRepository = getRepository(Car);
         try {
             const cars = await carRepository.find({
@@ -52,8 +62,13 @@ const carController = {
             //         car.image = [car.image[0]];
             //     }
             // });
+            // set new value for cache
+            Cache.set("cars", {
+                car: formattedCars,
+                nbHits: formattedCars.length,
+            });
 
-            res.status(200).json({
+            return res.status(200).json({
                 status: "success",
                 cars: {
                     car: formattedCars,
@@ -68,6 +83,14 @@ const carController = {
     getCarById: async (req: Request, res: Response) => {
         const carRepository = getRepository(Car);
         const { id } = req.params;
+        // get value from car
+        const valueCache = await Cache.get(id+"car");
+        if (valueCache) {
+            return res.status(200).json({
+                status: "success",
+                car: valueCache
+            });
+        }
 
         try {
             const car = await carRepository.findOne({
@@ -80,6 +103,16 @@ const carController = {
                 return res.status(404).json({ status: "failed", msg: `No car with id: ${id}` });
             }
             const { salon_id, name, address } = car.salon;
+
+            // set new value for cache
+            Cache.set(id+"car", {
+                ...car,
+                salon: {
+                    salon_id,
+                    name,
+                    address
+                }
+            });
 
             return res.status(200).json({
                 status: "success",
@@ -99,6 +132,14 @@ const carController = {
     getAllCarsByBrandOfSalon: async (req: Request, res: Response) => {
         const { brand, salon_id } = req.params;
         const carRepository = getRepository(Car);
+        // get value from cache
+        const valueCache = Cache.get(salon_id+brand);
+        if (valueCache) {
+            return res.status(200).json({
+                status: "success",
+                data: valueCache,
+            });
+        }
 
         try {
             const cars = await carRepository.find({
@@ -122,8 +163,13 @@ const carController = {
             //         address: car.salon.address
             //     }
             // }));
+            // set new value for cache
+            Cache.set(salon_id+brand, {
+                cars: cars,
+                nbHits: cars.length,
+            });
 
-            res.status(200).json({
+            return res.status(200).json({
                 status: "success",
                 data: {
                     cars: cars,
@@ -163,8 +209,11 @@ const carController = {
             const savedCar = await carRepository.save(newCar);
 
             newLogs(salonSalonId, `${req.user} created car ${savedCar.car_id}.`)
+            
+            // del old value cache
+            Cache.del(["cars", salonSalonId+brand]);
 
-            res.status(201).json({
+            return res.status(201).json({
                 status: "success",
                 msg: "Create successfully!",
                 car: savedCar
@@ -233,6 +282,7 @@ const carController = {
             const car = await carRepository.save(saveCar);
 
             newLogs(salonSalonId, `${req.user} updated car ${car?.car_id}.`)
+            Cache.del(["cars", id+"car", salonSalonId+brand]);
 
             res.status(200).json({
                 status: "success",
@@ -268,7 +318,9 @@ const carController = {
 
             await carRepository.delete(id);
             newLogs(req.body.salonId, `${req.user} deleted car ${car.name}- ${car.price}.`)
-            res.status(200).json({
+            Cache.del(["cars", id+"car", req.body.salonId+car.brand]);
+
+            return res.status(200).json({
                 status: "success",
                 msg: "Delete successfully!"
             });

@@ -11,6 +11,7 @@ import { connectionString } from "./config/connect_db";
 import {initAdminTeam, initPermission} from "./helper/initData"
 import { app, server } from "./socket/socket"
 import redis from "./config/redis";
+import Cache from "./config/node-cache";
 
 dotenv.config();
 //const app = express();
@@ -44,6 +45,7 @@ createConnection(connectionString)
       methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
       credentials: true,
     };
+
     app.use(cors(corsOptions));
     app.use(express.static(path.join(__dirname, "public")));
     app.use(express.urlencoded({ extended: true }));
@@ -65,6 +67,9 @@ createConnection(connectionString)
 
     // redis
     await redis.connect();
+
+    // cache
+    Cache;
 
     router(app);
     server.listen(port, () => {

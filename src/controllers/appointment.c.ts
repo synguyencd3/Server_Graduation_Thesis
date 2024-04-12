@@ -3,6 +3,7 @@ import { getRepository } from 'typeorm';
 import { Appointment, Car, Salon, User } from '../entities';
 import createNotification from '../helper/createNotification';
 import { newLogs } from '../helper/createLogs';
+import Cache from '../config/node-cache';
 
 const appointmentController = {
   createAppointment: async (req: Request, res: Response) => {
@@ -51,6 +52,9 @@ const appointmentController = {
       // add logs
       newLogs(salonId, `${userId} created appointment with your salon.`)
 
+      // del old value cache
+      Cache.del(salonId + "apm");
+
       return res.status(201).json({
         status: "success",
         msg: "Create appointment successfully!",
@@ -69,6 +73,14 @@ const appointmentController = {
     const userId: any = req.headers['userId'] || req.body.userId;
     const { salonId, status, id, carId }: any = req.body;
     const appointmentRepository = getRepository(Appointment)
+    // get value from cache
+    const cacheValue = await Cache.get((!userId ? salonId : userId) + "apm");
+    if (cacheValue) {
+      return res.status(200).json({
+        status: "success",
+        appointments: cacheValue
+      })
+    }
 
     try {
       let appointDb: any = await appointmentRepository.find({
@@ -94,6 +106,9 @@ const appointmentController = {
         }
 
       }
+
+      // set new value for cache
+      Cache.set((!userId ? salonId : userId) + "apm", appointDb);
 
       return res.status(200).json({
         status: "success",
@@ -160,6 +175,9 @@ const appointmentController = {
       if (salonId)
         newLogs(salonId, `Employee ${req.user} updated appointment with id ${id} `)
 
+      // del old value from cache
+      Cache.del(salonId ? (salonId + "apm") : (userId + "apm"));
+
       return res.status(200).json({
         status: "success",
         msg: "Updated successfully!"
@@ -204,6 +222,9 @@ const appointmentController = {
 
       if (salonId)
         newLogs(salonId, `Employee deleted appointment with custormer ${recordToDelete.user?.fullname} - ${recordToDelete.user?.user_id}`)
+
+      // del old value from cache
+      Cache.del(salonId ? (salonId + "apm") : (userId + "apm"));
 
       return res.status(200).json({
         status: "success",

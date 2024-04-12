@@ -8,6 +8,7 @@ const featureController = {
     getAllFeatures: async (req: Request, res: Response) => {
         const featureRepository = getRepository(Feature);
         
+        
         try {
             const features = await featureRepository.find({});
 

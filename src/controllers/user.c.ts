@@ -4,6 +4,7 @@ import { getRepository } from "typeorm";
 const cloudinary = require("cloudinary").v2;
 import { getFileName } from "../utils/index"
 import { newLogs } from '../helper/createLogs';
+import Cache from '../config/node-cache';
 
 interface MulterFileRequest extends Request {
     file: any; // Adjust this to match the type of your uploaded file
@@ -11,6 +12,7 @@ interface MulterFileRequest extends Request {
 
 const userController = {
     getAllUsers: async (req: Request, res: Response) => {
+
         const userRepository = getRepository(User);
         const rs = await userRepository.find({});
         return res.status(200).json(rs);
@@ -37,10 +39,22 @@ const userController = {
     getProfile: async (req: Request, res: Response) => {
         const userRepository = getRepository(User);
         const userId: any = req.headers['userId'] || "";
+        const valueCache = await Cache.get(userId + "user");
+
+        if (valueCache) { 
+            console.log("get from cache")
+            return res.json({
+                status: "success",
+                profile: valueCache
+            });
+        }
         
         try {
             const userDb = await userRepository.findOneOrFail({ where: { user_id: userId } });
             const { password, ...others } = userDb;
+
+            // set value for cache.
+            Cache.set(userId+"user", others);
 
             return res.json({
                 status: "success",
@@ -79,6 +93,9 @@ const userController = {
             }
             const saveProfile = {...userDb, ...other};
             await userRepository.save(saveProfile);
+
+            // set new value for cache
+            Cache.set(userId+"user", userDb);
 
             return res.json({
                 status: "success",
