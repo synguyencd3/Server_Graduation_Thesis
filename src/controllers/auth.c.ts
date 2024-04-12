@@ -603,8 +603,7 @@ const authController: any = {
           msg: "Username or password is incorect.",
         });
       }
-      const accessToken = authController.generateAccessToken(userDb);
-      const refreshToken = authController.generateRefreshToken(userDb);
+      const {accessToken, refreshToken} = await authController.genToken(userDb);
 
       refreshTokens.push(refreshToken);
 

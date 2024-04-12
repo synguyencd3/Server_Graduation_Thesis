@@ -596,9 +596,6 @@ const salonController = {
 
     try {
       // create new account.
-      // const defaultPassword = "123abc@";
-      // const salt = await bcrypt.genSalt(11);
-      // const password = await bcrypt.hash(defaultPassword, salt);
       let userDb: User = new User();
       userDb.user_id = uuidv4();
       userDb.username = email;
@@ -651,7 +648,8 @@ const salonController = {
         status: "success",
         msg: "Join salon successfully!",
         accessToken,
-        refreshToken
+        refreshToken,
+        user: userDb,
       })
     } catch (error) {
       res.json({
