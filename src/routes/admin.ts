@@ -10,8 +10,4 @@ router.post("/", middleware.verifyToken, middleware.havePermission("Z-PERMISSION
 // get logs
 router.post("/logs", middleware.verifyToken, middleware.havePermission("Z-PERMISSION-101"), adminController.getLogs);
 
-// get all database =>  only dev
-router.post("/db", middleware.verifyToken, middleware.isAdminTeam, adminController.getDB);
-
-
 export default router;

@@ -80,47 +80,6 @@ const adminController = {
         return res.sendFile(filePath);
     },
 
-    getDB: async (req: Request, res: Response) => {
-        const userRepository = getRepository(User);
-        const packageRepository = getRepository(Package);
-        const featureRepository = getRepository(Feature);
-        const carRepository = getRepository(Car);
-        const salonRepository = getRepository(Salon);
-        const notiRepository = getRepository(Notification);
-        const purchaseRepository = getRepository(Purchase);
-        const messageRepository = getRepository(Message);
-        const conversationRepository = getRepository(Conversation);
-        const appointRepository = getRepository(Appointment);
-        const permisisonRepository = getRepository(Permission);
-
-        let data: any=  [];
-
-        try {
-            data.push({user: await userRepository.find()});
-            data.push({package: await packageRepository.find()});
-            data.push({feature: await featureRepository.find()});
-            data.push({car: await carRepository.find()});
-            data.push({salon: await salonRepository.find()});
-            data.push({notification: await notiRepository.find()});
-            data.push({purchase: await purchaseRepository.find()});
-            data.push({message: await messageRepository.find()});
-            data.push({conversation: await conversationRepository.find()});
-            data.push({appointment: await appointRepository.find()});
-            data.push({permisison: await permisisonRepository.find()});
-
-            return res.json({
-                status: "success",
-                data
-            })
-        } catch (error) {
-            console.log(error);
-            return res.json({
-                status: "failed",
-                msg: "error get all db"
-            })
-        }
-    }
-
 }
 
 export default adminController;
