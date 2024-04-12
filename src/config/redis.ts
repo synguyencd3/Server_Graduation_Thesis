@@ -1,11 +1,14 @@
 import { createClient } from 'redis';
+import dotenv from 'dotenv';
 
-const redisConnection = createClient({
-    password: 'Dd1hXlWj16FXjPIYjDJ37c3Lo51mI5z3',
+dotenv.config();
+
+const redis = createClient({
+    password: process.env.REDIS_PASSWORD,
     socket: {
-        host: 'redis-16073.c263.us-east-1-2.ec2.cloud.redislabs.com',
-        port: 16073
+        host: process.env.REDIS_HOST,
+        port:  +(process.env.REDIS_PORT || 1000)
     }
 });
 
-export default redisConnection;
+export default redis;

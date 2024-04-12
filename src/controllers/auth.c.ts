@@ -5,7 +5,7 @@ import { getRepository, getManager } from "typeorm";
 import axios from "axios";
 import { User } from "../entities";
 const { v4: uuidv4 } = require("uuid");
-import redisConnection from "../config/redis";
+import redis from "../config/redis";
 import { generateRandomCode } from "../utils/index"
 import { sendMail } from "../config/nodemailer";
 
@@ -730,7 +730,7 @@ const authController: any = {
 
     try {
       const randomeCode = await generateRandomCode(6);
-      await redisConnection.set(email, randomeCode);
+      await redis.set(email, randomeCode);
       const content = `Your password reset confirmation code is ${randomeCode}. Please do not disclose it to anyone. Thanks.`
       const rs = await sendMail(content, email);
 
@@ -760,7 +760,7 @@ const authController: any = {
     const {code, email} = req.body;
 
     try {
-      const codeRedis = await redisConnection.get(email);
+      const codeRedis = await redis.get(email);
       if (code === codeRedis) {
         // delete old password.
         const userRepository = getRepository(User);
@@ -768,7 +768,7 @@ const authController: any = {
 
         // set new code and send it to client.
         const randomeCode = await generateRandomCode(6);
-        await redisConnection.set(email, randomeCode);
+        await redis.set(email, randomeCode);
 
         return res.json({
           status: "success",
@@ -792,7 +792,7 @@ const authController: any = {
     const {code, email, newPassword} = req.body;
 
     try {
-      const codeRedis = await redisConnection.get(email);
+      const codeRedis = await redis.get(email);
       if (code === codeRedis) {
         // delete old password.
         const userRepository = getRepository(User);
@@ -801,7 +801,7 @@ const authController: any = {
         await userRepository.update({email: email}, {password: savePassword});
 
         // delete code.
-        await redisConnection.del(email);
+        await redis.del(email);
 
         return res.json({
           status: "success",
