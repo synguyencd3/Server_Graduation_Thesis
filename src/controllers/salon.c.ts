@@ -450,8 +450,8 @@ const salonController = {
       let userDb: User = await userRepository.findOneOrFail({
         where: { user_id: userId }
       })
-      
-      await userRepository.save({...userDb, permissions: permission});
+
+      await userRepository.save({ ...userDb, permissions: permission });
 
       // notification to user
       const fromUser = await userRepository.findOneOrFail({
@@ -470,7 +470,7 @@ const salonController = {
         status: "success",
         msg: "add permission successfully!",
         permissions: await parsePermission(userDb.permissions)
-         
+
       })
 
     } catch (error) {
@@ -628,7 +628,16 @@ const salonController = {
       // }
 
       // gen new token for the user.
-      const {accessToken, refreshToken} = await authController.genToken(userDb);
+      const { accessToken, refreshToken } = await authController.genToken(userDb);
+
+      // notification to salon
+      createNotification({
+        to: salonId,
+        description: `${userDb.fullname} has accepted your invitation to your salon.`,
+        types: "invite",
+        avatar: userDb.avatar,
+        isUser: true
+      })
 
       // set cookie and return data 
       res.cookie("refreshToken", refreshToken, {
