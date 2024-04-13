@@ -8,6 +8,7 @@ const { v4: uuidv4 } = require("uuid");
 import redis from "../config/redis";
 import { generateRandomCode } from "../utils/index"
 import { sendMail } from "../config/nodemailer";
+import Cache from "../config/node-cache"
 
 require("dotenv").config({ path: "./server/.env" });
 
@@ -171,6 +172,8 @@ const authController: any = {
             }
           );
 
+          Cache.del(userDb.user_id + "user")
+
           return res.json({
             status: "success",
             msg: "linked with google successfully!",
@@ -218,6 +221,7 @@ const authController: any = {
 
         const { password, ...others } = userFe;
         // console.log("USER: ", userFe);
+
 
         return res.json({
           refreshToken,
@@ -321,6 +325,8 @@ const authController: any = {
               console.log("FLAG5");
             }
           );
+
+          Cache.del(userDb.user_id + "user")
 
           return res.json({
             status: "success",
@@ -491,6 +497,8 @@ const authController: any = {
               }
             );
 
+            Cache.del(userDb.user_id + "user");
+
             return res.json({
               status: "success",
               msg: "linked with facebook successfully!",
@@ -603,7 +611,7 @@ const authController: any = {
           msg: "Username or password is incorect.",
         });
       }
-      const {accessToken, refreshToken} = await authController.genToken(userDb);
+      const { accessToken, refreshToken } = await authController.genToken(userDb);
 
       refreshTokens.push(refreshToken);
 
@@ -725,7 +733,7 @@ const authController: any = {
   },
 
   forgotPassword: async (req: Request, res: Response) => {
-    const {email} = req.body;
+    const { email } = req.body;
 
     try {
       const randomeCode = await generateRandomCode(6);
@@ -755,15 +763,15 @@ const authController: any = {
 
   },
 
-  verifyForgotPassword: async (req:Request, res: Response) => {
-    const {code, email} = req.body;
+  verifyForgotPassword: async (req: Request, res: Response) => {
+    const { code, email } = req.body;
 
     try {
       const codeRedis = await redis.get(email);
       if (code === codeRedis) {
         // delete old password.
         const userRepository = getRepository(User);
-        await userRepository.update({email: email}, {password: ""});
+        await userRepository.update({ email: email }, { password: "" });
 
         // set new code and send it to client.
         const randomeCode = await generateRandomCode(6);
@@ -787,8 +795,8 @@ const authController: any = {
     }
   },
 
-  renewPasswordForgot : async (req: Request, res: Response) => {
-    const {code, email, newPassword} = req.body;
+  renewPasswordForgot: async (req: Request, res: Response) => {
+    const { code, email, newPassword } = req.body;
 
     try {
       const codeRedis = await redis.get(email);
@@ -797,7 +805,7 @@ const authController: any = {
         const userRepository = getRepository(User);
         const salt = await bcrypt.genSalt(11);
         const savePassword = await bcrypt.hash(newPassword, salt);
-        await userRepository.update({email: email}, {password: savePassword});
+        await userRepository.update({ email: email }, { password: savePassword });
 
         // delete code.
         await redis.del(email);
