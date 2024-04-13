@@ -3,6 +3,7 @@ import { Package } from "../entities/Package";
 import { getRepository } from "typeorm";
 const cloudinary = require("cloudinary").v2;
 import {isValidUUID, getFileName} from "../utils/index"
+import Cache from '../config/node-cache';
 
 interface MulterFileRequest extends Request {
     file: any; // Adjust this to match the type of your uploaded file
@@ -10,29 +11,41 @@ interface MulterFileRequest extends Request {
 
 const packageController = {
     getAllPackages: async (req: Request, res: Response) => {
+        // get value from cache
+        const valueCache = Cache.get("package");
+        if (valueCache) {
+            return res.status(200).json({
+                status: "success",
+                packages: valueCache
+            });
+        }
         const packageRepository = getRepository(Package);
         try {
             const packages = await packageRepository.createQueryBuilder("package")
                 .leftJoinAndSelect("package.features", "feature")
                 .getMany();
+
+            const savedPackage = {
+                packages: packages.map(pkg => ({
+                    package_id: pkg.package_id,
+                    name: pkg.name,
+                    description: pkg.description,
+                    price: pkg.price,
+                    image: pkg.image,
+                    features: pkg.features.map(feature => ({
+                        feature_id: feature.feature_id,
+                        name: feature.name,
+                        description: feature.description
+                    }))
+                })),
+                nbHits: packages.length,
+            }
+
+            Cache.set("package", savedPackage);
     
-            res.status(200).json({
+            return res.status(200).json({
                 status: "success",
-                packages: {
-                    packages: packages.map(pkg => ({
-                        package_id: pkg.package_id,
-                        name: pkg.name,
-                        description: pkg.description,
-                        price: pkg.price,
-                        image: pkg.image,
-                        features: pkg.features.map(feature => ({
-                            feature_id: feature.feature_id,
-                            name: feature.name,
-                            description: feature.description
-                        }))
-                    })),
-                    nbHits: packages.length,
-                },
+                packages: savedPackage,
             });
         } catch (error) {
             return res.status(500).json({ status: "failed", msg: "Internal server error" });
@@ -41,6 +54,15 @@ const packageController = {
     getPackageById: async (req: Request, res: Response) => {
         const { id } = req.params;
         const packageRepository = getRepository(Package);
+        // get cache 
+        const valueCache = Cache.get(id+"package");
+
+        if (valueCache) {
+            return res.status(200).json({
+                status: "success",
+                package: valueCache
+            });
+        }
 
         try {
             const packagee = await packageRepository.createQueryBuilder("package")
@@ -50,22 +72,27 @@ const packageController = {
             if (!packagee) {
                 return res.status(404).json({ status: "failed", msg: `No package with id: ${id}` });
             }
-            res.status(200).json({
-                status: "success",
+
+            const savePackage = {
                 package: {
-                    package: {
-                        package_id: packagee.package_id,
-                        name: packagee.name,
-                        description: packagee.description,
-                        price: packagee.price,
-                        image: packagee.image,
-                        features: packagee.features.map(feature => ({
-                            feature_id: feature.feature_id,
-                            name: feature.name,
-                            description: feature.description
-                        }))
-                    }
+                    package_id: packagee.package_id,
+                    name: packagee.name,
+                    description: packagee.description,
+                    price: packagee.price,
+                    image: packagee.image,
+                    features: packagee.features.map(feature => ({
+                        feature_id: feature.feature_id,
+                        name: feature.name,
+                        description: feature.description
+                    }))
                 }
+            }
+            
+            Cache.set(id+"package", savePackage);
+
+            return res.status(200).json({
+                status: "success",
+                package: savePackage
             });
         } catch (error) {
             return res.status(500).json({ status: "failed", msg: "Internal server error" });
@@ -99,8 +126,10 @@ const packageController = {
                     .of(savedPackage)
                     .add(features);
             }
+            // del old value cache
+            Cache.del("package");
 
-            res.status(201).json({
+            return res.status(201).json({
                 status: "success",
                 msg: "Create successfully!"
              });
@@ -175,7 +204,10 @@ const packageController = {
                     .add(features);
                 }
             }
-            res.status(200).json({
+            // del old value package
+            Cache.del(["package", id+"package"]);
+
+            return res.status(200).json({
                 status: "success",
                 msg: "Update successfully!"
             });
@@ -203,7 +235,11 @@ const packageController = {
             }
 
             await packageRepository.delete(id);
-            res.status(200).json({
+            // del old value cache
+            Cache.del(["package", id+"package"]);
+
+
+            return res.status(200).json({
                 status: "success",
                 msg: "Delete successfully!"
             });

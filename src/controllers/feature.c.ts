@@ -2,17 +2,32 @@ import { Request, Response } from 'express';
 import { Feature } from "../entities/Feature";
 import { getRepository } from "typeorm";
 import { newLogs } from '../helper/createLogs';
+import Cache from '../config/node-cache';
 
 
 const featureController = {
     getAllFeatures: async (req: Request, res: Response) => {
         const featureRepository = getRepository(Feature);
-        
+        // get value from cache
+        const valueCache = Cache.get("feature");
+
+        if (valueCache) {
+            return res.status(200).json({
+                status: "success",
+                features: valueCache
+            });
+        }
         
         try {
             const features = await featureRepository.find({});
 
-            res.status(200).json({
+            // add cache
+            Cache.set("feature", {
+                features,
+                nbHits: features.length,
+            })
+
+            return res.status(200).json({
                 status: "success",
                 features: {
                     features,
@@ -26,6 +41,15 @@ const featureController = {
     getFeatureById: async (req: Request, res: Response) => {
         const featureRepository = getRepository(Feature);
         const { id } = req.params;
+        // get value cache
+        const valueCache = Cache.get(id+"feature");
+
+        if (valueCache) {
+            return res.status(200).json({
+                status: "success",
+                feature: valueCache
+            });
+        }
 
         try {
             const feature = await featureRepository.findOne({
@@ -35,6 +59,9 @@ const featureController = {
             if (!feature) {
                 return res.status(404).json({ status: "failed", msg: `No feature with id: ${id}` });
             }
+            // set value for cache
+            Cache.set(id+"feature", feature);
+
             return res.status(200).json({
                 status: "success",
                 feature: feature
@@ -50,13 +77,17 @@ const featureController = {
         try {
             const newFeature = { name, description, keyMap };
             const savedFeature = await featureRepository.save(newFeature);
-            res.status(201).json({
+            
+            newLogs(salonId, `${req.user} created new feature - ${name}.`)
+            // del old value cache
+            Cache.del("feature");
+
+            return res.status(201).json({
                 status: "success",
                 msg: "Create successfully!", 
                 feature: savedFeature
             });
 
-            newLogs(salonId, `${req.user} created new feature - ${name}.`)
         } catch (error) {
             return res.status(500).json({ status: "failed", msg: "Internal server error" });
         }
@@ -76,8 +107,9 @@ const featureController = {
                     feature_id: id,
                 }})
             newLogs(salonId, `${req.user} updated feature - ${result?.name}`)
+            Cache.del([id+"feature", "feature"]);
 
-            res.status(200).json({
+            return res.status(200).json({
                 status: "success",
                 msg: "Update successfully!",
                 feature: result
@@ -96,6 +128,7 @@ const featureController = {
             }
 
             newLogs(req.body.salonId, `${req.user} deleted feature - ${feature.raw}`) // maybe erro feature.raw
+            Cache.del([id+"feature", "feature"]);
 
             res.status(200).json({
                 status: "success",

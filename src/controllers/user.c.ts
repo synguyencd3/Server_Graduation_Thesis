@@ -3,7 +3,6 @@ import { User } from "../entities/User";
 import { getRepository } from "typeorm";
 const cloudinary = require("cloudinary").v2;
 import { getFileName } from "../utils/index"
-import { newLogs } from '../helper/createLogs';
 import Cache from '../config/node-cache';
 
 interface MulterFileRequest extends Request {

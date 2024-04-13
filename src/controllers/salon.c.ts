@@ -6,10 +6,10 @@ import jwt from "jsonwebtoken";
 import { getFileName } from "../utils/index";
 import { newLogs } from "../helper/createLogs";
 import { sendMail } from "../config/nodemailer";
-import bcrypt from "bcrypt";
 import createNotification from "../helper/createNotification";
 import parsePermission from "../helper/parsePermission";
 import authController from "./auth.c";
+import Cache from "../config/node-cache";
 
 const { v4: uuidv4 } = require("uuid");
 
@@ -21,6 +21,14 @@ interface MulterFileRequest extends Request {
 
 const salonController = {
   getAllSalons: async (req: Request, res: Response) => {
+    // get value cache
+    const valueCache = Cache.get("salon");
+    if (valueCache) {
+      return res.status(200).json({
+        status: "success",
+        salons: valueCache,
+      });
+    }
     const salonRepository = getRepository(Salon);
     try {
       const salons = await salonRepository.find({});
@@ -33,13 +41,15 @@ const salonController = {
       //         "address",
       //     ]
       // });
-
-      res.status(200).json({
+      const saveSalon = {
+        salons,
+        nbHits: salons.length,
+      };
+      Cache.set("salon", saveSalon);
+      
+      return res.status(200).json({
         status: "success",
-        salons: {
-          salons,
-          nbHits: salons.length,
-        },
+        salons: saveSalon
       });
     } catch (error) {
       return res
@@ -104,6 +114,16 @@ const salonController = {
     const salonRepository = getRepository(Salon);
     const { id } = req.params;
 
+    // get value from cache
+    const valueCache = Cache.get(id+"salon");
+    
+    if (valueCache) {
+      return res.status(200).json({
+        status: "success",
+        salon: valueCache,
+      });
+    }
+
     try {
       const salon = await salonRepository.findOne({
         where: {
@@ -117,6 +137,8 @@ const salonController = {
           .status(404)
           .json({ status: "failed", msg: `No salon with id: ${id}` });
       }
+      Cache.set(id+"salon", salon);
+      
       return res.status(200).json({
         status: "success",
         salon: salon,
@@ -185,6 +207,7 @@ const salonController = {
       // end fix by CDQ.
       // Init new logs for this salon.
       newLogs(savedSalon.salon_id);
+      Cache.del("salon");
 
       res.status(201).json({
         tatus: "success",
@@ -286,8 +309,9 @@ const salonController = {
     try {
       const saveSalon = { ...oldSalon, ...other };
       const salon = await salonRepository.save(saveSalon);
+      Cache.del(["salon", id+"salon"]);
 
-      res.status(200).json({
+      return res.status(200).json({
         status: "success",
         msg: "Update successfully!",
         salon: salon,
@@ -337,7 +361,9 @@ const salonController = {
       // Xóa các car tham chiếu đến salon
       await carRepository.delete({ salon: salon });
       await salonRepository.delete(id);
-      res.status(200).json({
+      Cache.del(["salon", id+"salon"]);
+
+      return res.status(200).json({
         status: "success",
         msg: "Delete successfully!",
       });

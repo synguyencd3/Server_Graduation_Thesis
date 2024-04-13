@@ -7,7 +7,7 @@ import carRouter from './car.r';
 import salonRouter from './salon.r';
 import apidocRouter from './apidoc.r';
 import paymentRouter from './payment.r';
-import purchaseRouter from './purchase';
+import purchaseRouter from './purchase.r';
 import messageRouter from './message.r';
 import appointmentRouter from './appointment.r';
 import notificationRouter from './notification.r';

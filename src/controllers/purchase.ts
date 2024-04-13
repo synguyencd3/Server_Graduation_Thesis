@@ -26,7 +26,7 @@ const userPurchaseController = {
         })),
       }));
 
-      res.status(200).json({
+      return res.status(200).json({
         status: "success",
         purchasedPackages: userPurchasedPackages,
       });
