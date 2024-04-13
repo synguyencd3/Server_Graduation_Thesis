@@ -96,7 +96,7 @@ const appointmentController = {
         try {
           const carRepository = getRepository(Car);
           appointDb[app].car = await carRepository.findOneOrFail({
-            where: { car_id: carId }
+            where: { car_id: appointDb[app].car_id }
           })
         } catch (error) {
           return res.json({
