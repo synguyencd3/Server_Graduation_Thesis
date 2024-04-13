@@ -21,18 +21,16 @@ const featureController = {
         try {
             const features = await featureRepository.find({});
 
-            // add cache
-            Cache.set("feature", {
+            const featureSave = {
                 features,
                 nbHits: features.length,
-            })
+            }
+            // add cache
+            Cache.set("feature", featureSave)
 
             return res.status(200).json({
                 status: "success",
-                features: {
-                    features,
-                    nbHits: features.length,
-                },
+                features: featureSave,
             });
         } catch (error) {
             return res.status(500).json({ status: "failed", msg: "Internal server error" });

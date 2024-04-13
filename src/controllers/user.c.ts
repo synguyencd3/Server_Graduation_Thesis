@@ -94,7 +94,7 @@ const userController = {
             await userRepository.save(saveProfile);
 
             // set new value for cache
-            Cache.set(userId+"user", userDb);
+            Cache.del(userId+"user");
 
             return res.json({
                 status: "success",

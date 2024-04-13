@@ -163,18 +163,16 @@ const carController = {
             //         address: car.salon.address
             //     }
             // }));
-            // set new value for cache
-            Cache.set(salon_id+brand, {
+            const saveCar = {
                 cars: cars,
                 nbHits: cars.length,
-            });
+            }
+            // set new value for cache
+            Cache.set(salon_id+brand, saveCar);
 
             return res.status(200).json({
                 status: "success",
-                data: {
-                    cars: cars,
-                    nbHits: cars.length,
-                },
+                data: saveCar
             });
         } catch (error) {
             return res.status(500).json({ status: "failed", msg: "Internal server error" });
@@ -284,7 +282,7 @@ const carController = {
             newLogs(salonSalonId, `${req.user} updated car ${car?.car_id}.`)
             Cache.del(["cars", id+"car", salonSalonId+brand]);
 
-            res.status(200).json({
+            return res.status(200).json({
                 status: "success",
                 msg: "Update successfully!",
                 car: car
