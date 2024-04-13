@@ -216,6 +216,11 @@
     không truyền gì thêm: xóa hết.
 	truyền thêm id: xóa cuộc hẹn đó.
 
+    <li>[POST] /appointment/get-busy-car</li>
+    lấy ra thời gian mà xe đã được hẹn. Dùng để ẩn đi các khung thời gian này với khách hàng, tránh khách hàng hẹn trùng giờ nhau. Bên client cần chuyển
+    sang khung giờ phù hợp. 
+    <div>Yêu cầu truyền vô {salonId, carId}</div> Và chỉ cần user đăng nhập là có thể lấy được.
+
     <h2>CHAT</h2>
     <b>Có 2 event: getOnlineUsers, newMessage</b>
     <h4 style="font-weight: 500;">Khi bên Frontend kết nối với socket thì trước đó tụi ông cần gọi API này 

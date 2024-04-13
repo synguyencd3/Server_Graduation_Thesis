@@ -74,7 +74,7 @@ const appointmentController = {
     const { salonId, status, id, carId }: any = req.body;
     const appointmentRepository = getRepository(Appointment)
     // get value from cache
-    const cacheValue = (!userId && !id) ? await Cache.get(salonId + "apm"): "";
+    const cacheValue = (!userId && !id) ? await Cache.get(salonId + "apm") : "";
     if (cacheValue) {
       return res.status(200).json({
         status: "success",
@@ -108,7 +108,7 @@ const appointmentController = {
       }
 
       // set new value for cache
-      (!userId && !id) ? Cache.set(salonId + "apm", appointDb): 1;
+      (!userId && !id) ? Cache.set(salonId + "apm", appointDb) : 1;
 
       return res.status(200).json({
         status: "success",
@@ -237,6 +237,35 @@ const appointmentController = {
       })
     }
   },
+
+  getTimeBusy: async (req: Request, res: Response) => {
+    const {carId, salonId} = req.body;
+
+    if (!carId || !salonId) {
+      return res.json({
+        status: "failed",
+        msg: "Input is invalid."
+      })
+    }
+
+    try {
+      const appointRepository = getRepository(Appointment);
+      const timeDb = await appointRepository.find({
+        where: {salon_id: salonId, car_id: carId},
+        select: ['date']
+      })
+
+      return res.json({
+        status: "success",
+        timeBusy: timeDb
+      })
+    } catch (error) {
+      return res.json({
+        status: "failed",
+        msg: "Error find car."
+      })
+    }
+  }
 
 };
 

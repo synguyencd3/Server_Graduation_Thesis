@@ -13,4 +13,6 @@ router.post("/get-appoint-user", middleware.verifyToken, appointmentController.g
 router.patch("/update-one-user", middleware.verifyToken, appointmentController.updateOne);
 router.delete("/delete-appoint-user", middleware.verifyToken, appointmentController.delete);
 
+router.post("/get-busy-car", middleware.verifyToken, appointmentController.getTimeBusy);
+
 export default router;

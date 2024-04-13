@@ -325,7 +325,7 @@ const carController = {
         } catch (error) {
             return res.status(500).json({ status: "failed", msg: "Internal server error" });
         }
-    },
+    }
 }
 
 export default carController;
