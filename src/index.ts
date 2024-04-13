@@ -8,8 +8,8 @@ import { createConnection } from "typeorm";
 import passport from "./config/passport";
 import dotenv from "dotenv";
 import { connectionString } from "./config/connect_db";
-import {initAdminTeam, initPermission} from "./helper/initData"
-import { app, server } from "./socket/socket"
+import { initAdminTeam, initPermission } from "./helper/initData";
+import { app, server } from "./socket/socket";
 import redis from "./config/redis";
 import Cache from "./config/node-cache";
 

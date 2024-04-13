@@ -201,6 +201,7 @@ const authController: any = {
       if (!userExist) {
         userFe.user_id = uuidv4();
         userFe.email = userFe.google;
+        userFe.avatar = `https://avatar.iran.liara.run/username?username=${userFe.username}`;
       }
 
       const accessToken = authController.generateAccessToken(req.user);
@@ -355,6 +356,7 @@ const authController: any = {
       if (!userExist) {
         userFe.user_id = uuidv4();
         userFe.email = userFe.facebook;
+        userFe.avatar = `https://avatar.iran.liara.run/username?username=${userFe.username}`;
       }
 
       const accessToken = authController.generateAccessToken(req.user);
@@ -526,6 +528,7 @@ const authController: any = {
         if (!userExist) {
           userFe.user_id = uuidv4();
           userFe.email = userFe.facebook;
+          userFe.avatar = `https://avatar.iran.liara.run/username?username=${userFe.username}`;
         }
 
         const accessToken = authController.generateAccessToken(userFe);
