@@ -656,7 +656,7 @@ const salonController = {
       // notification to salon
       createNotification({
         to: salonId,
-        description: `${userDb.fullname} has accepted your invitation to your salon.`,
+        description: `${userDb.username} has accepted your invitation to your salon.`,
         types: "invite",
         avatar: userDb.avatar,
         isUser: true
