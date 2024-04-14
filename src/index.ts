@@ -66,7 +66,12 @@ createConnection(connectionString)
     app.use(passport.session());
 
     // redis
-    await redis.connect();
+    try {
+      await redis.connect();
+      console.log("Connected Redis.");
+    } catch (error) {
+      console.log("Error connection Redis.", error)
+    }
 
     // cache
     Cache;

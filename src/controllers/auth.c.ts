@@ -172,7 +172,12 @@ const authController: any = {
             }
           );
 
+          console.log("Befor cache: ",  Cache.keys())
+
           Cache.del(userDb.user_id + "user")
+          console.log("After cache: ",  Cache.keys())
+
+
 
           return res.json({
             status: "success",
@@ -638,7 +643,7 @@ const authController: any = {
 
   // [POST] /refresh
   requestRefreshToken: async (req: any, res: any) => {
-    const refreshToken = req.cookies.refreshToken || req.body.refreshToken;
+    const refreshToken = req.cookies.refreshToken || req.headers['authorization'];
 
     if (!refreshToken)
       return res.json({ status: "failed", msg: "401 Unauthorized!" });
@@ -659,21 +664,21 @@ const authController: any = {
         // delete old refresh token
         refreshTokens = refreshTokens.filter((token) => token !== refreshToken);
 
-        // create new JWT_ACCESS_TOKEN and JWT_REFRESH_TOKEN
+        // create new JWT_ACCESS_TOKEN
         const newAccessToken = authController.generateAccessToken(user);
-        const newRefreshToken = authController.generateRefreshToken(user);
-        refreshTokens.push(newRefreshToken);
+        // const newRefreshToken = authController.generateRefreshToken(user);
+        // refreshTokens.push(newRefreshToken);
 
-        res.cookie("refreshToken", newRefreshToken, {
-          httpOnly: true,
-          secure: true,
-          path: "/",
-          sameSite: "none",
-        });
+        // res.cookie("refreshToken", refreshToken, {
+        //   httpOnly: true,
+        //   secure: true,
+        //   path: "/",
+        //   sameSite: "none",
+        // });
 
         return res.json({
           accessToken: newAccessToken,
-          refreshToken: newRefreshToken,
+          refreshToken: refreshToken,
         });
       }
     );

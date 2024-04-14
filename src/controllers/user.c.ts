@@ -38,15 +38,15 @@ const userController = {
     getProfile: async (req: Request, res: Response) => {
         const userRepository = getRepository(User);
         const userId: any = req.headers['userId'] || "";
-        const valueCache = await Cache.get(userId + "user");
+        // const valueCache = await Cache.get(userId + "user");
 
-        if (valueCache) { 
-            console.log("get from cache")
-            return res.json({
-                status: "success",
-                profile: valueCache
-            });
-        }
+        // if (valueCache) { 
+        //     console.log("get from cache")
+        //     return res.json({
+        //         status: "success",
+        //         profile: valueCache
+        //     });
+        // }
         
         try {
             const userDb = await userRepository.findOneOrFail({ where: { user_id: userId } });
