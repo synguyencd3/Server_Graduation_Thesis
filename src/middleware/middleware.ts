@@ -132,6 +132,8 @@ const middlewareController = {
       const roleAdmin: string[] = ['OWNER'];
       const { salonId } = req.body;
       const userId: any = req.user;
+
+      console.log("salonId: ", salonId)
       
       // delete userId from verify login. Because this action is for employees, not user.
       delete (req as Request).headers.userId;
@@ -161,7 +163,7 @@ const middlewareController = {
         else
           return res.json({
             status: "failed",
-            msg: "You dont have this permission."
+            msg: "You dont have this permission"
           })
       } catch (error) {
         console.log(error)

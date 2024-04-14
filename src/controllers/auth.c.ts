@@ -646,7 +646,7 @@ const authController: any = {
 
   // [POST] /refresh
   requestRefreshToken: async (req: any, res: any) => {
-    const refreshToken = req.cookies.refreshToken || req.headers['authorization'];
+    const refreshToken = req.cookies.refreshToken;
 
     if (!refreshToken)
       return res.json({ status: "failed", msg: "401 Unauthorized!" });
@@ -663,21 +663,9 @@ const authController: any = {
         if (err) {
           console.log(err);
         }
-
-        // delete old refresh token
-        refreshTokens = refreshTokens.filter((token) => token !== refreshToken);
-
+        user.user_id=  user.userId;
         // create new JWT_ACCESS_TOKEN
         const newAccessToken = authController.generateAccessToken(user);
-        // const newRefreshToken = authController.generateRefreshToken(user);
-        // refreshTokens.push(newRefreshToken);
-
-        // res.cookie("refreshToken", refreshToken, {
-        //   httpOnly: true,
-        //   secure: true,
-        //   path: "/",
-        //   sameSite: "none",
-        // });
 
         return res.json({
           accessToken: newAccessToken,
@@ -689,23 +677,8 @@ const authController: any = {
 
   // [POST] /logout
   logoutUser: async (req: Request, res: Response) => {
-    // const { user_id } = req.body;
-    // if (user_id === undefined) {
-    //   return res.json({
-    //     status: "failed",
-    //     msg: "Missing required input data",
-    //   });
-    // }
-
-    // if (typeof user_id !== "string") {
-    //   return res.json({
-    //     status: "failed",
-    //     msg: "Invalid data types for input (user_id should be string)",
-    //   });
-    // }
-
     refreshTokens = refreshTokens.filter(
-      (token) => token !== req.cookies.refreshToken || req.body.refreshToken
+      (token) => token !== req.cookies.refreshToken
     );
     res.clearCookie("refreshToken");
     res.json("Logged out successfully!");
@@ -836,7 +809,7 @@ const authController: any = {
     }
   },
 
-  genToken: async (data: any) => {
+  genToken: async (data: string) => {
     const accessToken = await authController.generateAccessToken(data);
     const refreshToken = await authController.generateRefreshToken(data);
     refreshTokens.push(refreshToken);

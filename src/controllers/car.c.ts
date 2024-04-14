@@ -183,6 +183,7 @@ const carController = {
         const { name, description, origin, price, brand, 
             model, type, capacity, door, seat, kilometer,
             gear, mfg, inColor, outColor, salonSalonId} = req.body;
+            console.log("Name car: ", name);
 
         let image = [""], filename = [""]
         if ('files' in req && req.files) {
