@@ -397,15 +397,19 @@
     Lấy ra lịch sử hoạt động của salon. Yêu cầu truyền vô salonId, và cần đăng nhập với vai trò là chủ salon. Hiện tại với server đã deploy thì nó không tự sinh
     ra được. Sẽ có hiệu chỉnh sau.
 
-    <h2>CRAWL DATA</h2>
+    <h2>CRAWL NEWS</h2>
     Link trang mà tui crawl: <a href="https://lifestyle.znews.vn/oto-xe-may.html">Zing</a>
+    (Tui cào dữ liệu ở phần tin mới)
     <div>
-    Phần này tui đã crawl được rồi. Tui cũng set là cứ 1 ngày nó crawl 1 lần và chỉ crawl những dữ liệu mới, trên local thì mọi thứ chạy đều ok nhưng deploy lên server thì nó còn đang lỗi không mở được chrome nên không cào được và đang fix nên tạm
-    dùng link này để hiển thị dữ liệu trước đi: <a href="https://crawl-data-pink.vercel.app/">https://crawl-data-pink.vercel.app/</a>
+        <b>
+        Phần này tui đã crawl được rồi. Tui cũng set là cứ 1 ngày nó crawl 1 lần và chỉ crawl những dữ liệu mới. Tụi ông
+        dùng link này để gọi API nha:
+        </b>
     </div>
+
+    <a href="https://crawl-data-pink.vercel.app/">https://crawl-data-pink.vercel.app/</a>
     
-    <b>Hiện tại nó chỉ đang có 12 bài</b>
-    <li>[GET] /api/articles </li>
+    <li>[GET] /articles </li>
     <div>Nó lấy ra các bài báo gồm:</div>
     <li>id</li>
     <li>thumbnail</li>
@@ -421,11 +425,11 @@
     Tụi ông có thể dùng query string page và perPage để lấy ra số trang và số phần tử mỗi trang mà mình muốn
     </div>
     <b>VD:</b>
-    <a href="https://crawl-data-pink.vercel.app/api/articles?page=2&perPage=4">
-        https://crawl-data-pink.vercel.app/api/articles?page=2&perPage=4
+    <a href="https://crawl-data-pink.vercel.app/articles?page=2&perPage=4">
+        https://crawl-data-pink.vercel.app/articles?page=2&perPage=4
     </a>
     <div>Nếu không truyền vào thì mặc định là lấy ra trang đầu tiên và lấy ra 5 bài</div>
-    <li>[GET] /api/articles/:id </li>
+    <li>[GET] /articles/:id </li>
     <div>Sẽ lấy ra nội dung của bài báo đó</div>
     <b>Có điểm cần chú ý chỗ này là</b> 
     <div>Nhiều khi nó ghi là caption nhưng nó lại là nội dung. Thì chắc tụi ông phải kiểm tra nếu caption nó ngắn thì nó mình hiển thị caption, còn không thì hiển thị giống nội dung
