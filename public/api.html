@@ -393,6 +393,81 @@
     Lấy ra lịch sử hoạt động của salon. Yêu cầu truyền vô salonId, và cần đăng nhập với vai trò là chủ salon. Hiện tại với server đã deploy thì nó không tự sinh
     ra được. Sẽ có hiệu chỉnh sau.
 
+    <h2>CRAWL DATA</h2>
+    Link trang mà tui crawl: <a href="https://lifestyle.znews.vn/oto-xe-may.html">Zing</a>
+    <div>
+    Phần này tui đã crawl được rồi. Tui cũng set là cứ 1 ngày nó crawl 1 lần và chỉ crawl những dữ liệu mới, trên local thì mọi thứ chạy đều ok nhưng deploy lên server thì nó còn đang lỗi không mở được chrome nên không cào được và đang fix nên tạm
+    dùng link này để hiển thị dữ liệu trước đi: <a href="https://crawl-data-pink.vercel.app/">https://crawl-data-pink.vercel.app/</a>
+    </div>
+    
+    <b>Hiện tại nó chỉ đang có 12 bài</b>
+    <li>[GET] /api/articles </li>
+    <div>Nó lấy ra các bài báo gồm:</div>
+    <li>id</li>
+    <li>thumbnail</li>
+    <li>title</li>
+    <li>publish (ngày)</li>
+    <li>summary (tóm tắt)</li>
+    <li>page (số trang)</li>
+    <li>perPage (số phần tử mỗi trang)</li>
+    <li>total (tổng cộng)</li>
+    <li>hasNextPage (có trang tiếp theo không)</li>
+    
+    <div>
+    Tụi ông có thể dùng query string page và perPage để lấy ra số trang và số phần tử mỗi trang mà mình muốn
+    </div>
+    <b>VD:</b>
+    <a href="https://crawl-data-pink.vercel.app/api/articles?page=2&perPage=4">
+        https://crawl-data-pink.vercel.app/api/articles?page=2&perPage=4
+    </a>
+    <div>Nếu không truyền vào thì mặc định là lấy ra trang đầu tiên và lấy ra 5 bài</div>
+    <li>[GET] /api/articles/:id </li>
+    <div>Sẽ lấy ra nội dung của bài báo đó</div>
+    <b>Có điểm cần chú ý chỗ này là</b> 
+    <div>Nhiều khi nó ghi là caption nhưng nó lại là nội dung. Thì chắc tụi ông phải kiểm tra nếu caption nó ngắn thì nó mình hiển thị caption, còn không thì hiển thị giống nội dung
+    .Cái này là do trang web nó vậy, có lúc nó kiểu vậy, lúc lại kiểu khác</div>
+    <b>VD:</b>
+    <div>Link này thì nó có caption rõ ràng:</div>
+    <a href="https://lifestyle.znews.vn/tesla-cybertruck-tang-gia-chong-mat-post1469547.html">
+        https://lifestyle.znews.vn/tesla-cybertruck-tang-gia-chong-mat-post1469547.html
+    </a>
+    <div>Còn link này:</div>  
+    <a href="https://lifestyle.znews.vn/suzuki-jimny-mo-ban-tai-viet-nam-nhap-nhat-gia-tu-789-trieu-dong-post1469429.html">
+        https://lifestyle.znews.vn/suzuki-jimny-mo-ban-tai-viet-nam-nhap-nhat-gia-tu-789-trieu-dong-post1469429.html
+    </a>
+    <div>
+    Mặc dù những chữ trong bài viết đó là caption nhưng thực chất nó là nội dung.
+    Nên lúc ban đầu tui cào cũng rất khó(có lúc nội dung nó nằm trong thẻ p, có lúc lại lấy caption làm nội dung), phải xét trường hợp vì nếu không cào thì nó không có nội dung cho bài đó
+    </div>
+
+    <div>Ngoài ra thì nó còn có bài có cái heading</div>
+    
+    <b>VD:</b>
+    <a href="https://lifestyle.znews.vn/vinfast-vf-e34-xuat-hien-tai-malaysia-post1469396.html">
+        https://lifestyle.znews.vn/vinfast-vf-e34-xuat-hien-tai-malaysia-post1469396.html
+    </a>
+    <div>
+    Thì nó nằm trong thẻ h3 nên in đậm.
+    </div>
+    <div>
+    Cái cuối cùng là tui chỉ cào nội dung và hình ảnh, có nhiều bài báo nó lại có bảng, và biểu đó. Nếu muốn cào thì cũng được nhưng nó hơi khó, và tui sợ cào rồi tụi ông cũng không biết
+    phải hiển thị sau. Và nếu sau này nó có kiểu mới thì mình phải if else để cào nếu muốn nên tui tạm thời không cào nó
+    </div>
+
+    <div>Chẳng hạn như 2 link này:</div>
+    <div>Bảng:</div>
+    <a href="https://lifestyle.znews.vn/oto-trung-quoc-lai-thang-lon-o-nuoc-ngoai-post1469258.html">
+        https://lifestyle.znews.vn/oto-trung-quoc-lai-thang-lon-o-nuoc-ngoai-post1469258.html
+    </a>
+    <div>Biểu đồ:</div>
+    <a href="https://lifestyle.znews.vn/tuong-lai-nao-cho-nhom-xe-sedan-binh-dan-tai-viet-nam-post1467912.html">
+        https://lifestyle.znews.vn/tuong-lai-nao-cho-nhom-xe-sedan-binh-dan-tai-viet-nam-post1467912.html
+    </a>
+    
+    <div>Tui chỉ cào theo format phần lớn bài báo là gồm nội dung, hình ảnh.</div>
+    
+    <h2></h2>
+    <h2></h2>
 </body>
 
 </html>

@@ -1,18 +1,18 @@
-import { Express } from 'express';
-import authRouter from './auth.r';
-import userRouter from './user.r';
-import featureRouter from './feature.r';
-import packageRouter from './package.r';
-import carRouter from './car.r';
-import salonRouter from './salon.r';
-import apidocRouter from './apidoc.r';
-import paymentRouter from './payment.r';
-import purchaseRouter from './purchase.r';
-import messageRouter from './message.r';
-import appointmentRouter from './appointment.r';
-import notificationRouter from './notification.r';
-import videocallRouter from './videocall.r';
-import adminRouter from './admin';
+import { Express } from "express";
+import authRouter from "./auth.r";
+import userRouter from "./user.r";
+import featureRouter from "./feature.r";
+import packageRouter from "./package.r";
+import carRouter from "./car.r";
+import salonRouter from "./salon.r";
+import apidocRouter from "./apidoc.r";
+import paymentRouter from "./payment.r";
+import purchaseRouter from "./purchase.r";
+import messageRouter from "./message.r";
+import appointmentRouter from "./appointment.r";
+import notificationRouter from "./notification.r";
+import videocallRouter from "./videocall.r";
+import adminRouter from "./admin";
 
 function router(app: Express) {
   app.use("/auth", authRouter);
@@ -32,4 +32,3 @@ function router(app: Express) {
 }
 
 export default router;
-
