@@ -77,10 +77,10 @@ const userController = {
             filename = req.file.filename;
         }
         
-        const {fullname, gender, phone, address, date_of_birth } = req.body;
-        let newProfile: any = {fullname, gender, phone, address, date_of_birth}
+        const {fullname, gender, phone, address, date_of_birth, email } = req.body;
+        let newProfile: any = {fullname, gender, phone, address, date_of_birth, email}
         if(avatar !== "") newProfile.avatar = avatar;
-        const {user_id, username, password, email, google, facebook, role, aso, ...other} = newProfile;
+        const {user_id, username, password, google, facebook, role, aso, ...other} = newProfile;
 
         try {
             const userDb = await userRepository.findOneOrFail({where: {user_id: userId}});
