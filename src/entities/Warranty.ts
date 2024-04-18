@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, ManyToMany } from "typeorm"
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, ManyToMany, JoinTable } from "typeorm"
 import { Salon } from "./Salon";
 import { Car } from "./Car";
 
@@ -25,13 +25,13 @@ export class Warranty {
     @Column({})
     policy!: string;
 
-    @Column({})
+    @Column({nullable: true})
     note!: string;
 
     @ManyToOne(() => Salon, salon => salon.warranties)
     salon!: Salon;
 
-    @ManyToMany(() => Car, car => car.warranties)
+    @ManyToMany(() => Car, car => car.warranties, { cascade: true })
     car!: Car[];
 
     init(create_at: Date, name: string, reuse: boolean, limit_kilometer: number, months: number, policy: string, note: string) {

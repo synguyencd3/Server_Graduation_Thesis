@@ -97,7 +97,7 @@ const carController = {
                 where: {
                     car_id: id,
                 },
-                relations: ['salon'],
+                relations: ['salon', 'warranties'],
             })
             if (!car) {
                 return res.status(404).json({ status: "failed", msg: `No car with id: ${id}` });

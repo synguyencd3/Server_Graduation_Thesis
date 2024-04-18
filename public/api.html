@@ -476,7 +476,26 @@
     
     <div>Tui chỉ cào theo format phần lớn bài báo là gồm nội dung, hình ảnh.</div>
     
-    <h2></h2>
+    <h2> Bảo hành </h2>
+    <li>[POST] /warranty/create</li>
+    Tạo một gói bảo hành mới. Yêu cầu truyền vô:
+    <div>
+        {"salonId", "name", "limit_kilometer": number,"months": number, "policy", "carId": Nếu truyền vô id của xe thì xe đó nhận thẳng gói bảo hành đó luôn. Không truyền vô cũng được.}
+    </div>
+
+    <li>[POST] /warranty</li>
+    Lấy ra danh sách các gói bảo hành của salon. Cần truyền vô:
+    <div>
+        {salonId, warrantyId: Nếu truyền vô id gói bảo hành thì sẽ chỉ tìm theo gói đó, không truyền thì tìm tất cả. }
+    </div>
+    <li>[GET] /warranty/car/:id</li>
+    Dùng để test thôi, sau này bỏ. Xem thử thông tin xe có gói bảo hành gì không. id là id của xe. Có thể gọi đến /cars/:id cũng được. Router này sau này sẽ bỏ.
+    <li>[POST] /warranty/push-warranty</li>
+    Dùng để gán cho xe gói bảo hành. yêu cầu truyền vô:
+    <div>
+        {warrantyId, carId}
+    </div>
+    <li>Còn cập nhật gói bảo hành, xóa gói, mai rảnh mai làm sau nhe. Phân quyền thì mai làm. Trước tiên fe cần tạo giao diện hiển thị như trên là được rồi. Yêu cầu là chủ salon thì mới được làm.</li>
     <h2></h2>
 </body>
 

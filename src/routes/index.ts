@@ -13,6 +13,7 @@ import appointmentRouter from "./appointment.r";
 import notificationRouter from "./notification.r";
 import videocallRouter from "./videocall.r";
 import adminRouter from "./admin";
+import warrantyRouter from "./warranty.r";
 
 function router(app: Express) {
   app.use("/auth", authRouter);
@@ -29,6 +30,7 @@ function router(app: Express) {
   app.use("/notification", notificationRouter);
   app.use("/videocall", videocallRouter);
   app.use("/admin", adminRouter);
+  app.use("/warranty", warrantyRouter);
 }
 
 export default router;
