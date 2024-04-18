@@ -10,8 +10,23 @@ export class Warranty {
     @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
     create_at!: Date;
 
-    @Column({default: false})
+    @Column({})
+    name!: string;
+
+    @Column({default: true})
     reuse!: boolean;
+
+    @Column({})
+    limit_kilometer!: number;
+
+    @Column({})
+    months!: number;
+
+    @Column({})
+    policy!: string;
+
+    @Column({})
+    note!: string;
 
     @ManyToOne(() => Salon, salon => salon.warranties)
     salon!: Salon;
@@ -19,8 +34,13 @@ export class Warranty {
     @ManyToMany(() => Car, car => car.warranties)
     car!: Car[];
 
-    init(create_at: Date, reuse: boolean) {
+    init(create_at: Date, name: string, reuse: boolean, limit_kilometer: number, months: number, policy: string, note: string) {
         this.create_at = create_at;
+        this.name = name;
         this.reuse = reuse;
+        this.limit_kilometer = limit_kilometer;
+        this.months = months;
+        this.policy = policy;
+        this.note = note;
     }
 }
