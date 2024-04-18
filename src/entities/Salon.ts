@@ -2,6 +2,7 @@ import { Entity, PrimaryGeneratedColumn, Column, OneToMany, OneToOne, JoinColumn
 import { User } from "./User"
 import { Car } from "./Car"; // Import entities Car
 import { Invoice } from "./Invoice";
+import { Warranty } from "./Warranty";
 
 @Entity()
 export class Salon {
@@ -47,6 +48,9 @@ export class Salon {
 
     @OneToMany(() => Invoice, invoice => invoice.seller)
     invoices!: Invoice[];
+
+    @OneToMany(() => Warranty, warranty => warranty.warranty_id)
+    warranties!: Warranty[];
 
     init(name: string, address: string, image: string, email: string, phoneNumber: string,
         banner: string[], introductionHtml: string, introductionMarkdown: string, user_id: string, cars: Car[]) {

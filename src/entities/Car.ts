@@ -1,5 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column, Check, ManyToOne } from "typeorm"
+import { Entity, PrimaryGeneratedColumn, Column, Check, ManyToOne, ManyToMany } from "typeorm"
 import { Salon } from "./Salon"; // Import entities Salon
+import { Warranty } from "./Warranty";
 
 @Entity()
 export class Car {
@@ -74,6 +75,9 @@ export class Car {
 
     @ManyToOne(() => Salon, (salon) => salon.cars)
     salon!: Salon;
+
+    @ManyToMany(() => Warranty, warranty => warranty.warranty_id)
+    warranties!: Warranty[];
 
     init(name: string, description: string, origin: string, price: number, brand: string, 
         model: string, type: string, capacity: number, door: number, seat: number, kilometer: number,

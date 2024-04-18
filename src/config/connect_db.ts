@@ -1,5 +1,5 @@
 import dotenv from 'dotenv';
-import { User, Package, Feature, Car, Salon, Notification, Purchase, Message, Conversation, Appointment, Permission, Invoice } from "../entities";
+import { User, Package, Feature, Car, Salon, Notification, Purchase, Message, Conversation, Appointment, Permission, Invoice, Warranty } from "../entities";
 import { DataSourceOptions } from 'typeorm';
 
 
@@ -13,7 +13,7 @@ export const connectionString: DataSourceOptions = {
     password: process.env.DB_PASSWORD_CLOUD,
     database: process.env.DB_NAME_CLOUD,
     url: process.env.DB_URL_CLOUD,
-    entities: [User, Package, Feature, Car, Salon, Notification, Purchase, Message, Conversation, Appointment, Permission, Invoice],
+    entities: [User, Package, Feature, Car, Salon, Notification, Purchase, Message, Conversation, Appointment, Permission, Invoice, Warranty],
     synchronize: true,
     ssl: {
       rejectUnauthorized: false
