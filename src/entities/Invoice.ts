@@ -1,13 +1,12 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from "typeorm"
 import { Salon } from "./Salon";
-import { User } from "./User";
 
 @Entity()
 export class Invoice {
     @PrimaryGeneratedColumn('uuid')
     invoice_id!: string;
 
-    @Column({default: "car"})
+    @Column({default: "buy car"})
     type!: string;
 
     @Column({})
@@ -22,13 +21,22 @@ export class Invoice {
     @ManyToOne(() => Salon, salon => salon.invoices)
     seller!: Salon;
 
-    @ManyToOne(() => User, user => user.invoices)
-    buyer!: User;
+    @Column({nullable: true})
+    fullname!: string;
 
-    init(type: string, expense: number, description: string, create_at: Date) {
+    @Column({nullable: true})
+    email!: string;
+    
+    @Column({nullable: true})
+    phone!: string;
+
+    init(type: string, expense: number, description: string, create_at: Date, fullname: string, email: string, phone: string) {
         this.type = type;
         this.expense = expense;
         this.description = description;
         this.create_at = create_at;
+        this.fullname = fullname;
+        this.email = email;
+        this.phone = phone;
     }
 }

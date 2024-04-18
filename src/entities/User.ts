@@ -79,9 +79,6 @@ export class User {
     @OneToMany(() => Purchase, purchase => purchase.user)
     packages!: Purchase[];
 
-    @OneToMany(() => Invoice, invoice => invoice.buyer)
-    invoices!: Invoice[];
-
     init(user_id: string, username: string, password: string, fullname: string, gender: string, phone: string, email: string, address: string, 
         date_of_birth: Date, avatar: string, role: string, facebook: string, google: string, aso: number, permissions: string[]) {
         this.user_id = user_id;
