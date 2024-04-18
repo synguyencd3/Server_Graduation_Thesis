@@ -1,6 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany, OneToOne, JoinColumn } from "typeorm";
 import { User } from "./User"
 import { Car } from "./Car"; // Import entities Car
+import { Invoice } from "./Invoice";
 
 @Entity()
 export class Salon {
@@ -43,6 +44,9 @@ export class Salon {
 
     @OneToMany(() => Car, (car) => car.salon)
     cars!: Car[];
+
+    @OneToMany(() => Invoice, invoice => invoice.seller)
+    invoices!: Invoice[];
 
     init(name: string, address: string, image: string, email: string, phoneNumber: string,
         banner: string[], introductionHtml: string, introductionMarkdown: string, user_id: string, cars: Car[]) {
