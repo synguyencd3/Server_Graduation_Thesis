@@ -5,7 +5,8 @@ const router = Router();
 
 router.post("/create", warrantyController.createNewWarranty);
 router.post("/", warrantyController.getWarrantyForSalon);
-router.get("/car/:id", warrantyController.test);
 router.post("/push-warranty", warrantyController.pushWarrantyCar);
+router.patch("/update", warrantyController.updateWarranty);
+router.delete("/delete", warrantyController.delete);
 
 export default router;

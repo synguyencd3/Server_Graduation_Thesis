@@ -77,7 +77,6 @@ export class Car {
     salon!: Salon;
 
     @ManyToMany(() => Warranty, warranty => warranty.car)
-    @JoinTable()
     warranties!: Warranty[];
 
     init(name: string, description: string, origin: string, price: number, brand: string, 

@@ -32,6 +32,7 @@ export class Warranty {
     salon!: Salon;
 
     @ManyToMany(() => Car, car => car.warranties, { cascade: true })
+    @JoinTable()
     car!: Car[];
 
     init(create_at: Date, name: string, reuse: boolean, limit_kilometer: number, months: number, policy: string, note: string) {

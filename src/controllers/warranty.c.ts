@@ -52,7 +52,7 @@ const warrantyController = {
 
             if (warrantyId)
                 warrantyDb = warrantyDb
-            .where({ warranty_id: warrantyId })
+                    .where({ warranty_id: warrantyId })
 
             const rs = await warrantyDb.getMany();
 
@@ -70,56 +70,24 @@ const warrantyController = {
         }
     },
 
-    test:  async (req: Request, res: Response) => {
-        const carRepository = getRepository(Car);
-        const { id } = req.params;
-
-        try {
-            const car = await carRepository.findOne({
-                where: {
-                    car_id: id,
-                },
-                relations: ['salon', 'warranties'],
-            })
-            if (!car) {
-                return res.status(404).json({ status: "failed", msg: `No car with id: ${id}` });
-            }
-            const { salon_id, name, address } = car.salon;
-
-            return res.status(200).json({
-                status: "success",
-                car: {
-                    ...car,
-                    salon: {
-                        salon_id,
-                        name,
-                        address
-                    }
-                }
-            });
-        } catch (error) {
-            return res.status(500).json({ status: "failed", msg: "Internal server error" });
-        }
-    },
-
     pushWarrantyCar: async (req: Request, res: Response) => {
-        const {warrantyId, carId} = req.body;
+        const { warrantyId, carId } = req.body;
 
         try {
             const warrantyRepository = getRepository(Warranty);
             let warrantyDb: Warranty = await warrantyRepository.findOneOrFail({
-                where: {warranty_id: warrantyId},
+                where: { warranty_id: warrantyId },
                 relations: ['car']
             })
 
             const carRepository = getRepository(Car);
             const carDb: Car = await carRepository.findOneOrFail({
-                where: {car_id: carId}
+                where: { car_id: carId }
             })
 
             if (warrantyDb?.car) {
                 warrantyDb.car.push(carDb);
-                
+
             } else {
                 warrantyDb.car = [carDb];
             }
@@ -127,13 +95,76 @@ const warrantyController = {
             await warrantyRepository.save(warrantyDb);
 
             return res.json({
-                status: "success", 
+                status: "success",
                 msg: "pushed the warranty for car successfully!"
             })
         } catch (error) {
             return res.json({
                 status: "failed",
                 msg: "pushed the warranty for car failed."
+            })
+        }
+    },
+
+    updateWarranty: async (req: Request, res: Response) => {
+        const { salonId, newWarranty } = req.body;
+        const { warranty_id, create_at, salon, car, ...other } = newWarranty;
+
+        try {
+            // find warranty by salonid and warranty_id
+            const warrantyRepository = getRepository(Warranty);
+            let warrantyDb: any = await warrantyRepository
+                .createQueryBuilder('warranty')
+                .innerJoinAndSelect('warranty.salon', 'salon', 'salon.salon_id = :salonId', { salonId })
+                .where({ warranty_id: warranty_id })
+                .getOne()
+            const rsSave = await warrantyRepository.save({ ...warrantyDb, ...other });
+
+            return res.json({
+                status: "success",
+                msg: "update warranty successfully!",
+                newWarranty: rsSave
+            })
+        } catch (error) {
+            return res.json({
+                status: "failed",
+                msg: "update warranty error."
+            })
+        }
+
+    },
+
+    delete: async (req: Request, res: Response) => {
+        const { salonId, warrantyId } = req.body;
+
+        try {
+            const warrantyRepository = getRepository(Warranty);
+            let warrantyDb: any = await warrantyRepository.findOneOrFail({
+                where: {warranty_id: warrantyId},
+                relations: ['salon', 'car']
+            })
+
+            // check the warranty of the salon
+            if (warrantyDb?.salon?.salon_id != salonId) {
+                return res.json({
+                    status: "failed",
+                    msg: "error input for warranty."
+                })
+            }
+
+            // delete
+            await warrantyRepository.remove(warrantyDb);
+
+            return res.json({
+                status: "success",
+                msg: "delete warranty successfully!",
+                warranty: warrantyDb
+            })
+        } catch (error) {
+            console.log(error)
+            return res.json({
+                status: "failed",
+                msg: "Error delete warranty."
             })
         }
     }

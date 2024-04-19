@@ -483,19 +483,22 @@
         {"salonId", "name", "limit_kilometer": number,"months": number, "policy", "carId": Nếu truyền vô id của xe thì xe đó nhận thẳng gói bảo hành đó luôn. Không truyền vô cũng được.}
     </div>
 
-    <li>[POST] /warranty</li>
+    <li>[POST] /warranty/</li>
     Lấy ra danh sách các gói bảo hành của salon. Cần truyền vô:
     <div>
         {salonId, warrantyId: Nếu truyền vô id gói bảo hành thì sẽ chỉ tìm theo gói đó, không truyền thì tìm tất cả. }
     </div>
-    <li>[GET] /warranty/car/:id</li>
-    Dùng để test thôi, sau này bỏ. Xem thử thông tin xe có gói bảo hành gì không. id là id của xe. Có thể gọi đến /cars/:id cũng được. Router này sau này sẽ bỏ.
+    <li>Có thể gọi đến /cars/:id cũng được để xem xe đó đã có liên kết gói bảo hành nào chưa.</li>
     <li>[POST] /warranty/push-warranty</li>
     Dùng để gán cho xe gói bảo hành. yêu cầu truyền vô:
-    <div>
         {warrantyId, carId}
-    </div>
-    <li>Còn cập nhật gói bảo hành, xóa gói, mai rảnh mai làm sau nhe. Phân quyền thì mai làm. Trước tiên fe cần tạo giao diện hiển thị như trên là được rồi. Yêu cầu là chủ salon thì mới được làm.</li>
+    <li>[PATCH] /warranty/update</li>
+    Dùng để cập nhật thông tin gói bảo hành. Truyền vô như sau:
+    { "salonId", "newWarranty": {"warranty_id": bắt buộc, "name", "limit_kilometer", "months", "policy", "note" . Lưu ý: truyền vô cái  gì thì cập nhật cái đó chứ không
+nhất thiết phải truyền vô hết các thuộc tính trong newWarranty.} }
+    <li>[DELETE] /warranty/delete</li>
+    Dùng để xóa luôn cả gói bảo hành. Xin lưu ý: Nếu như có xe nào đang liên kết với gói này thì cũng tự động được gỡ bỏ bảo hành với xe đó luôn.
+    Truyền vô: {"salonId", "warrantyId"}
     <h2></h2>
 </body>
 
