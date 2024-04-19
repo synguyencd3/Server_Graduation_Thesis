@@ -140,7 +140,7 @@ const warrantyController = {
         try {
             const warrantyRepository = getRepository(Warranty);
             let warrantyDb: any = await warrantyRepository.findOneOrFail({
-                where: {warranty_id: warrantyId},
+                where: { warranty_id: warrantyId },
                 relations: ['salon', 'car']
             })
 
@@ -165,6 +165,40 @@ const warrantyController = {
             return res.json({
                 status: "failed",
                 msg: "Error delete warranty."
+            })
+        }
+    },
+
+    cancelWarranty: async (req: Request, res: Response) => {
+        const { salonId, carId, warrantyId } = req.body;
+
+        try {
+            const warrantyRepository = getRepository(Warranty);
+            let warrantyDb: Warranty = await warrantyRepository.findOneOrFail({
+                where: { warranty_id: warrantyId },
+                relations: ['salon', 'car']
+            })
+
+            // check the warranty of the salon
+            if (warrantyDb?.salon?.salon_id != salonId) {
+                return res.json({
+                    status: "failed",
+                    msg: "error input for warranty."
+                })
+            }
+
+            warrantyDb.car = warrantyDb?.car.filter(car => car.car_id != carId);
+            await warrantyRepository.save(warrantyDb);
+
+            return res.json({
+                status: "success",
+                msg: "cancel warranty successfully!"
+            })
+
+        } catch (error) {
+            return res.json({
+                status: "failed",
+                msg: "error cancel warranty."
             })
         }
     }

@@ -499,6 +499,9 @@ nhất thiết phải truyền vô hết các thuộc tính trong newWarranty.} 
     <li>[DELETE] /warranty/delete</li>
     Dùng để xóa luôn cả gói bảo hành. Xin lưu ý: Nếu như có xe nào đang liên kết với gói này thì cũng tự động được gỡ bỏ bảo hành với xe đó luôn.
     Truyền vô: {"salonId", "warrantyId"}
+    <li>[POST] /warranty/cancel</li>
+    Dùng để hủy bỏ liên kết của 1 xe với 1 gói bảo hành. Yêu cầu truyền vô:
+    {"salonId", "warrantyId", "carId"}
     <h2></h2>
 </body>
 
