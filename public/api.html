@@ -509,6 +509,8 @@ nhất thiết phải truyền vô hết các thuộc tính trong newWarranty.} 
     <li>[POST] /invoice/create-invoice</li>
     Dùng để tạo ra hóa đơn phụ trách việc mua xe của khách hàng. Yêu cầu truyền vô:
     {carId, salonId, note, fullname: tên khách hàng, email: email khách hàng, phone: sdt của khách hàng.}
+    <li>[POST] /invoice/lookup</li>
+    Dùng để tra cứu thông tin hóa đơn. Yêu cầu truyền vô: {"invoiceId", "salonId"}
 </body>
 
 </html>
