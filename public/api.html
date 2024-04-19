@@ -491,7 +491,7 @@
     <li>Có thể gọi đến /cars/:id cũng được để xem xe đó đã có liên kết gói bảo hành nào chưa.</li>
     <li>[POST] /warranty/push-warranty</li>
     Dùng để gán cho xe gói bảo hành. yêu cầu truyền vô:
-        {warrantyId, carId}
+        {salonId, warrantyId, carId}
     <li>[PATCH] /warranty/update</li>
     Dùng để cập nhật thông tin gói bảo hành. Truyền vô như sau:
     { "salonId", "newWarranty": {"warranty_id": bắt buộc, "name", "limit_kilometer", "months", "policy", "note", "reuse": boolean - mặc định là true tức là

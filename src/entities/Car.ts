@@ -76,8 +76,8 @@ export class Car {
     @ManyToOne(() => Salon, (salon) => salon.cars)
     salon!: Salon;
 
-    @ManyToMany(() => Warranty, warranty => warranty.car)
-    warranties!: Warranty[];
+    @ManyToOne(() => Warranty, warranty => warranty.car, {onDelete: "SET NULL"})
+    warranties!: Warranty;
 
     init(name: string, description: string, origin: string, price: number, brand: string, 
         model: string, type: string, capacity: number, door: number, seat: number, kilometer: number,

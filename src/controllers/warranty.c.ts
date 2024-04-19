@@ -49,7 +49,7 @@ const warrantyController = {
             let warrantyDb: any = await warrantyRepository
                 .createQueryBuilder('warranty')
                 .innerJoinAndSelect('warranty.salon', 'salon', 'salon.salon_id = :salonId', { salonId })
-                .where({reuse: true})
+                .where({ reuse: true })
 
             if (warrantyId)
                 warrantyDb = warrantyDb
@@ -72,14 +72,22 @@ const warrantyController = {
     },
 
     pushWarrantyCar: async (req: Request, res: Response) => {
-        const { warrantyId, carId } = req.body;
+        const { salonId, warrantyId, carId } = req.body;
 
         try {
             const warrantyRepository = getRepository(Warranty);
             let warrantyDb: Warranty = await warrantyRepository.findOneOrFail({
                 where: { warranty_id: warrantyId },
-                relations: ['car']
+                relations: ['car', 'salon']
             })
+
+            // check the warranty of the salon
+            if (warrantyDb?.salon?.salon_id != salonId) {
+                return res.json({
+                    status: "failed",
+                    msg: "error input for warranty."
+                })
+            }
 
             const carRepository = getRepository(Car);
             const carDb: Car = await carRepository.findOneOrFail({
@@ -142,7 +150,7 @@ const warrantyController = {
             const warrantyRepository = getRepository(Warranty);
             let warrantyDb: any = await warrantyRepository.findOneOrFail({
                 where: { warranty_id: warrantyId },
-                relations: ['salon', 'car']
+                relations: ['salon']
             })
 
             // check the warranty of the salon
