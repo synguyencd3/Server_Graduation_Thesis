@@ -31,7 +31,7 @@ const invoiceController = {
             return res.json({
                 status: "success",
                 msg: "Create invoice successfully!",
-                invoice: saveInvoice
+                invoice: {...saveInvoice, warranty: carDb?.warranties}
             })
 
         } catch (error) {
