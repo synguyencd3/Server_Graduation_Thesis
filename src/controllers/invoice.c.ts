@@ -41,9 +41,38 @@ const invoiceController = {
                 msg: "Can not create the invoice."
             })
         }
+    },
+
+    lookupInvoiceByInvoiceId: async (req: Request, res: Response) => {
+        const {salonId, invoiceId} = req.body;
+
+        try {
+            const invoiceRepository = getRepository(Invoice);
+            const invoiceDb = await invoiceRepository.findOneOrFail({
+                where: {invoice_id: invoiceId},
+                relations: ['seller']
+            })
+
+            if (invoiceDb.seller?.salon_id !== salonId) {
+                return res.json({
+                    status: "failed",
+                    msg: "You can not look up this invoice."
+                })
+            }
+
+            return res.json({
+                status: "success",
+                msg: "Look up successfully!",
+                invoice: invoiceDb
+            })
+
+        } catch (error) {
+            return res.json({
+                status: "failed",
+                msg: "Error look up invoice."
+            })
+        }
     }
-
-
 }
 
 export default invoiceController;
