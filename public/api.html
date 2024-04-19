@@ -494,7 +494,9 @@
         {warrantyId, carId}
     <li>[PATCH] /warranty/update</li>
     Dùng để cập nhật thông tin gói bảo hành. Truyền vô như sau:
-    { "salonId", "newWarranty": {"warranty_id": bắt buộc, "name", "limit_kilometer", "months", "policy", "note" . Lưu ý: truyền vô cái  gì thì cập nhật cái đó chứ không
+    { "salonId", "newWarranty": {"warranty_id": bắt buộc, "name", "limit_kilometer", "months", "policy", "note", "reuse": boolean - mặc định là true tức là
+    cho phép sử dụng lại nhằm mục đích cho phép gán gói bảo hành này cho xe khác, nếu muốn thiết lập gói báo hành này chỉ phục vụ cho chiếc xe
+    duy nhất nào đó thì truyền carId và reuse = false, không truyền thì mặc định là true . Lưu ý: truyền vô cái  gì thì cập nhật cái đó chứ không
 nhất thiết phải truyền vô hết các thuộc tính trong newWarranty.} }
     <li>[DELETE] /warranty/delete</li>
     Dùng để xóa luôn cả gói bảo hành. Xin lưu ý: Nếu như có xe nào đang liên kết với gói này thì cũng tự động được gỡ bỏ bảo hành với xe đó luôn.

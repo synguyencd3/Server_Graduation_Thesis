@@ -48,7 +48,8 @@ const warrantyController = {
             const warrantyRepository = getRepository(Warranty);
             let warrantyDb: any = await warrantyRepository
                 .createQueryBuilder('warranty')
-                .innerJoinAndSelect('warranty.salon', 'salon', 'salon.salon_id = :salonId', { salonId });
+                .innerJoinAndSelect('warranty.salon', 'salon', 'salon.salon_id = :salonId', { salonId })
+                .where({reuse: true})
 
             if (warrantyId)
                 warrantyDb = warrantyDb
