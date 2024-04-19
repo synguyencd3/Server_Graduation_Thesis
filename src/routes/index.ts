@@ -14,6 +14,7 @@ import notificationRouter from "./notification.r";
 import videocallRouter from "./videocall.r";
 import adminRouter from "./admin";
 import warrantyRouter from "./warranty.r";
+import invoiceRouter from "./invoice.r";
 
 function router(app: Express) {
   app.use("/auth", authRouter);
@@ -31,6 +32,7 @@ function router(app: Express) {
   app.use("/videocall", videocallRouter);
   app.use("/admin", adminRouter);
   app.use("/warranty", warrantyRouter);
+  app.use("/invoice", invoiceRouter);
 }
 
 export default router;
