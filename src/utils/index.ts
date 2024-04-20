@@ -1,4 +1,10 @@
 import crypto from "crypto";
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import vi from "dayjs/locale/vi";
+
+dayjs.locale(vi);
+dayjs.extend(utc);
 
 function generateRandomCode(length: number): string {
   const characters =
@@ -56,6 +62,18 @@ function padZero(number: Number) {
   return number.toString().padStart(2, "0");
 }
 
+function formatDate(date: Date) {
+  const formattedDayOfWeek = dayjs.utc(date).format("dddd");
+  const formattedDate = dayjs.utc(date).format("DD/MM/YYYY HH:mm");
+
+  const capitalizedDayOfWeek =
+    formattedDayOfWeek.charAt(0).toUpperCase() + formattedDayOfWeek.slice(1);
+
+  const formattedPublishDate = `${capitalizedDayOfWeek}, ${formattedDate}`;
+
+  return formattedPublishDate;
+}
+
 export {
   generateRandomCode,
   isValidUUID,
@@ -63,4 +81,5 @@ export {
   getLocalDateTime,
   calExpiryDate,
   extractTime,
+  formatDate,
 };

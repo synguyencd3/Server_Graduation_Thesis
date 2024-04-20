@@ -13,6 +13,7 @@ import appointmentRouter from "./appointment.r";
 import notificationRouter from "./notification.r";
 import videocallRouter from "./videocall.r";
 import adminRouter from "./admin";
+import maintenanceRouter from "./maintenance.r";
 import warrantyRouter from "./warranty.r";
 import invoiceRouter from "./invoice.r";
 
@@ -31,6 +32,7 @@ function router(app: Express) {
   app.use("/notification", notificationRouter);
   app.use("/videocall", videocallRouter);
   app.use("/admin", adminRouter);
+  app.use("/maintenance", maintenanceRouter);
   app.use("/warranty", warrantyRouter);
   app.use("/invoice", invoiceRouter);
 }

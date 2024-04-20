@@ -1,103 +1,130 @@
-import { Entity, PrimaryGeneratedColumn, Column, Check, ManyToOne, ManyToMany, JoinTable, JoinColumn } from "typeorm"
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  Check,
+  ManyToOne,
+  ManyToMany,
+  JoinTable,
+  JoinColumn,
+} from "typeorm";
 import { Salon } from "./Salon"; // Import entities Salon
 import { Warranty } from "./Warranty";
 
 @Entity()
 export class Car {
-    // Mã xe
-    @PrimaryGeneratedColumn('uuid')
-    car_id!: string;
+  // Mã xe
+  @PrimaryGeneratedColumn("uuid")
+  car_id!: string;
 
-    // Tên xe
-    @Column({nullable: true})
-    name!: string;
+  // Tên xe
+  @Column({ nullable: true })
+  name!: string;
 
-    // Mô tả
-    @Column({nullable: true})
-    description!: string;
+  // Mô tả
+  @Column({ nullable: true })
+  description!: string;
 
-    // Xuất xứ
-    @Column({nullable: true})
-    origin!: string;
-    
-    // Giá
-    @Column({nullable: true, type: 'float'})
-    @Check(`"price" >= 0`)
-    price!: number;
+  // Xuất xứ
+  @Column({ nullable: true })
+  origin!: string;
 
-    // Hãng xe
-    @Column({nullable: true})
-    brand!: string;
+  // Giá
+  @Column({ nullable: true, type: "float" })
+  @Check(`"price" >= 0`)
+  price!: number;
 
-    // Mẫu mã xe
-    @Column({nullable: true})
-    model!: string;
+  // Hãng xe
+  @Column({ nullable: true })
+  brand!: string;
 
-    // Dòng xe
-    @Column({nullable: true})
-    type!: string;
-    
-    // Dung tích xe
-    @Column({nullable: true, type: 'float'})
-    capacity!: number
+  // Mẫu mã xe
+  @Column({ nullable: true })
+  model!: string;
 
-    // Số cửa
-    @Column({nullable: true})
-    door!: number
+  // Dòng xe
+  @Column({ nullable: true })
+  type!: string;
 
-    // Số ghế ngồi
-    @Column({nullable: true})
-    seat!: number
+  // Dung tích xe
+  @Column({ nullable: true, type: "float" })
+  capacity!: number;
 
-    // Số km đã đi
-    @Column({nullable: true, type: 'float'})
-    kilometer!: number
+  // Số cửa
+  @Column({ nullable: true })
+  door!: number;
 
-    // Hộp số
-    @Column({nullable: true})
-    gear!: string;
+  // Số ghế ngồi
+  @Column({ nullable: true })
+  seat!: number;
 
-    // Năm sản xuất
-    @Column({ type: 'timestamptz', nullable: true})
-    mfg!: Date;
+  // Số km đã đi
+  @Column({ nullable: true, type: "float" })
+  kilometer!: number;
 
-    // Màu nội thất
-    @Column({nullable: true})
-    inColor!: string;
+  // Hộp số
+  @Column({ nullable: true })
+  gear!: string;
 
-    // Màu ngoại thất
-    @Column({nullable: true})
-    outColor!: string;
+  // Năm sản xuất
+  @Column({ type: "timestamptz", nullable: true })
+  mfg!: Date;
 
-    // Ảnh
-    @Column({ type: "text", array: true, nullable: true })
-    image!: string[];
+  // Màu nội thất
+  @Column({ nullable: true })
+  inColor!: string;
 
-    @ManyToOne(() => Salon, (salon) => salon.cars)
-    salon!: Salon;
+  // Màu ngoại thất
+  @Column({ nullable: true })
+  outColor!: string;
 
-    @ManyToOne(() => Warranty, warranty => warranty.car, {onDelete: "SET NULL"})
-    warranties!: Warranty;
+  // Ảnh
+  @Column({ type: "text", array: true, nullable: true })
+  image!: string[];
 
-    init(name: string, description: string, origin: string, price: number, brand: string, 
-        model: string, type: string, capacity: number, door: number, seat: number, kilometer: number,
-        gear: string, mfg: Date, inColor: string, outColor: string, image: string[], salon: Salon) {
-        this.name = name;
-        this.description = description;
-        this.origin = origin
-        this.price = price
-        this.brand = brand
-        this.model = model
-        this.type = type
-        this.capacity = capacity
-        this.door = door
-        this.seat = seat
-        this.kilometer = kilometer
-        this.gear = gear
-        this.mfg = mfg
-        this.inColor = inColor
-        this.outColor = outColor
-        this.image = image
-        this.salon = salon
-    }
+  @ManyToOne(() => Salon, (salon) => salon.cars)
+  salon!: Salon;
+
+  @ManyToOne(() => Warranty, (warranty) => warranty.car, {
+    onDelete: "SET NULL",
+  })
+  warranties!: Warranty;
+
+  init(
+    name: string,
+    description: string,
+    origin: string,
+    price: number,
+    brand: string,
+    model: string,
+    type: string,
+    capacity: number,
+    door: number,
+    seat: number,
+    kilometer: number,
+    gear: string,
+    mfg: Date,
+    inColor: string,
+    outColor: string,
+    image: string[],
+    salon: Salon
+  ) {
+    this.name = name;
+    this.description = description;
+    this.origin = origin;
+    this.price = price;
+    this.brand = brand;
+    this.model = model;
+    this.type = type;
+    this.capacity = capacity;
+    this.door = door;
+    this.seat = seat;
+    this.kilometer = kilometer;
+    this.gear = gear;
+    this.mfg = mfg;
+    this.inColor = inColor;
+    this.outColor = outColor;
+    this.image = image;
+    this.salon = salon;
+  }
 }

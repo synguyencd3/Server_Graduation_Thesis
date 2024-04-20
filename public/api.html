@@ -511,6 +511,72 @@ nhất thiết phải truyền vô hết các thuộc tính trong newWarranty.} 
     {carId, salonId, note, fullname: tên khách hàng, email: email khách hàng, phone: sdt của khách hàng.}
     <li>[POST] /invoice/lookup</li>
     Dùng để tra cứu thông tin hóa đơn. Yêu cầu truyền vô: {"invoiceId", "salonId"}
+    <h3>Hóa đơn bảo dưỡng</h3>
+    <li>[GET] /invoice</li>
+    Nó sẽ lấy ra được thông tin tất cả các hóa đơn bảo dưỡng (xe gì, ai làm, tại salon nào và những dịch vụ đã thực hiện) 
+    <li>[GET] /invoice:/id</li>
+    Lấy ra thông tin chi tiết của hóa đơn BẢO DƯỠNG
+    <li>[GET] /invoice:/by-license/:licensePlate</li>
+    Truyền vào biển số xe.
+    Sẽ lấy ra được thông tin tất cả về dịch vụ bảo dưỡng mà xe đó đã từng thực hiện tại salon của mình (chủ salon)
+    <li>[POST] /invoice</li>
+    Tạo hóa đơn bảo dưỡng mới. Các trường cần truyền vào ví dụ như sau:
+    <pre>
+    {
+        "licensePlate": "ABC123",
+        "carName": "Toyota Corolla",
+        "services": [
+            { "maintenance_id": "a3f3df0c-a41a-4c65-9161-e9c9d64ec312", "quantity": 2 },
+            { "maintenance_id": "c2e17c7d-b911-4563-a550-30e505774d00", "quantity": 1 }
+        ],
+        "note": "Regular maintenance",
+        "fullname": "Nguyen",
+        "email": "nguyen123@gmail.com",
+        "phone": "0123456789"
+    }
+    </pre>
+    <li>[PATCH] /invoice/:id</li>
+    Dùng để cập nhật hóa đơn bảo dưỡng. Có thể cập nhật {licensePlate, carName, services, note}. Muốn cập nhật trường nào thì truyền vào trường đó. Ví dụ:
+    <pre>
+    {
+        "licensePlate": "test",
+        "services": [
+            { "maintenance_id": "a3f3df0c-a41a-4c65-9161-e9c9d64ec312", "quantity": 1 }
+        ],
+        "note": "test"
+    }
+    </pre>
+    <li>[DELETE] /invoice/:id</li>
+    Xóa hóa đơn bảo dưỡng
+
+
+    <h2> Bảo dưỡng </h2>
+    <li>[GET] /maintenance</li>
+    Sẽ lấy ra được tất cả các thông tin của dịch vụ bảo dưỡng (bao gồm id, tên, miêu tả, giá) kèm theo đó là id và tên của salon
+    <li>[GET] /maintenance/:id</li>
+    Lấy ra thông tin chi tiết của dịch vụ bảo dưỡng
+    <li>[GET] /maintenance/salon/:salonId</li>
+    Lấy ra được tất cả thông tin các dịch vụ bảo dưỡng mà salon đang có
+    <li>[POST] /maintenance</li>
+    Dùng cho chủ salon thêm một dịch vụ bảo dưỡng mới (tạm thời là chủ làm). Các thông tin cần truyền vào bao gồm: {name, description, cost}
+    <li>[PATCH] /maintenance/:id</li>
+    Dùng để cập nhật dịch vụ bảo dưỡng. Có thể cập nhật {name, description, cost}. Muốn cập nhật trường nào thì truyền vào trường đó
+    <li>[DELETE] /maintenance/:id</li>
+    Xóa dịch vụ bảo dưỡng
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 </body>
 
 </html>
