@@ -72,6 +72,28 @@ const invoiceController = {
                 msg: "Error look up invoice."
             })
         }
+    },
+
+    getAllInvoiceOfSalon: async (req: Request, res: Response) => {
+        const {salonId} = req.body;
+
+        try {
+            const invoiceRepository =getRepository(Invoice);
+            let invocieDb: any = await invoiceRepository
+                .createQueryBuilder('invoice')
+                .innerJoinAndSelect('invoice.seller', 'salon', 'salon.salon_id = :salonId', { salonId })
+                .getMany();
+
+            return res.json({
+                status: "success",
+                invoices: invocieDb
+            })
+        } catch (error) {
+            return res.json({
+                status: "failed",
+                msg: "Error get all invoice for salon."
+            })
+        }
     }
 }
 

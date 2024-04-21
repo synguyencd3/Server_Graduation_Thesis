@@ -20,7 +20,8 @@ router.post(
 router.patch("/:id", mInvoiceController.updateMaintenanceInvoices);
 router.delete("/:id", mInvoiceController.deleteMaintenanceInvoices);
 
-router.post("/create-invoice", invoiceController.printInvoiceBuyCar);
-router.post("/lookup", invoiceController.lookupInvoiceByInvoiceId);
+router.post("/create-invoice", middlewareController.verifyToken, middlewareController.havePermission("C_IV"), invoiceController.printInvoiceBuyCar);
+router.post("/lookup", middlewareController.verifyToken, middlewareController.havePermission("R_IV"), invoiceController.lookupInvoiceByInvoiceId);
+router.post("/all", middlewareController.verifyToken, middlewareController.havePermission("R_IV"), middlewareController.isAdminOfSalon, invoiceController.getAllInvoiceOfSalon);
 
 export default router;
