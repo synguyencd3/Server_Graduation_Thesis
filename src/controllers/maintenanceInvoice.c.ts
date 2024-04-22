@@ -245,6 +245,7 @@ const maintainController = {
           invoice_id: invoice.invoice_id,
           fullname: invoice.fullname,
           phone: invoice.phone,
+          email: invoice.email,
           carName: invoice.carName,
           invoiceDate: formatDate(invoice.create_at),
           total: invoice.expense,
