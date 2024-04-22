@@ -236,6 +236,7 @@ const maintainController = {
           if (service && invoiceDetail) {
             return {
               name: service.name,
+              cost: service.cost,
               quantity: invoiceDetail.quantity,
             };
           }
