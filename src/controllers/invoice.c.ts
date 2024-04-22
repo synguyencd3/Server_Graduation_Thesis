@@ -44,12 +44,12 @@ const invoiceController = {
     },
 
     lookupInvoiceByInvoiceId: async (req: Request, res: Response) => {
-        const {salonId, invoiceId} = req.body;
+        const {salonId, invoiceId, phone, licensePlate, type} = req.body;
 
         try {
             const invoiceRepository = getRepository(Invoice);
             const invoiceDb = await invoiceRepository.findOneOrFail({
-                where: {invoice_id: invoiceId},
+                where: {invoice_id: invoiceId, phone, licensePlate, type},
                 relations: ['seller']
             })
 
