@@ -9,13 +9,28 @@ import moment from "moment";
 
 const maintainController = {
   getAllMaintenanceInvoices: async (req: Request, res: Response) => {
+    const userId: any = req.headers["userId"] || "";
     const mInvoicesRepository = getRepository(Invoice);
     const maintainRepository = getRepository(Maintenance);
     const mInvoiceDetailRepository = getRepository(MInvoiceDetail);
+    let salonId = "";
 
     try {
+      const user = await getRepository(User).findOne({
+        where: { user_id: userId },
+        relations: ["salonId"],
+      });
+
+      if (user?.salonId) salonId = user.salonId.salon_id;
+      else {
+        return res.status(403).json({
+          status: "failed",
+          msg: "You do not have sufficient permissions",
+        });
+      }
+
       const mInvoices = await mInvoicesRepository.find({
-        where: { type: "maintenance" },
+        where: { type: "maintenance", seller: { salon_id: salonId } },
         relations: ["seller"],
       });
 

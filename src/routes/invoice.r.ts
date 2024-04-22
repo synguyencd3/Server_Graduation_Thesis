@@ -5,7 +5,11 @@ import middlewareController from "../middleware/middleware";
 
 const router = Router();
 
-router.get("/", mInvoiceController.getAllMaintenanceInvoices);
+router.get(
+  "/",
+  middlewareController.verifyToken,
+  mInvoiceController.getAllMaintenanceInvoices
+);
 router.get("/:id", mInvoiceController.getMaintenanceInvoiceById);
 router.get(
   "/by-license/:licensePlate",
