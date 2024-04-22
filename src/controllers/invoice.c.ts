@@ -6,7 +6,7 @@ import { Invoice, Salon } from '../entities';
 
 const invoiceController = {
     printInvoiceBuyCar: async (req: Request, res: Response) => {
-        const {carId, salonId, note, fullname, email, phone} = req.body;
+        const {carId, salonId, note, fullname, email, phone, expense} = req.body;
 
         try {
             const invoiceRepository = getRepository(Invoice);
@@ -25,7 +25,7 @@ const invoiceController = {
 
             let saveInvoice: any = new Invoice();
             saveInvoice.seller = carDb.salon;
-            saveInvoice = {...saveInvoice, expense: carDb.price, note, fullname, email, phone, carName: carDb.name};
+            saveInvoice = {...saveInvoice, expense, note, fullname, email, phone, carName: carDb.name};
             await invoiceRepository.save(saveInvoice);
 
             return res.json({
