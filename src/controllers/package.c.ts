@@ -3,7 +3,7 @@ import { Package } from "../entities/Package";
 import { getRepository } from "typeorm";
 const cloudinary = require("cloudinary").v2;
 import {isValidUUID, getFileName} from "../utils/index"
-import Cache from '../config/node-cache';
+// import Cache from '../config/node-cache';
 
 interface MulterFileRequest extends Request {
     file: any; // Adjust this to match the type of your uploaded file
@@ -12,13 +12,13 @@ interface MulterFileRequest extends Request {
 const packageController = {
     getAllPackages: async (req: Request, res: Response) => {
         // get value from cache
-        const valueCache = Cache.get("package");
-        if (valueCache) {
-            return res.status(200).json({
-                status: "success",
-                packages: valueCache
-            });
-        }
+        // const valueCache = Cache.get("package");
+        // if (valueCache) {
+        //     return res.status(200).json({
+        //         status: "success",
+        //         packages: valueCache
+        //     });
+        // }
         const packageRepository = getRepository(Package);
         try {
             const packages = await packageRepository.createQueryBuilder("package")
@@ -41,7 +41,7 @@ const packageController = {
                 nbHits: packages.length,
             }
 
-            Cache.set("package", savedPackage);
+            // Cache.set("package", savedPackage);
     
             return res.status(200).json({
                 status: "success",
@@ -55,14 +55,14 @@ const packageController = {
         const { id } = req.params;
         const packageRepository = getRepository(Package);
         // get cache 
-        const valueCache = Cache.get(id+"package");
+        // const valueCache = Cache.get(id+"package");
 
-        if (valueCache) {
-            return res.status(200).json({
-                status: "success",
-                package: valueCache
-            });
-        }
+        // if (valueCache) {
+        //     return res.status(200).json({
+        //         status: "success",
+        //         package: valueCache
+        //     });
+        // }
 
         try {
             const packagee = await packageRepository.createQueryBuilder("package")
@@ -88,7 +88,7 @@ const packageController = {
                 }
             }
             
-            Cache.set(id+"package", savePackage);
+            // Cache.set(id+"package", savePackage);
 
             return res.status(200).json({
                 status: "success",
@@ -127,7 +127,7 @@ const packageController = {
                     .add(features);
             }
             // del old value cache
-            Cache.del("package");
+            // Cache.del("package");
 
             return res.status(201).json({
                 status: "success",
@@ -205,7 +205,7 @@ const packageController = {
                 }
             }
             // del old value package
-            Cache.del(["package", id+"package"]);
+            // Cache.del(["package", id+"package"]);
 
             return res.status(200).json({
                 status: "success",
@@ -236,7 +236,7 @@ const packageController = {
 
             await packageRepository.delete(id);
             // del old value cache
-            Cache.del(["package", id+"package"]);
+            // Cache.del(["package", id+"package"]);
 
 
             return res.status(200).json({

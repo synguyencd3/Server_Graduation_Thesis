@@ -4,7 +4,7 @@ import { getRepository } from "typeorm";
 const cloudinary = require("cloudinary").v2;
 import { getFileName } from "../utils/index"
 import { newLogs } from '../helper/createLogs';
-import Cache from '../config/node-cache';
+// import Cache from '../config/node-cache';
 import { Invoice, Salon } from '../entities';
 
 interface MulterFile {
@@ -19,13 +19,13 @@ interface MulterFileRequest extends Request {
 const carController = {
     getAllCars: async (req: Request, res: Response) => {
         // get value from cache
-        const valueCache = await Cache.get("cars");
-        if (valueCache) {
-            return res.status(200).json({
-                status: "success",
-                cars: valueCache
-            });
-        }
+        // const valueCache = await Cache.get("cars");
+        // if (valueCache) {
+        //     return res.status(200).json({
+        //         status: "success",
+        //         cars: valueCache
+        //     });
+        // }
 
         const carRepository = getRepository(Car);
         try {
@@ -64,10 +64,10 @@ const carController = {
             //     }
             // });
             // set new value for cache
-            Cache.set("cars", {
-                car: formattedCars,
-                nbHits: formattedCars.length,
-            });
+            // Cache.set("cars", {
+            //     car: formattedCars,
+            //     nbHits: formattedCars.length,
+            // });
 
             return res.status(200).json({
                 status: "success",
@@ -85,13 +85,13 @@ const carController = {
         const carRepository = getRepository(Car);
         const { id } = req.params;
         // get value from car
-        const valueCache = await Cache.get(id+"car");
-        if (valueCache) {
-            return res.status(200).json({
-                status: "success",
-                car: valueCache
-            });
-        }
+        // const valueCache = await Cache.get(id+"car");
+        // if (valueCache) {
+        //     return res.status(200).json({
+        //         status: "success",
+        //         car: valueCache
+        //     });
+        // }
 
         try {
             const car = await carRepository.findOne({
@@ -106,14 +106,14 @@ const carController = {
             const { salon_id, name, address } = car.salon;
 
             // set new value for cache
-            Cache.set(id+"car", {
-                ...car,
-                salon: {
-                    salon_id,
-                    name,
-                    address
-                }
-            });
+            // Cache.set(id+"car", {
+            //     ...car,
+            //     salon: {
+            //         salon_id,
+            //         name,
+            //         address
+            //     }
+            // });
 
             return res.status(200).json({
                 status: "success",
@@ -134,13 +134,13 @@ const carController = {
         const { brand, salon_id } = req.params;
         const carRepository = getRepository(Car);
         // get value from cache
-        const valueCache = Cache.get(salon_id+brand);
-        if (valueCache) {
-            return res.status(200).json({
-                status: "success",
-                data: valueCache,
-            });
-        }
+        // const valueCache = Cache.get(salon_id+brand);
+        // if (valueCache) {
+        //     return res.status(200).json({
+        //         status: "success",
+        //         data: valueCache,
+        //     });
+        // }
 
         try {
             const cars = await carRepository.find({
@@ -169,7 +169,7 @@ const carController = {
                 nbHits: cars.length,
             }
             // set new value for cache
-            Cache.set(salon_id+brand, saveCar);
+            // Cache.set(salon_id+brand, saveCar);
 
             return res.status(200).json({
                 status: "success",
@@ -211,7 +211,7 @@ const carController = {
             newLogs(salonSalonId, `${req.user} created car ${savedCar.car_id}.`)
             
             // del old value cache
-            Cache.del(["cars", salonSalonId+brand]);
+            // Cache.del(["cars", salonSalonId+brand]);
 
             return res.status(201).json({
                 status: "success",
@@ -282,7 +282,7 @@ const carController = {
             const car = await carRepository.save(saveCar);
 
             newLogs(salonSalonId, `${req.user} updated car ${car?.car_id}.`)
-            Cache.del(["cars", id+"car", salonSalonId+brand]);
+            // Cache.del(["cars", id+"car", salonSalonId+brand]);
 
             return res.status(200).json({
                 status: "success",
@@ -318,7 +318,7 @@ const carController = {
 
             await carRepository.delete(id);
             newLogs(req.body.salonId, `${req.user} deleted car ${car.name}- ${car.price}.`)
-            Cache.del(["cars", id+"car", req.body.salonId+car.brand]);
+            // Cache.del(["cars", id+"car", req.body.salonId+car.brand]);
 
             return res.status(200).json({
                 status: "success",

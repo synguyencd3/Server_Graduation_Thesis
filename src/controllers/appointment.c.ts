@@ -3,7 +3,7 @@ import { getRepository } from 'typeorm';
 import { Appointment, Car, Salon, User } from '../entities';
 import createNotification from '../helper/createNotification';
 import { newLogs } from '../helper/createLogs';
-import Cache from '../config/node-cache';
+// import Cache from '../config/node-cache';
 
 const appointmentController = {
   createAppointment: async (req: Request, res: Response) => {
@@ -53,7 +53,7 @@ const appointmentController = {
       newLogs(salonId, `${userId} created appointment with your salon.`)
 
       // del old value cache
-      Cache.del(salonId + "apm");
+      // Cache.del(salonId + "apm");
 
       return res.status(201).json({
         status: "success",
@@ -74,13 +74,13 @@ const appointmentController = {
     const { salonId, status, id, carId }: any = req.body;
     const appointmentRepository = getRepository(Appointment)
     // get value from cache
-    const cacheValue = (!userId && !id) ? await Cache.get(salonId + "apm") : "";
-    if (cacheValue) {
-      return res.status(200).json({
-        status: "success",
-        appointments: cacheValue
-      })
-    }
+    // const cacheValue = (!userId && !id) ? await Cache.get(salonId + "apm") : "";
+    // if (cacheValue) {
+    //   return res.status(200).json({
+    //     status: "success",
+    //     appointments: cacheValue
+    //   })
+    // }
 
     try {
       let appointDb: any = await appointmentRepository.find({
@@ -108,7 +108,7 @@ const appointmentController = {
       }
 
       // set new value for cache
-      (!userId && !id) ? Cache.set(salonId + "apm", appointDb) : 1;
+      // (!userId && !id) ? Cache.set(salonId + "apm", appointDb) : 1;
 
       return res.status(200).json({
         status: "success",
@@ -176,7 +176,7 @@ const appointmentController = {
         newLogs(salonId, `Employee ${req.user} updated appointment with id ${id} `)
 
       // del old value from cache
-      Cache.del(salonId + "apm");
+      // Cache.del(salonId + "apm");
 
       return res.status(200).json({
         status: "success",
@@ -224,7 +224,7 @@ const appointmentController = {
         newLogs(salonId, `Employee deleted appointment with custormer ${recordToDelete.user?.fullname} - ${recordToDelete.user?.user_id}`)
 
       // del old value from cache
-      Cache.del(salonId + "apm");
+      // Cache.del(salonId + "apm");
 
       return res.status(200).json({
         status: "success",

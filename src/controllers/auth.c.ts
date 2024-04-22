@@ -8,7 +8,7 @@ const { v4: uuidv4 } = require("uuid");
 import redis from "../config/redis";
 import { generateRandomCode } from "../utils/index"
 import { sendMail } from "../config/nodemailer";
-import Cache from "../config/node-cache"
+// import Cache from "../config/node-cache"
 
 require("dotenv").config({ path: "./server/.env" });
 
@@ -172,10 +172,10 @@ const authController: any = {
             }
           );
 
-          console.log("Befor cache: ",  Cache.keys())
+          // console.log("Befor cache: ",  Cache.keys())
 
-          Cache.del(userDb.user_id + "user")
-          console.log("After cache: ",  Cache.keys())
+          // Cache.del(userDb.user_id + "user")
+          // console.log("After cache: ",  Cache.keys())
 
 
 
@@ -332,7 +332,7 @@ const authController: any = {
             }
           );
 
-          Cache.del(userDb.user_id + "user")
+          // Cache.del(userDb.user_id + "user")
 
           return res.json({
             status: "success",
@@ -504,7 +504,7 @@ const authController: any = {
               }
             );
 
-            Cache.del(userDb.user_id + "user");
+            // Cache.del(userDb.user_id + "user");
 
             return res.json({
               status: "success",

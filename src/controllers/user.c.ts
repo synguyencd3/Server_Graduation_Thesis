@@ -3,7 +3,7 @@ import { User } from "../entities/User";
 import { getRepository } from "typeorm";
 const cloudinary = require("cloudinary").v2;
 import { getFileName } from "../utils/index"
-import Cache from '../config/node-cache';
+// import Cache from '../config/node-cache';
 
 interface MulterFileRequest extends Request {
     file: any; // Adjust this to match the type of your uploaded file
@@ -53,7 +53,7 @@ const userController = {
             const { password, ...others } = userDb;
 
             // set value for cache.
-            Cache.set(userId+"user", others);
+            // Cache.set(userId+"user", others);
 
             return res.json({
                 status: "success",
@@ -94,7 +94,7 @@ const userController = {
             await userRepository.save(saveProfile);
 
             // set new value for cache
-            Cache.del(userId+"user");
+            // Cache.del(userId+"user");
 
             return res.json({
                 status: "success",

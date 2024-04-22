@@ -9,14 +9,14 @@ const featureController = {
     getAllFeatures: async (req: Request, res: Response) => {
         const featureRepository = getRepository(Feature);
         // get value from cache
-        const valueCache = Cache.get("feature");
+        // const valueCache = Cache.get("feature");
 
-        if (valueCache) {
-            return res.status(200).json({
-                status: "success",
-                features: valueCache
-            });
-        }
+        // if (valueCache) {
+        //     return res.status(200).json({
+        //         status: "success",
+        //         features: valueCache
+        //     });
+        // }
         
         try {
             const features = await featureRepository.find({});
@@ -26,7 +26,7 @@ const featureController = {
                 nbHits: features.length,
             }
             // add cache
-            Cache.set("feature", featureSave)
+            // Cache.set("feature", featureSave)
 
             return res.status(200).json({
                 status: "success",
@@ -40,14 +40,14 @@ const featureController = {
         const featureRepository = getRepository(Feature);
         const { id } = req.params;
         // get value cache
-        const valueCache = Cache.get(id+"feature");
+        // const valueCache = Cache.get(id+"feature");
 
-        if (valueCache) {
-            return res.status(200).json({
-                status: "success",
-                feature: valueCache
-            });
-        }
+        // if (valueCache) {
+        //     return res.status(200).json({
+        //         status: "success",
+        //         feature: valueCache
+        //     });
+        // }
 
         try {
             const feature = await featureRepository.findOne({
@@ -58,7 +58,7 @@ const featureController = {
                 return res.status(404).json({ status: "failed", msg: `No feature with id: ${id}` });
             }
             // set value for cache
-            Cache.set(id+"feature", feature);
+            // Cache.set(id+"feature", feature);
 
             return res.status(200).json({
                 status: "success",
@@ -78,7 +78,7 @@ const featureController = {
             
             newLogs(salonId, `${req.user} created new feature - ${name}.`)
             // del old value cache
-            Cache.del("feature");
+            // Cache.del("feature");
 
             return res.status(201).json({
                 status: "success",
@@ -105,7 +105,7 @@ const featureController = {
                     feature_id: id,
                 }})
             newLogs(salonId, `${req.user} updated feature - ${result?.name}`)
-            Cache.del([id+"feature", "feature"]);
+            // Cache.del([id+"feature", "feature"]);
 
             return res.status(200).json({
                 status: "success",
@@ -126,7 +126,7 @@ const featureController = {
             }
 
             newLogs(req.body.salonId, `${req.user} deleted feature - ${feature.raw}`) // maybe erro feature.raw
-            Cache.del([id+"feature", "feature"]);
+            // Cache.del([id+"feature", "feature"]);
 
             res.status(200).json({
                 status: "success",
