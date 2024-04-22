@@ -44,21 +44,16 @@ const invoiceController = {
     },
 
     lookupInvoiceByInvoiceId: async (req: Request, res: Response) => {
-        const {salonId, invoiceId, phone, licensePlate, type} = req.body;
+        const {salonId, invoiceId, phone: phone, licensePlate, type} = req.body;
 
         try {
             const invoiceRepository = getRepository(Invoice);
-            const invoiceDb = await invoiceRepository.findOneOrFail({
+            let invoiceDb: any = await invoiceRepository.find({
                 where: {invoice_id: invoiceId, phone, licensePlate, type},
                 relations: ['seller']
             })
-
-            if (invoiceDb.seller?.salon_id !== salonId) {
-                return res.json({
-                    status: "failed",
-                    msg: "You can not look up this invoice."
-                })
-            }
+            
+            invoiceDb = invoiceDb.filter((invoice: any) => invoice?.seller?.salon_id === salonId)
 
             return res.json({
                 status: "success",
@@ -67,6 +62,7 @@ const invoiceController = {
             })
 
         } catch (error) {
+            console.log(error)
             return res.json({
                 status: "failed",
                 msg: "Error look up invoice."
