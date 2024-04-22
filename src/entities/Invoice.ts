@@ -42,6 +42,15 @@ export class Invoice {
   @Column({ nullable: true })
   carName!: string;
 
+  @Column({nullable: true})
+  limit_kilometer!: number;
+
+  @Column({nullable: true})
+  months!: number;
+
+  @Column({nullable: true})
+  policy!: string;
+
   @Column("simple-array", { nullable: true })
   maintenanceServices!: string[];
 
@@ -52,7 +61,10 @@ export class Invoice {
     create_at: Date,
     fullname: string,
     email: string,
-    phone: string
+    phone: string,
+    limit_kilometer: number,
+    months: number,
+    policy: string
   ) {
     this.type = type;
     this.expense = expense;
@@ -61,5 +73,8 @@ export class Invoice {
     this.fullname = fullname;
     this.email = email;
     this.phone = phone;
+    this.limit_kilometer = limit_kilometer;
+    this.months = months;
+    this.policy = policy;
   }
 }

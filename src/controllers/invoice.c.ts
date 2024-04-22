@@ -12,7 +12,7 @@ const invoiceController = {
             const invoiceRepository = getRepository(Invoice);
             const carRepository = getRepository(Car);
             const carDb: Car = await carRepository.findOneOrFail({
-                where: {car_id: carId},
+                where: {car_id: carId, available: true},
                 relations: ['salon', 'warranties']
             })
 
@@ -22,11 +22,17 @@ const invoiceController = {
                     msg: "Error information."
                 })
             }
+            let limit_kilometer = carDb?.warranties?.limit_kilometer;
+            let months = carDb?.warranties?.months;
+            let policy = carDb?.warranties?.policy;
 
             let saveInvoice: any = new Invoice();
             saveInvoice.seller = carDb.salon;
-            saveInvoice = {...saveInvoice, expense, note, fullname, email, phone, carName: carDb.name};
+            saveInvoice = {...saveInvoice, expense, note, fullname, email, phone, carName: carDb.name, limit_kilometer, months, policy};
             await invoiceRepository.save(saveInvoice);
+
+            // set status for car is selled.
+            await carRepository.save({...carDb, available: false});
 
             return res.json({
                 status: "success",
