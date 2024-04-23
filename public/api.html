@@ -514,7 +514,7 @@ nhất thiết phải truyền vô hết các thuộc tính trong newWarranty.} 
     Dùng để tra cứu thông tin hóa đơn. Yêu cầu là chủ salon or có quyền R_IV.Yêu cầu truyền vô: {"invoiceId", "salonId", "phone", "licensePlate", "type"}. nếu muốn tìm theo gì thì truyền vô cái đó.
     salonId là bắt buộc. licensePlate: Biển số xe. type: loại giao dịch: "buy car", "maintenance". phone: sdt khách hàng.
     <li>[POST] /invoice/all</li>
-    Xem tất cả danh sách toàn bộ hóa đơn của salon đó. Yêu cầu là chủ salon, or nhân viên có quyền R_IV. Truyền vô: {"salonId"}.
+    Xem tất cả danh sách toàn bộ hóa đơn mua xe của salon đó (Nguyên tạm sửa). Yêu cầu là chủ salon, or nhân viên có quyền R_IV. Truyền vô: {"salonId"}.
     <h3>Hóa đơn bảo dưỡng</h3>
     <li>[GET] /invoice</li>
     Nó sẽ lấy ra được thông tin tất cả các hóa đơn bảo dưỡng (xe gì, ai làm và những dịch vụ đã thực hiện) tại salon mình
