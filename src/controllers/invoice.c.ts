@@ -124,7 +124,10 @@ const invoiceController = {
                 total: MTinvoiceDb?.total + BCinvoiceDb?.total,
             })
         } catch (error) {
-            return error;
+            return res.json({
+                status: "failed",
+                msg: "error revenue statistics."
+            })
         }
     },
 
@@ -139,7 +142,10 @@ const invoiceController = {
                 purchases: purchaseDb
             })
         } catch (error) {
-            return error;
+            return res.json({
+                status: "failed",
+                msg: "error revenue statistics."
+            })
         }
     },
 
