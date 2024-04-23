@@ -568,8 +568,15 @@ nhất thiết phải truyền vô hết các thuộc tính trong newWarranty.} 
     <li>[DELETE] /maintenance/:id</li>
     Xóa dịch vụ bảo dưỡng
 
-
-
+    <h2>Thống kê doanh thu</h2>
+    <li>/invoice/statistics</li>
+    Thống kê doanh thu của salon đó. Cần có quyền R_IV or là chủ salon. Yêu cầu truyền vô: {"salonId", "fromDate": "2024-04-21"}.
+    <div>fromDate là thống kê từ ngày fromDate đến nay.</div>
+    Dữ liệu trả về: {status, "maintenances": {"invoiceDb": [{}, {}, danh sách invoice theo bảo trì], total: tổng tất cả chi phí bảo trì.},
+    "buyCars": {"invoiceDb" : [{}, {}, danh sách invoice theo mua xe], total: tổng tất cả chi phí mua xe.}, total: tổng cả 2 chi phí trên cộng lại.}
+    <li>/invoice/statistics-admin</li>
+    Thống kê doanh thu mua bán gói chức năng của hệ thống mình. yêu cầu là admin của hệ thống. Yêu cầu truyền vô: {"fromDate": "2024-04-21"}.
+    Dữ liệu trả về: {status,  "purchaseDb": {purchases: [{}, {}, danh sách các giao dịch mua gói chức năng.], total: tổng tiền của tất cả giao dịch.}.}
 
 
 

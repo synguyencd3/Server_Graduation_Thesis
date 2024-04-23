@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { Car } from "../entities/Car";
 import { getRepository } from "typeorm";
 import { Invoice, Salon } from '../entities';
+import statistics from '../helper/statistics';
 
 
 const invoiceController = {
@@ -81,14 +82,14 @@ const invoiceController = {
 
         try {
             const invoiceRepository =getRepository(Invoice);
-            let invocieDb: any = await invoiceRepository
+            let invoiceDb: any = await invoiceRepository
                 .createQueryBuilder('invoice')
                 .innerJoinAndSelect('invoice.seller', 'salon', 'salon.salon_id = :salonId', { salonId })
                 .getMany();
 
             return res.json({
                 status: "success",
-                invoices: invocieDb
+                invoices: invoiceDb
             })
         } catch (error) {
             return res.json({
@@ -96,7 +97,41 @@ const invoiceController = {
                 msg: "Error get all invoice for salon."
             })
         }
-    }
+    },
+
+    revenueStatistics: async (req: Request, res: Response) => {
+        const {salonId, fromDate} = req.body;
+
+        try {
+            const MTinvoiceDb: any = await statistics({salonId, type: "maintenance", fromDate});
+            const BCinvoiceDb: any = await statistics({salonId, type: "buy car", fromDate});
+
+            return res.json({
+                status: "success",
+                maintenances: MTinvoiceDb,
+                buyCars: BCinvoiceDb,
+                total: MTinvoiceDb?.total + BCinvoiceDb?.total,
+            })
+        } catch (error) {
+            return error;
+        }
+    },
+
+    revenueStatisticsAdmin: async (req: Request, res: Response) => {
+        const {fromDate} = req.body;
+
+        try {
+            const purchaseDb: any = await statistics({salonId: "", type: "package", fromDate});
+
+            return res.json({
+                status: "success",
+                purchases: purchaseDb
+            })
+        } catch (error) {
+            return error;
+        }
+    },
+
 }
 
 export default invoiceController;

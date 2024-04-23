@@ -28,4 +28,9 @@ router.post("/create-invoice", middlewareController.verifyToken, middlewareContr
 router.post("/lookup", middlewareController.verifyToken, middlewareController.havePermission("R_IV"), invoiceController.lookupInvoiceByInvoiceId);
 router.post("/all", middlewareController.verifyToken, middlewareController.havePermission("R_IV"), invoiceController.getAllInvoiceOfSalon);
 
+router.post("/statistics", middlewareController.verifyToken, middlewareController.havePermission("R_IV"), invoiceController.revenueStatistics);
+
+// admin
+router.post("/statistics-admin", middlewareController.verifyToken, middlewareController.isAdminTeam, invoiceController.revenueStatisticsAdmin);
+
 export default router;
