@@ -74,6 +74,12 @@ function formatDate(date: Date) {
   return formattedPublishDate;
 }
 
+function isDateInMonth(inputDate: Date, monthCompare: number) {
+  const date = new Date(inputDate);
+
+  return date.getMonth() + 1 === monthCompare;
+}
+
 export {
   generateRandomCode,
   isValidUUID,
@@ -82,4 +88,5 @@ export {
   calExpiryDate,
   extractTime,
   formatDate,
+  isDateInMonth
 };

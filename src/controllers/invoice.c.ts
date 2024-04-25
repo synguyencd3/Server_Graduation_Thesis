@@ -2,7 +2,8 @@ import { Request, Response } from "express";
 import { Car } from "../entities/Car";
 import { getRepository } from "typeorm";
 import { Invoice, Salon } from '../entities';
-import statistics from '../helper/statistics';
+import statistics, {averageEachMonth} from '../helper/statistics';
+import Year from "../utils/year";
 
 
 const invoiceController = {
@@ -40,6 +41,7 @@ const invoiceController = {
         limit_kilometer,
         months,
         policy,
+        brand: carDb.brand
       };
       await invoiceRepository.save(saveInvoice);
 
@@ -112,16 +114,21 @@ const invoiceController = {
 
     revenueStatistics: async (req: Request, res: Response) => {
         const {salonId, fromDate} = req.body;
+        let year = new Year().months;
 
         try {
-            const MTinvoiceDb: any = await statistics({salonId, type: "maintenance", fromDate});
-            const BCinvoiceDb: any = await statistics({salonId, type: "buy car", fromDate});
+            const MTinvoiceDb: any = await statistics({salonId, type: "maintenance", fromDate, year});
+            const BCinvoiceDb: any = await statistics({salonId, type: "buy car", fromDate, year});
+            const avg = averageEachMonth(year);
+
 
             return res.json({
                 status: "success",
                 maintenances: MTinvoiceDb,
                 buyCars: BCinvoiceDb,
                 total: MTinvoiceDb?.total + BCinvoiceDb?.total,
+                year,
+                avg
             })
         } catch (error) {
             return res.json({
@@ -133,13 +140,17 @@ const invoiceController = {
 
     revenueStatisticsAdmin: async (req: Request, res: Response) => {
         const {fromDate} = req.body;
-
+        let year = new Year().months;
         try {
-            const purchaseDb: any = await statistics({salonId: "", type: "package", fromDate});
+            const purchaseDb: any = await statistics({salonId: "", type: "package", fromDate, year});
+
+            const avg = averageEachMonth(year)
 
             return res.json({
                 status: "success",
-                purchases: purchaseDb
+                purchases: purchaseDb,
+                months: year,
+                avg
             })
         } catch (error) {
             return res.json({
