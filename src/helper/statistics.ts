@@ -1,4 +1,4 @@
-import { Double, MoreThan, getRepository } from "typeorm";
+import { LessThan, MoreThan, getRepository } from "typeorm";
 import { Invoice, Purchase } from '../entities';
 import { isDateInMonth } from "../utils";
 
@@ -6,13 +6,14 @@ const statistics = async ({ salonId, type, fromDate, year }: { salonId: string, 
 
     try {
         let sumExpense = 0;
+        let toDate = new Date(new Date(fromDate).getFullYear(), 11, 31);
 
         if (type != "package") {
             const invoiceRepository = getRepository(Invoice);
             let invoiceDb: any = await invoiceRepository
                 .createQueryBuilder('invoice')
                 .innerJoinAndSelect('invoice.seller', 'salon', 'salon.salon_id = :salonId', { salonId })
-                .where({ type: type, create_at: MoreThan(fromDate) })
+                .where({ type: type, create_at: MoreThan(fromDate) && LessThan(toDate) })
                 .getMany()
 
             for (let iv of invoiceDb) {
@@ -44,6 +45,7 @@ const statistics = async ({ salonId, type, fromDate, year }: { salonId: string, 
 
         return { purchases: purchaseDb, total: sumExpense };
     } catch (error) {
+        console.log(error)
         return null;
     }
 }
@@ -52,9 +54,22 @@ export const averageEachMonth = (year: any) => {
     let sum = 0;
     for (let m in year) {
         sum += year[m].total
-    } 
+    }
 
-    return sum/12;
+    return sum / 12;
+}
+
+export const getTopSeller = async ({ salonId, type, brand, fromDate }: { salonId: string, type: string, brand: string, fromDate: Date }) => {
+    let toDate = new Date(new Date(fromDate).getFullYear(), 11, 31);
+    const invoiceRepository = getRepository(Invoice);
+    let invoiceDb: any = await invoiceRepository
+        .createQueryBuilder('invoice')
+        .innerJoinAndSelect('invoice.seller', 'salon', 'salon.salon_id = :salonId', { salonId })
+        .where({ type, create_at: MoreThan(fromDate) && LessThan(toDate), brand })
+        .getMany()
+
+    
+
 }
 
 export default statistics;

@@ -160,6 +160,16 @@ const invoiceController = {
         }
     },
 
+    getTopThingBestSeller: async (req: Request, res: Response) => {
+      const {salonId, fromDate} = req.body;
+
+      try {
+        
+      } catch (error) {
+        
+      }
+    }
+
 }
 
 export default invoiceController;
