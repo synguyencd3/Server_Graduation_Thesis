@@ -6,6 +6,7 @@ const statistics = async ({ salonId, type, fromDate, year }: { salonId: string, 
 
     try {
         let sumExpense = 0;
+        console.log("From date: ", fromDate)
         let toDate = new Date(new Date(fromDate).getFullYear(), 11, 31);
 
         if (type != "package") {
