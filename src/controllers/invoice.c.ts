@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { Car } from "../entities/Car";
 import { getRepository } from "typeorm";
 import { Invoice, Salon } from '../entities';
-import statistics, {averageEachMonth} from '../helper/statistics';
+import statistics, {averageEachMonth, getTopSeller} from '../helper/statistics';
 import Year from "../utils/year";
 
 
@@ -164,9 +164,17 @@ const invoiceController = {
       const {salonId, fromDate} = req.body;
 
       try {
-        
+        const BCTopDb = await getTopSeller({salonId, type: "buy car", fromDate});
+
+        return res.json({
+          status: "success", 
+          buyCarTop: BCTopDb
+        })
       } catch (error) {
-        
+        return res.json({
+          status: "failed",
+          msg: "Error get top."
+        })
       }
     }
 

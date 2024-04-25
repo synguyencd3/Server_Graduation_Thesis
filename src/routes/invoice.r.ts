@@ -29,6 +29,7 @@ router.post("/lookup", middlewareController.verifyToken, middlewareController.ha
 router.post("/all", middlewareController.verifyToken, middlewareController.havePermission("R_IV"), invoiceController.getAllInvoiceOfSalon);
 
 router.post("/statistics", middlewareController.verifyToken, middlewareController.havePermission("R_IV"), invoiceController.revenueStatistics);
+router.post("/get-top", invoiceController.getTopThingBestSeller);
 
 // admin
 router.post("/statistics-admin", middlewareController.verifyToken, middlewareController.isAdminTeam, invoiceController.revenueStatisticsAdmin);

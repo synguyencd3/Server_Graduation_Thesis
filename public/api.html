@@ -569,7 +569,7 @@ nhất thiết phải truyền vô hết các thuộc tính trong newWarranty.} 
     Xóa dịch vụ bảo dưỡng
 
     <h2>Thống kê doanh thu</h2>
-    <li>/invoice/statistics</li>
+    <li>[POST] /invoice/statistics</li>
     Thống kê doanh thu của salon đó. Cần có quyền R_IV or là chủ salon. Yêu cầu truyền vô: {"salonId", "fromDate": "2024-04-21" kiểu string}.
     <div>fromDate là thống kê từ ngày fromDate đến nay.</div>
     Dữ liệu trả về: {status, "maintenances": {"invoiceDb": [{}, {}, danh sách invoice theo bảo trì], total: tổng tất cả chi phí bảo trì.},
@@ -585,8 +585,15 @@ nhất thiết phải truyền vô hết các thuộc tính trong newWarranty.} 
     "username": "duyanh123",
     "password": "123456".
     <div>Lưu ý: thống kê theo năm. Thay vì truyền vô là năm 2024, thì truyền vô là ngày đầu tiên của năm là "2024-01-01". Năm - tháng - ngày.</div>
-
-    <li>/invoice/statistics-admin</li>
+    <li>[POST] /invoice/get-top</li>
+    Lấy ra danh sách các thương hiệu xe bán chạy nhất. Dữ liệu đầu vào: {"salonId", "fromDate": string: năm tháng ngày: vd "2024-01-01" }
+    <div>
+        output: {"status", "buyCarTop": [{
+            "name": "Toyota",
+            "quantitySold": 10
+        }, ...]}
+    </div>
+    <li>[POST] /invoice/statistics-admin</li>
     Thống kê doanh thu mua bán gói chức năng của hệ thống mình. yêu cầu là admin của hệ thống. Yêu cầu truyền vô: {"fromDate": "2024-04-21"}.
     Dữ liệu trả về: {status,  "purchaseDb": {purchases: [{}, {}, danh sách các giao dịch mua gói chức năng.], total: tổng tiền của tất cả giao dịch.}.}
     Dữ liệu trả về có thêm: "year": {"january": {
