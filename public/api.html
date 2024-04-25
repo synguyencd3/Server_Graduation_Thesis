@@ -577,7 +577,11 @@ nhất thiết phải truyền vô hết các thuộc tính trong newWarranty.} 
     <li>/invoice/statistics-admin</li>
     Thống kê doanh thu mua bán gói chức năng của hệ thống mình. yêu cầu là admin của hệ thống. Yêu cầu truyền vô: {"fromDate": "2024-04-21"}.
     Dữ liệu trả về: {status,  "purchaseDb": {purchases: [{}, {}, danh sách các giao dịch mua gói chức năng.], total: tổng tiền của tất cả giao dịch.}.}
-
+    Dữ liệu trả về có thêm: "year": {"january": {
+        "value": 1,
+        "total": 0
+    }, ... tháng 1 đến tháng 12}. Giá trị total là tổng theo từng tháng. còn value không cần quan tâm cũng được.; 
+    "avg": 840918.1666666666  Đây là giá trị trung bình cho mỗi tháng (tổng / 12).
 
 
 
