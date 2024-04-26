@@ -31,11 +31,14 @@ const statistics = async ({ salonId, type, fromDate, year }: { salonId: string, 
         }
 
         const purchaseRepository = getRepository(Purchase);
-        const purchaseDb: any = await purchaseRepository.find({
-            where: { purchaseDate: MoreThan(fromDate) }
+        let purchaseDb: any = await purchaseRepository.find({
+            where: { purchaseDate: MoreThan(fromDate) },
+            relations: ['user', 'package']
         })
         for (let pc of purchaseDb) {
             sumExpense += Number(pc?.total);
+            // DELET infor user
+            pc.user = { fullname: pc?.user?.fullname, phone: pc?.user?.phone, email: pc?.user?.email }
             // sum to each month
             for (let m in year) {
                 if (isDateInMonth(pc?.purchaseDate, year[m].value)) {
