@@ -605,12 +605,14 @@ nhất thiết phải truyền vô hết các thuộc tính trong newWarranty.} 
     "password": "123456".
     <div>Lưu ý: thống kê theo năm. Thay vì truyền vô là năm 2024, thì truyền vô là ngày đầu tiên của năm là "2024-01-01". Năm - tháng - ngày.</div>
     <li>[POST] /invoice/get-top</li>
-    Lấy ra danh sách các thương hiệu xe bán chạy nhất. Dữ liệu đầu vào: {"salonId", "fromDate": string: năm tháng ngày: vd "2024-01-01" }
+    Lấy ra danh sách các loại xe ô tô bán chạy nhất. Dữ liệu đầu vào: {"salonId", "fromDate": string: năm tháng ngày: vd "2024-01-01" }
     <div>
         output: {"status", "buyCarTop": [{
             "name": "Toyota",
             "quantitySold": 10
         }, ...]}
+        đồng thời cũng có top các gói bảo dưỡng được sử dụng nhiều nhất. Danh sách trả về trong ouput ngang cấp với buyCarTop là:
+        "MTTopDb": [{"name": {thông tin gói bảo dưỡng}, "quantitySold": số lượt gói đó được bán}]
     </div>
     <li>[POST] /invoice/statistics-admin</li>
     Thống kê doanh thu mua bán gói chức năng của hệ thống mình. yêu cầu là admin của hệ thống. Yêu cầu truyền vô: {"fromDate": "2024-04-21"}.

@@ -66,71 +66,58 @@ export const averageEachMonth = (year: any) => {
 export const getTopSeller = async ({ salonId, type, fromDate }: { salonId: string, type: string, fromDate: Date }) => {
     let toDate = new Date(new Date(fromDate).getFullYear(), 11, 31);
     const invoiceRepository = getRepository(Invoice);
+    let rs: any = new Map<string, number>();
+    let rs2: any = [];
 
-    if (type === "buy car") {
-        try {
+    try {
+
+
+        if (type === "buy car") {
             let invoiceDb: any = await invoiceRepository
                 .createQueryBuilder('invoice')
                 .innerJoinAndSelect('invoice.seller', 'salon', 'salon.salon_id = :salonId', { salonId })
-                .select('invoice.carName, COUNT(*) AS count')
                 .where({ type, create_at: MoreThan(fromDate) && LessThan(toDate) })
+                .select('invoice.carName, COUNT(*) AS count')
                 .groupBy('invoice.carName')
                 .addGroupBy('invoice.invoice_id')
                 .addGroupBy('salon.salon_id')
                 .getRawMany();
 
-            let rs: any = {};
-
-            for (const iv of invoiceDb) {
-                if (!rs[iv.carName]) {
-                    rs[iv.carName] = Number(iv.count);
-                } else {
-                    rs[iv.carName] += Number(iv.count);
-                }
+            for (let iv of invoiceDb) {
+                rs.set(iv?.carName, rs.has(iv?.carName) ? rs.get(iv?.carName) + Number(iv?.count) : Number(iv?.count));
             }
 
-            let rs2: any = [];
-            for (const key in rs) {
-                const data = { name: key, quantitySold: rs[key] }
-                rs2.push(data)
+            for (const [item, count] of rs) {
+                const data = { name: item, quantitySold: count };
+                rs2.push(data);
             }
 
-            return quickSort(rs2);
-        } catch (error) {
-            console.log(error)
-            return null;
-        }
-    } else {
-        // type is maintanence
-        try {
-            const invoiceDb = await invoiceRepository
-            .createQueryBuilder('invoice')
-            .innerJoinAndSelect('invoice.seller', 'salon', 'salon.salon_id = :salonId', { salonId })
-            .where({ type, create_at: MoreThan(fromDate) && LessThan(toDate) })
-            .getMany();
+        } else if (type === "maintenance") {
+            let invoiceDb: any = await invoiceRepository
+                .createQueryBuilder('invoice')
+                .innerJoinAndSelect('invoice.seller', 'salon', 'salon.salon_id = :salonId', { salonId })
+                .where({ type, create_at: MoreThan(fromDate) && LessThan(toDate) })
+                .getMany();
 
-            let rs: any = new Map<string, number>();
             for (let iv of invoiceDb) {
                 for (let e of iv?.maintenanceServices) {
                     rs.set(e, rs.has(e) ? rs.get(e) + 1 : 1);
                 }
             }
 
-            let dataReturn: any = [];
-
             for (const [item, count] of rs) {
                 const inforMTDB = await getInforMaintenance(item);
-                const data = { maintenance: inforMTDB, quantitySold: count };
-                dataReturn.push(data);
+                const data = { name: inforMTDB, quantitySold: count };
+                rs2.push(data);
             }
-
-            return quickSort(dataReturn);
-            // return dataReturn;
-        } catch (error) {
-            return null;
         }
-    }
 
+        return quickSort(rs2);
+
+    } catch (error) {
+        console.log(error)
+        return null;
+    }
 }
 
 function quickSort(arr: any): any {
@@ -159,10 +146,10 @@ function quickSort(arr: any): any {
 
 const getInforMaintenance = async (key: string) => {
     const MTRepository = getRepository(Maintenance);
-    
+
     try {
         return await MTRepository.findOneOrFail({
-            where: {maintenance_id: key}
+            where: { maintenance_id: key }
         })
     } catch (error) {
         return null;
