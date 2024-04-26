@@ -183,7 +183,7 @@ const carController = {
         const carRepository = getRepository(Car);
         const { name, description, origin, price, brand, 
             model, type, capacity, door, seat, kilometer,
-            gear, mfg, inColor, outColor, salonSalonId} = req.body;
+            gear, mfg, inColor, outColor, salonSalonId, available} = req.body;
             console.log("Name car: ", name);
 
         let image = [""], filename = [""]
@@ -205,7 +205,7 @@ const carController = {
 
             const newCar = { name, description, origin, price, brand, 
             model, type, capacity, door, seat, kilometer,
-            gear, mfg, inColor, outColor, salon: { salon_id: salonSalonId }, image };
+            gear, mfg, inColor, outColor, salon: { salon_id: salonSalonId }, image, available };
             const savedCar = await carRepository.save(newCar);
 
             newLogs(salonSalonId, `${req.user} created car ${savedCar.car_id}.`)
