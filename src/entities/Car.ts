@@ -82,8 +82,8 @@ export class Car {
   @Column({ type: "text", array: true, nullable: true })
   image!: string[];
 
-  @Column({default: true})
-  available!: boolean;
+  @Column({default: 1})
+  available!: number;
 
   @ManyToOne(() => Salon, (salon) => salon.cars)
   salon!: Salon;
@@ -110,7 +110,8 @@ export class Car {
     inColor: string,
     outColor: string,
     image: string[],
-    salon: Salon
+    salon: Salon,
+    available: number
   ) {
     this.name = name;
     this.description = description;
@@ -129,5 +130,6 @@ export class Car {
     this.outColor = outColor;
     this.image = image;
     this.salon = salon;
+    this.available = available;
   }
 }

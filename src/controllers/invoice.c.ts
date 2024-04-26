@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { Car } from "../entities/Car";
-import { getRepository } from "typeorm";
+import { MoreThan, getRepository } from "typeorm";
 import { Invoice, Salon } from '../entities';
 import statistics, {averageEachMonth, getTopSeller} from '../helper/statistics';
 import Year from "../utils/year";
@@ -14,7 +14,7 @@ const invoiceController = {
       const invoiceRepository = getRepository(Invoice);
       const carRepository = getRepository(Car);
       const carDb: Car = await carRepository.findOneOrFail({
-        where: { car_id: carId, available: true },
+        where: { car_id: carId, available: MoreThan(0) },
         relations: ["salon", "warranties"],
       });
 
@@ -45,7 +45,7 @@ const invoiceController = {
       await invoiceRepository.save(saveInvoice);
 
       // set status for car is selled.
-      await carRepository.save({ ...carDb, available: false });
+      await carRepository.save({ ...carDb, available: Number(carDb.available) - 1 });
 
       return res.json({
         status: "success",
