@@ -42,17 +42,20 @@ export class Invoice {
   @Column({ nullable: true })
   carName!: string;
 
-  @Column({nullable: true})
+  @Column({ nullable: true })
   limit_kilometer!: number;
 
-  @Column({nullable: true})
+  @Column({ nullable: true })
   months!: number;
 
-  @Column({nullable: true})
+  @Column({ nullable: true })
   policy!: string;
 
   @Column("simple-array", { nullable: true })
   maintenanceServices!: string[];
+
+  @Column("simple-array", { nullable: true })
+  accessories!: string[];
 
   init(
     type: string,
@@ -65,6 +68,8 @@ export class Invoice {
     limit_kilometer: number,
     months: number,
     policy: string,
+    maintenanceServices: string[],
+    accessories: string[]
   ) {
     this.type = type;
     this.expense = expense;
@@ -76,5 +81,7 @@ export class Invoice {
     this.limit_kilometer = limit_kilometer;
     this.months = months;
     this.policy = policy;
+    this.maintenanceServices = maintenanceServices;
+    this.accessories = accessories;
   }
 }

@@ -517,10 +517,13 @@ nhất thiết phải truyền vô hết các thuộc tính trong newWarranty.} 
     Xem tất cả danh sách toàn bộ hóa đơn mua xe của salon đó (Nguyên tạm sửa). Yêu cầu là chủ salon, or nhân viên có quyền R_IV. Truyền vô: {"salonId"}.
     <h3>Hóa đơn bảo dưỡng</h3>
     <li>[GET] /invoice</li>
-    Nó sẽ lấy ra được thông tin tất cả các hóa đơn bảo dưỡng (xe gì, ai làm và những dịch vụ đã thực hiện) tại salon mình
+    Nó sẽ lấy ra được thông tin tất cả các hóa đơn bảo dưỡng (xe gì, ai làm và những dịch vụ đã thực hiện, những phụ tùng đã dùng để sửa chữa) tại salon mình (Đối với chủ salon)
+    <div>
+        Còn nếu là khách hàng muốn xem lịch sử thì nó sẽ lấy được theo số điện thoại trên hóa đơn và số điện thoại của nó trong ứng dụng (Có gì tụi ông nhớ cập nhật số điện thoại của chính nó thì mới lấy được lịch sử nha)
+    </div>
     <li>[GET] /invoice:/id</li>
     Lấy ra thông tin chi tiết của hóa đơn BẢO DƯỠNG
-    <li>[GET] /invoice:/by-license/:licensePlate</li>
+    <li>[GET] /invoice/by-license/:licensePlate</li>
     Truyền vào biển số xe.
     Sẽ lấy ra được thông tin tất cả về dịch vụ bảo dưỡng mà xe đó đã từng thực hiện tại salon của mình (chủ salon)
     <li>[POST] /invoice</li>
@@ -531,16 +534,20 @@ nhất thiết phải truyền vô hết các thuộc tính trong newWarranty.} 
         "carName": "Toyota Corolla",
         "services": [
             { "maintenance_id": "a3f3df0c-a41a-4c65-9161-e9c9d64ec312", "quantity": 2 },
-            { "maintenance_id": "c2e17c7d-b911-4563-a550-30e505774d00", "quantity": 1 }
+            { "maintenance_id": "c2e17c7d-b911-4563-a550-30e505774d00" }
+        ],
+        "accessories": [
+            { "accessory_id": "7d2ba301-fb8c-4bec-aee1-fb36cead3288" }
         ],
         "note": "Regular maintenance",
-        "fullname": "Nguyen",
+        "fullname": "Nguyen12345",
         "email": "nguyen123@gmail.com",
         "phone": "0123456789"
     }
     </pre>
+    Nếu không truyền quantity vào thì mặc định nó sẽ là 1
     <li>[PATCH] /invoice/:id</li>
-    Dùng để cập nhật hóa đơn bảo dưỡng. Có thể cập nhật {licensePlate, carName, services, note}. Muốn cập nhật trường nào thì truyền vào trường đó. Ví dụ:
+    Dùng để cập nhật hóa đơn bảo dưỡng. Có thể cập nhật {licensePlate, carName, services, accessories, note, fullname, email, phone}. Muốn cập nhật trường nào thì truyền vào trường đó. Ví dụ:
     <pre>
     {
         "licensePlate": "test",
@@ -567,6 +574,18 @@ nhất thiết phải truyền vô hết các thuộc tính trong newWarranty.} 
     Dùng để cập nhật dịch vụ bảo dưỡng. Có thể cập nhật {name, description, cost}. Muốn cập nhật trường nào thì truyền vào trường đó
     <li>[DELETE] /maintenance/:id</li>
     Xóa dịch vụ bảo dưỡng
+
+    <h2> Phụ tùng </h2>
+    <li>[GET] /accessory/salon/:salonId</li>
+    Sẽ lấy ra được tất cả các thông tin phụ tụng vật liệu (bao gồm id, tên, nhà sản xuất, giá) của salon đó
+    <li>[GET] /accessory/:id</li>
+    Lấy ra thông tin chi tiết của phụ tùng
+    <li>[POST] /accessory</li>
+    Dùng cho chủ salon thêm một phụ tùng mới (tạm thời là chủ làm). Các thông tin cần truyền vào bao gồm: {name, manufacturer, price}
+    <li>[PATCH] /accessory/:id</li>
+    Dùng để cập nhật phụ tùng. Có thể cập nhật {name, manufacturer, price}. Muốn cập nhật trường nào thì truyền vào trường đó
+    <li>[DELETE] /accessory/:id</li>
+    Xóa phụ tùng
 
     <h2>Thống kê doanh thu</h2>
     <li>[POST] /invoice/statistics</li>

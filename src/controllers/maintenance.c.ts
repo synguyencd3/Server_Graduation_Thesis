@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { Maintenance } from "../entities/Maintenance";
-import { User } from "../entities/User";
 import { getRepository } from "typeorm";
+import { getUserInfo } from "../helper/mInvoice";
 
 const maintenanceController = {
   getAllMaintenances: async (req: Request, res: Response) => {
@@ -12,7 +12,7 @@ const maintenanceController = {
         relations: ["salon"],
       });
 
-      const maintenanceSave = {
+      const maintenanceFormat = {
         maintenances: maintenances.map((maintenance) => ({
           maintenance_id: maintenance.maintenance_id,
           name: maintenance.name,
@@ -28,7 +28,7 @@ const maintenanceController = {
 
       return res.status(200).json({
         status: "success",
-        maintenances: maintenanceSave,
+        maintenances: maintenanceFormat,
       });
     } catch (error) {
       return res
@@ -102,7 +102,6 @@ const maintenanceController = {
     const userId: any = req.headers["userId"] || "";
     const mRepository = getRepository(Maintenance);
     const { name, description, cost } = req.body;
-    let salonId = "";
 
     if (cost < 0) {
       return res.status(400).json({
@@ -111,18 +110,16 @@ const maintenanceController = {
       });
     }
 
-    const user = await getRepository(User).findOne({
-      where: { user_id: userId },
-      relations: ["salonId"],
-    });
+    const user = await getUserInfo(userId);
 
-    if (user?.salonId) salonId = user.salonId.salon_id;
-    else {
+    if (!user?.salonId) {
       return res.status(403).json({
         status: "failed",
         msg: "You do not have sufficient permissions",
       });
     }
+
+    const salonId = user.salonId.salon_id;
 
     try {
       const newMaintenance = {

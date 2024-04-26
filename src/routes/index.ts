@@ -16,6 +16,7 @@ import adminRouter from "./admin";
 import maintenanceRouter from "./maintenance.r";
 import warrantyRouter from "./warranty.r";
 import invoiceRouter from "./invoice.r";
+import accessoryRouter from "./accessory.r";
 
 function router(app: Express) {
   app.use("/auth", authRouter);
@@ -35,6 +36,7 @@ function router(app: Express) {
   app.use("/maintenance", maintenanceRouter);
   app.use("/warranty", warrantyRouter);
   app.use("/invoice", invoiceRouter);
+  app.use("/accessory", accessoryRouter);
 }
 
 export default router;
