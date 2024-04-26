@@ -50,9 +50,6 @@ export class Invoice {
 
   @Column({nullable: true})
   policy!: string;
-  
-  @Column({nullable: true})
-  brand!: string;
 
   @Column("simple-array", { nullable: true })
   maintenanceServices!: string[];
@@ -68,7 +65,6 @@ export class Invoice {
     limit_kilometer: number,
     months: number,
     policy: string,
-    brand: string
   ) {
     this.type = type;
     this.expense = expense;
@@ -80,6 +76,5 @@ export class Invoice {
     this.limit_kilometer = limit_kilometer;
     this.months = months;
     this.policy = policy;
-    this.brand = brand;
   }
 }

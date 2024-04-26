@@ -40,8 +40,7 @@ const invoiceController = {
         carName: carDb.name,
         limit_kilometer,
         months,
-        policy,
-        brand: carDb.brand
+        policy
       };
       await invoiceRepository.save(saveInvoice);
 

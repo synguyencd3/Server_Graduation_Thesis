@@ -68,9 +68,9 @@ export const getTopSeller = async ({ salonId, type, fromDate }: { salonId: strin
         let invoiceDb: any = await invoiceRepository
             .createQueryBuilder('invoice')
             .innerJoinAndSelect('invoice.seller', 'salon', 'salon.salon_id = :salonId', { salonId })
-            .select('invoice.brand, COUNT(*) AS count')
+            .select('invoice.carName, COUNT(*) AS count')
             .where({ type, create_at: MoreThan(fromDate) && LessThan(toDate) })
-            .groupBy('invoice.brand')
+            .groupBy('invoice.carName')
             .addGroupBy('invoice.invoice_id')
             .addGroupBy('salon.salon_id')
             .getRawMany();
@@ -78,10 +78,10 @@ export const getTopSeller = async ({ salonId, type, fromDate }: { salonId: strin
         let rs: any = {};
 
         for (const iv of invoiceDb) {
-            if (!rs[iv.brand]) {
-                rs[iv.brand] = Number(iv.count);
+            if (!rs[iv.carName]) {
+                rs[iv.carName] = Number(iv.count);
             } else {
-                rs[iv.brand] += Number(iv.count);
+                rs[iv.carName] += Number(iv.count);
             }
         }
 
